@@ -11,5 +11,6 @@ Sample (debug) output line
 ==========================
 a/g:	0.70	0.46	0.59	-174	117	13	mag:	-108	-384	-530	heading:	215.92	T/P/A	21.30	96817.00	382.27
 display.println("abcdefghijklmnopqrstu");
+display.println("123456789012345678901");
 display.println("a:  +0.70 +0.46 +0.59");
 display.println("H: 215 T: 21.3");

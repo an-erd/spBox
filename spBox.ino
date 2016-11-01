@@ -1,5 +1,5 @@
 // The code makes use of I2Cdevlib (http://www.i2cdevlib.com/). All the thanks to the team for providing that great work!
-
+#include <stdlib.h>
 #include "Wire.h"
 #include "I2Cdev.h"
 #include "MPU6050.h"
@@ -59,57 +59,60 @@ void setup() {
   
   display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
   display.clearDisplay();
+  display.setTextSize(1);
+  display.setTextColor(WHITE);
   display.display();
   
   accelgyro.setI2CMasterModeEnabled(false);
   accelgyro.setI2CBypassEnabled(true) ;
   accelgyro.setSleepEnabled(false);
 
-   // initialize device
-   Serial.println("Initializing I2C devices...");
-   accelgyro.initialize();
-   Serial.println(accelgyro.testConnection() ? "MPU6050 connection successful" : "MPU6050 connection failed");
-   mag.initialize();
-   Serial.println(mag.testConnection() ? "HMC5883L connection successful" : "HMC5883L connection failed");
-   barometer.initialize();
-   Serial.println(barometer.testConnection() ? "BMP180 connection successful" : "BMP180 connection failed");
+  // initialize device
+  Serial.println("Initializing I2C devices...");
+  accelgyro.initialize();
+  Serial.println(accelgyro.testConnection() ? "MPU6050 connection successful" : "MPU6050 connection failed");
+  mag.initialize();
+  Serial.println(mag.testConnection() ? "HMC5883L connection successful" : "HMC5883L connection failed");
+  barometer.initialize();
+  Serial.println(barometer.testConnection() ? "BMP180 connection successful" : "BMP180 connection failed");
 
-   Serial.println("... initializing done.");
+  Serial.println("... initializing done.");
 }
 
 void loop() {
+  char displaybuffer[4][21];  // 4 lines with 21 chars each
+  char tempbuffer[3][15];     // temp for float to str conversion
    
-   accelgyro.getMotion6(&ax, &ay, &az, &gx, &gy, &gz);
-   mag.getHeading(&mx, &my, &mz);
+  accelgyro.getMotion6(&ax, &ay, &az, &gx, &gy, &gz);
+  mag.getHeading(&mx, &my, &mz);
 
-   // request temperature
-   barometer.setControl(BMP085_MODE_TEMPERATURE);
+  // request temperature
+  barometer.setControl(BMP085_MODE_TEMPERATURE);
     
-   // wait appropriate time for conversion (4.5ms delay)
-   lastMicros = micros();
-   while (micros() - lastMicros < barometer.getMeasureDelayMicroseconds());
+  // wait appropriate time for conversion (4.5ms delay)
+  lastMicros = micros();
+  while (micros() - lastMicros < barometer.getMeasureDelayMicroseconds());
 
-   // read calibrated temperature value in degrees Celsius
-   temperature = barometer.getTemperatureC();
+  // read calibrated temperature value in degrees Celsius
+  temperature = barometer.getTemperatureC();
 
-   // request pressure (3x oversampling mode, high detail, 23.5ms delay)
-   barometer.setControl(BMP085_MODE_PRESSURE_3);
-   while (micros() - lastMicros < barometer.getMeasureDelayMicroseconds());
+  // request pressure (3x oversampling mode, high detail, 23.5ms delay)
+  barometer.setControl(BMP085_MODE_PRESSURE_3);
+  while (micros() - lastMicros < barometer.getMeasureDelayMicroseconds());
 
-   // read calibrated pressure value in Pascals (Pa)
-   pressure = barometer.getPressure();
+  // read calibrated pressure value in Pascals (Pa)
+  pressure = barometer.getPressure();
 
-   // calculate absolute altitude in meters based on known pressure
-   // (may pass a second "sea level pressure" parameter here,
-   // otherwise uses the standard value of 101325 Pa)
-   altitude = barometer.getAltitude(pressure);
+  // calculate absolute altitude in meters based on known pressure
+  // (may pass a second "sea level pressure" parameter here,
+  // otherwise uses the standard value of 101325 Pa)
+  altitude = barometer.getAltitude(pressure);
 
   ax_f = ax / 16384.0;
   ay_f = ay / 16384.0;
   az_f = az / 16384.0;
 
-  
-   // display tab-separated accel/gyro x/y/z values
+  // display tab-separated accel/gyro x/y/z values
    Serial.print("a/g:\t");
    Serial.print(ax_f); Serial.print("\t");
    Serial.print(ay_f); Serial.print("\t");
@@ -127,8 +130,9 @@ void loop() {
    float heading = atan2(my, mz);
    if(heading < 0)
      heading += 2 * M_PI;
+   heading *= 180/M_PI;
    Serial.print("heading:\t");
-   Serial.print(heading * 180/M_PI); Serial.print("\t");
+   Serial.print(heading); Serial.print("\t");
 
    // display measured values if appropriate
    Serial.print("T/P/A\t");
@@ -136,4 +140,35 @@ void loop() {
    Serial.print(pressure); Serial.print("\t");
    Serial.print(altitude);
    Serial.println("");
+
+  dtostrf(ax_f, 4, 2, tempbuffer[0]);   // -x.x
+  dtostrf(ay_f, 4, 2, tempbuffer[1]);   // -x.x
+  dtostrf(az_f, 4, 2, tempbuffer[2]);   // -x.x
+  snprintf(displaybuffer[0], 21, "A %s %s %s", tempbuffer[0], tempbuffer[1], tempbuffer[2]);
+  
+  snprintf(displaybuffer[1], 21, "G: %+4d %+4d %+4d", gx, gy, gz);
+
+  dtostrf(heading, 3, 0, tempbuffer[0]);   // xxx
+  snprintf(displaybuffer[2], 21, "H: %s", tempbuffer[0]);
+
+  dtostrf(temperature, 5, 2, tempbuffer[0]);   // -xx.x  
+  dtostrf(pressure, 5, 2, tempbuffer[1]);   // -xx.x  
+  snprintf(displaybuffer[3], 21, "T: %s, P: %s", tempbuffer[0], tempbuffer[1]);
+
+//   Serial.println(displaybuffer[0]);
+//   Serial.println(displaybuffer[1]);
+//   Serial.println(displaybuffer[2]);
+//   Serial.println(displaybuffer[3]);
+
+  display.clearDisplay();
+  display.setCursor(0,0);
+  display.println(displaybuffer[0]);
+//  display.println(displaybuffer[1]);
+//  display.println(displaybuffer[2]);
+//  display.println(displaybuffer[3]);
+  delay(10);
+  yield();
+  display.display();
+
+  delay(100);  
 }
