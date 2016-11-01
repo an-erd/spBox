@@ -5,11 +5,15 @@
 #include "MPU6050.h"
 #include "HMC5883L.h"
 #include "BMP085.h"
+#include <Adafruit_GFX.h>
+#include <Adafruit_SSD1306.h>
 
-MPU6050 accelgyro;
-HMC5883L mag;
-BMP085 barometer;
+MPU6050           accelgyro;
+HMC5883L          mag;
+BMP085            barometer;
+Adafruit_SSD1306  display = Adafruit_SSD1306();
 
+// store accel and gyro values from MPU6050, and accel using unit "g"(float) 
 int16_t ax, ay, az;
 int16_t gx, gy, gz;
 int16_t mx, my, mz;
@@ -20,14 +24,46 @@ float   pressure;
 float   altitude;
 int32_t lastMicros;
 
-void setup() {
- 
-   Wire.begin();
-   accelgyro.setI2CMasterModeEnabled(false);
-   accelgyro.setI2CBypassEnabled(true) ;
-   accelgyro.setSleepEnabled(false);
+#if defined(ESP8266)
+  #define BUTTON_A 0
+  #define BUTTON_B 16
+  #define BUTTON_C 2
+  #define LED      0
+#elif defined(ARDUINO_STM32F2_FEATHER)
+  #define BUTTON_A PA15
+  #define BUTTON_B PC7
+  #define BUTTON_C PC5
+  #define LED PB5
+#else
+  #define BUTTON_A 9
+  #define BUTTON_B 6
+  #define BUTTON_C 5
+  #define LED      13
+#endif
 
-   Serial.begin(9600);
+#if (SSD1306_LCDHEIGHT != 32)
+#error("Height incorrect, please fix Adafruit_SSD1306.h!");
+#endif
+
+void setup() {
+#if !defined(ESP8266)
+  while (!Serial) delay(1);
+#endif
+
+  Serial.begin(9600);
+  Wire.begin();
+
+  pinMode(BUTTON_A, INPUT_PULLUP);
+  pinMode(BUTTON_B, INPUT_PULLUP);
+  pinMode(BUTTON_C, INPUT_PULLUP);
+  
+  display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
+  display.clearDisplay();
+  display.display();
+  
+  accelgyro.setI2CMasterModeEnabled(false);
+  accelgyro.setI2CBypassEnabled(true) ;
+  accelgyro.setSleepEnabled(false);
 
    // initialize device
    Serial.println("Initializing I2C devices...");
