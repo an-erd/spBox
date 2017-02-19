@@ -61,6 +61,13 @@ volatile uint8_t int0history = 0;
 volatile uint8_t int1history = 0;
 
 
+// example 2 -------------
+volatile unsigned int encoder0Pos = 0;
+unsigned int tmp = 0;
+unsigned int Aold = 0;
+unsigned int Bnew = 0; 
+
+
 
 
 // = dtostre() function experimental ============================
@@ -186,6 +193,7 @@ void setup() {
 }
 
 
+/* interrupt rot enc example 1
 void int0() {
 	if (micros() - int0time < threshold)
 		return;
@@ -209,6 +217,19 @@ void int1() {
 		return;
 	int1time = micros();
 }
+*/
+
+/* interrupt rot enc example 2 */
+void int0() {
+	Bnew^Aold ? encoder0Pos++ : encoder0Pos--;
+	Aold = digitalRead(encoder0PinA);
+}
+// Interrupt on B changing state
+void int1() {
+	Bnew = digitalRead(encoder0PinB);
+	Bnew^Aold ? encoder0Pos++ : encoder0Pos--;
+}
+
 
 
 
@@ -217,6 +238,7 @@ void loop() {
   char tempbuffer[3][15];     // temp for float to str conversion
   long actualRotaryTicks; 
 
+  /*
   accelgyro.getMotion6(&ax, &ay, &az, &gx, &gy, &gz);
   mag.getHeading(&mx, &my, &mz);
 
@@ -273,12 +295,15 @@ void loop() {
   Serial.print(temperature); Serial.print("\t");
   Serial.print(pressure); Serial.print("\t");
   Serial.print(altitude);
+  */ 
 
-  actualRotaryTicks = (rotaryHalfSteps / 2);
   Serial.print("Rot.enc\t");
-  Serial.print(actualRotaryTicks);
+  //actualRotaryTicks = (rotaryHalfSteps / 2);
+  //Serial.print(actualRotaryTicks);
+  Serial.print(encoder0Pos);
   Serial.println("");
 
+  /*
   dtostrf_sign(ax_f, 4, 2, tempbuffer[0]);   // -x.x
   dtostrf_sign(ay_f, 4, 2, tempbuffer[1]);   // -x.x
   dtostrf_sign(az_f, 4, 2, tempbuffer[2]);   // -x.x
@@ -307,6 +332,6 @@ void loop() {
   delay(10);
   yield();
   display.display();
-
+  */
   delay(100);
 }

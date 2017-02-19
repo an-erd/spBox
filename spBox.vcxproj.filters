@@ -17,6 +17,7 @@
   <ItemGroup>
     <None Include="spBox.ino" />
     <None Include="README.md" />
+    <None Include="..\rot_enc_test\rot_enc_test.ino" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="__vm\.spBox.vsarduino.h">

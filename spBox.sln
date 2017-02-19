@@ -7,6 +7,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "spBox", "spBox.vcxproj", "{
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "button_test", "..\button_test\button_test.vcxproj", "{49B4C0A7-2142-42F2-8D9E-FEDB7E3F89E8}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "rot_enc_test", "..\rot_enc_test\rot_enc_test.vcxproj", "{E9B5C197-1238-4329-B99E-4C4905ACE8B6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -21,6 +23,10 @@ Global
 		{49B4C0A7-2142-42F2-8D9E-FEDB7E3F89E8}.Debug|x86.Build.0 = Debug|Win32
 		{49B4C0A7-2142-42F2-8D9E-FEDB7E3F89E8}.Release|x86.ActiveCfg = Release|Win32
 		{49B4C0A7-2142-42F2-8D9E-FEDB7E3F89E8}.Release|x86.Build.0 = Release|Win32
+		{E9B5C197-1238-4329-B99E-4C4905ACE8B6}.Debug|x86.ActiveCfg = Debug|Win32
+		{E9B5C197-1238-4329-B99E-4C4905ACE8B6}.Debug|x86.Build.0 = Debug|Win32
+		{E9B5C197-1238-4329-B99E-4C4905ACE8B6}.Release|x86.ActiveCfg = Release|Win32
+		{E9B5C197-1238-4329-B99E-4C4905ACE8B6}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
