@@ -286,27 +286,23 @@ void loop() {
   dtostrf_sign(ay_f, 4, 2, tempbuffer[1]);   // -x.x
   dtostrf_sign(az_f, 4, 2, tempbuffer[2]);   // -x.x
   snprintf(displaybuffer[0], 21, "A %s %s %s", tempbuffer[0], tempbuffer[1], tempbuffer[2]);
-
+  
   snprintf(displaybuffer[1], 21, "G: %+4d %+4d %+4d", gx, gy, gz);
 
   dtostrf(heading, 3, 0, tempbuffer[0]);   // xxx
-  snprintf(displaybuffer[2], 21, "H: %s", tempbuffer[0]);
+  dtostrf(temperature, 5, 2, tempbuffer[1]);   // -xx.x
+  snprintf(displaybuffer[2], 21, "H: %s, T: %s", tempbuffer[0], tempbuffer[1]);
 
-  dtostrf(temperature, 5, 2, tempbuffer[0]);   // -xx.x
-  dtostrf(pressure, 5, 2, tempbuffer[1]);   // -xx.x
-  snprintf(displaybuffer[3], 21, "T: %s, P: %s", tempbuffer[0], tempbuffer[1]);
-
-  //   Serial.println(displaybuffer[0]);
-  //   Serial.println(displaybuffer[1]);
-  //   Serial.println(displaybuffer[2]);
-  //   Serial.println(displaybuffer[3]);
+  dtostrf(altitude, 4, 0, tempbuffer[0]);   // xxxx
+  dtostrf(pressure/100.0, 4, 0, tempbuffer[1]);   // xxxx
+  snprintf(displaybuffer[3], 21, "Alt: %s, P: %s", tempbuffer[0], tempbuffer[1]);
 
   display.clearDisplay();
   display.setCursor(0, 0);
   display.println(displaybuffer[0]);
   //  display.println(displaybuffer[1]);
   display.println(displaybuffer[2]);
-  //  display.println(displaybuffer[3]);
+  display.println(displaybuffer[3]);
   delay(10);
   yield();
   display.display();
