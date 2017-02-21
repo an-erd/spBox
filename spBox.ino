@@ -1,4 +1,11 @@
+// I2Cdevlib:
 // The code makes use of I2Cdevlib (http://www.i2cdevlib.com/). All the thanks to the team for providing that great work!
+//
+// Rotary Encoder (in particular the debouncing stuff):
+// The code for the rotary encoder has been copied from http://playground.arduino.cc/Main/RotaryEncoders, 
+// Int0 & Int1 example using bitRead() with debounce handling and true Rotary Encoder pulse tracking, J.Carter(of Earth)
+// 
+
 #include <stdlib.h>
 #include "Wire.h"
 #include "I2Cdev.h"
@@ -45,30 +52,17 @@ int32_t lastMicros;
 #error("Height incorrect, please fix Adafruit_SSD1306.h!");
 #endif
 
-// rotary encoder PINs
+// rotary encoder 
 #define encoder0PinA	12 
 #define encoder0PinB	14
-
-// store encoder values
-volatile unsigned long threshold = 10000;
-volatile long rotaryHalfSteps = 0;
-// Working variables for the interrupt routines
+const unsigned long threshold = 7;	// debounce threshold in milliseconds (1,000 microseconds = 1 millisecond, 1,000 millisecond = 1 sec)
 volatile unsigned long int0time = 0;
 volatile unsigned long int1time = 0;
 volatile uint8_t int0signal = 0;
-volatile uint8_t int1signal = 0;
 volatile uint8_t int0history = 0;
+volatile uint8_t int1signal = 0;
 volatile uint8_t int1history = 0;
-
-
-// example 2 -------------
-volatile unsigned int encoder0Pos = 0;
-unsigned int tmp = 0;
-unsigned int Aold = 0;
-unsigned int Bnew = 0; 
-
-
-
+volatile long rotaryHalfSteps = 0;
 
 // = dtostre() function experimental ============================
 char * dtostrf_sign(double number, signed char width, unsigned char prec, char *s) {
@@ -151,6 +145,31 @@ char * dtostrf_sign(double number, signed char width, unsigned char prec, char *
 }
 // ====================================================================
 
+// rotary encoder interrupt routines
+void int0() {
+	if (millis() - int0time < threshold)
+		return;
+	int0history = int0signal;
+	int0signal = digitalRead(encoder0PinA);
+	if (int0history == int0signal)
+		return;
+	int0time = millis();
+	if (int0signal == int1signal)
+		rotaryHalfSteps--;
+	else
+		rotaryHalfSteps++;
+}
+
+void int1() {
+	if (millis() - int1time < threshold)
+		return;
+	int1history = int1signal;
+	int1signal = digitalRead(encoder0PinB);
+	if (int1history == int1signal)
+		return;
+	int1time = millis();
+}
+
 
 void setup() {
 #if !defined(ESP8266)
@@ -189,56 +208,18 @@ void setup() {
   pinMode(encoder0PinB, INPUT_PULLUP);
   attachInterrupt(digitalPinToInterrupt(encoder0PinA), int0, CHANGE);
   attachInterrupt(digitalPinToInterrupt(encoder0PinB), int1, CHANGE);
+  int0signal = digitalRead(encoder0PinA);
+  int0history = int0signal;
+  int1signal = digitalRead(encoder0PinB);
+  int1history = int1signal;
   Serial.println("... initializing rotary encoder done.");
 }
-
-
-/* interrupt rot enc example 1
-void int0() {
-	if (micros() - int0time < threshold)
-		return;
-	int0history = int0signal;
-	int0signal = digitalRead(encoder0PinA);
-	if (int0history == int0signal)
-		return;
-	int0time = micros();
-	if (int0signal == int1signal)
-		rotaryHalfSteps++;
-	else
-		rotaryHalfSteps--;
-}
-
-void int1() {
-	if (micros() - int1time < threshold)
-		return;
-	int1history = int1signal;
-	int1signal = digitalRead(encoder0PinB);
-	if (int1history == int1signal)
-		return;
-	int1time = micros();
-}
-*/
-
-/* interrupt rot enc example 2 */
-void int0() {
-	Bnew^Aold ? encoder0Pos++ : encoder0Pos--;
-	Aold = digitalRead(encoder0PinA);
-}
-// Interrupt on B changing state
-void int1() {
-	Bnew = digitalRead(encoder0PinB);
-	Bnew^Aold ? encoder0Pos++ : encoder0Pos--;
-}
-
-
-
 
 void loop() {
   char displaybuffer[4][21];  // 4 lines with 21 chars each
   char tempbuffer[3][15];     // temp for float to str conversion
   long actualRotaryTicks; 
 
-  /*
   accelgyro.getMotion6(&ax, &ay, &az, &gx, &gy, &gz);
   mag.getHeading(&mx, &my, &mz);
 
@@ -295,15 +276,12 @@ void loop() {
   Serial.print(temperature); Serial.print("\t");
   Serial.print(pressure); Serial.print("\t");
   Serial.print(altitude);
-  */ 
-
+ 
   Serial.print("Rot.enc\t");
-  //actualRotaryTicks = (rotaryHalfSteps / 2);
-  //Serial.print(actualRotaryTicks);
-  Serial.print(encoder0Pos);
+  actualRotaryTicks = (rotaryHalfSteps / 2);
+  Serial.print(actualRotaryTicks);
   Serial.println("");
 
-  /*
   dtostrf_sign(ax_f, 4, 2, tempbuffer[0]);   // -x.x
   dtostrf_sign(ay_f, 4, 2, tempbuffer[1]);   // -x.x
   dtostrf_sign(az_f, 4, 2, tempbuffer[2]);   // -x.x
@@ -332,6 +310,6 @@ void loop() {
   delay(10);
   yield();
   display.display();
-  */
+ 
   delay(100);
 }
