@@ -19,6 +19,25 @@ Software TIMER usage
 ====================
 name	
 
+Read sensors
+============
+  barometer.setControl(BMP085_MODE_TEMPERATURE);
+  wait barometer.getMeasureDelayMicroseconds();
+  temperature = barometer.getTemperatureC();
+
+  barometer.setControl(BMP085_MODE_PRESSURE_3);
+  wait barometer.getMeasureDelayMicroseconds();
+  pressure = barometer.getPressure();
+
+
+
+ARDUINO Libraries used
+======================
+i2cdevlib (see https://www.i2cdevlib.com/usage)
+Adafruit GFX
+Adafruit SSD1306
+
+
 Sample (debug) output line
 ==========================
 a/g:	0.70	0.46	0.59	-174	117	13	mag:	-108	-384	-530	heading:	215.92	T/P/A	21.30	96817.00	382.27

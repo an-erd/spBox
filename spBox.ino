@@ -1,68 +1,82 @@
 // I2Cdevlib:
 // The code makes use of I2Cdevlib (http://www.i2cdevlib.com/). All the thanks to the team for providing that great work!
 //
-// Rotary Encoder (in particular the debouncing stuff):
+// Rotary Encoder:
 // The code for the rotary encoder has been copied from http://playground.arduino.cc/Main/RotaryEncoders, 
 // Int0 & Int1 example using bitRead() with debounce handling and true Rotary Encoder pulse tracking, J.Carter(of Earth)
 // 
 
+#include <arduino.h>
 #include <stdlib.h>
-#include "Wire.h"
-#include "I2Cdev.h"
-#include "MPU6050.h"
-#include "HMC5883L.h"
-#include "BMP085.h"
+#include <Wire.h>
+#include <I2Cdev.h>
+#include <MPU6050.h>
+#include <HMC5883L.h>
+#include <BMP085.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
+
+// Buttons on the ADAFRUIT FeatherWing OLED, PRODUCT ID: 2900
+#define BUTTON_A		0
+#define BUTTON_B		16
+#define BUTTON_C		2
+#define LED				0
+
+// rotary encoder 
+#define encoderPinA		12 
+#define encoderPinB		14
+
+#define THRESHOLD		7	// debounce threshold in milliseconds
 
 MPU6050           accelgyro;
 HMC5883L          mag;
 BMP085            barometer;
 Adafruit_SSD1306  display = Adafruit_SSD1306();
 
-// store accel and gyro values from MPU6050, and accel using unit "g"(float)
-int16_t ax, ay, az;
-int16_t gx, gy, gz;
-int16_t mx, my, mz;
-float   ax_f, ay_f, az_f;
-
-float   temperature;
-float   pressure;
-float   altitude;
-int32_t lastMicros;
-
-#if defined(ESP8266)
-#define BUTTON_A 0
-#define BUTTON_B 16
-#define BUTTON_C 2
-#define LED      0
-#elif defined(ARDUINO_STM32F2_FEATHER)
-#define BUTTON_A PA15
-#define BUTTON_B PC7
-#define BUTTON_C PC5
-#define LED PB5
-#else
-#define BUTTON_A 9
-#define BUTTON_B 6
-#define BUTTON_C 5
-#define LED      13
-#endif
-
 #if (SSD1306_LCDHEIGHT != 32)
 #error("Height incorrect, please fix Adafruit_SSD1306.h!");
 #endif
 
-// rotary encoder 
-#define encoder0PinA	12 
-#define encoder0PinB	14
-const unsigned long threshold = 7;	// debounce threshold in milliseconds (1,000 microseconds = 1 millisecond, 1,000 millisecond = 1 sec)
-volatile unsigned long int0time = 0;
-volatile unsigned long int1time = 0;
-volatile uint8_t int0signal = 0;
-volatile uint8_t int0history = 0;
-volatile uint8_t int1signal = 0;
-volatile uint8_t int1history = 0;
-volatile long rotaryHalfSteps = 0;
+typedef struct 
+{
+	int16_t ax, ay, az;				// accel values (sensor)
+	float   ax_f, ay_f, az_f;		// accel float values (calculated)
+	
+	int16_t gx, gy, gz;				// gyro values (sensor)
+	
+	int16_t mx, my, mz;				// magnetometer values (sensor)
+	float	heading;				// calculated heading (calculated)
+
+	float   temperature;			// temperature (sensor)
+	float   pressure;				// pressure (sensor)
+	float   altitude;				// altitude (sensor)
+  
+	bool	changed_AGM;			// flag -> accel/gyro/magnetometer changed
+	bool	changed_TPA;			// flag -> temperature/pressure/altitude changed
+} sGlobalSensors;
+
+typedef struct 
+{
+	uint32_t  int0time = 0;		// threshold bookkeeping for ISR int0/pinA
+	uint32_t  int1time = 0;		// threshold bookkeeping for ISR int1/pinB
+	uint8_t	int0signal = 0;
+	uint8_t int0history = 0;
+	uint8_t int1signal = 0;
+	uint8_t int1history = 0;
+	
+	long	rotaryHalfSteps;		// internal counter used for rot enc position
+
+	long	actualRotaryTicks;		// rot enc position
+	bool	changed_rotEnc;			// flag -> rotary encoder position changed 
+} sGlobalRotEnc;
+
+// store accel and gyro values from MPU6050, and accel using unit "g"(float)
+int32_t lastMicros;
+
+
+
+// timer functions
+// os_timer_t read_BT;		// read barometer and temperature
 
 // = dtostre() function experimental ============================
 char * dtostrf_sign(double number, signed char width, unsigned char prec, char *s) {
@@ -147,10 +161,10 @@ char * dtostrf_sign(double number, signed char width, unsigned char prec, char *
 
 // rotary encoder interrupt routines
 void int0() {
-	if (millis() - int0time < threshold)
+	if (millis() - int0time < THRESHOLD)
 		return;
 	int0history = int0signal;
-	int0signal = digitalRead(encoder0PinA);
+	int0signal = digitalRead(encoderPinA);
 	if (int0history == int0signal)
 		return;
 	int0time = millis();
@@ -161,13 +175,61 @@ void int0() {
 }
 
 void int1() {
-	if (millis() - int1time < threshold)
+	if (millis() - int1time < THRESHOLD)
 		return;
 	int1history = int1signal;
-	int1signal = digitalRead(encoder0PinB);
+	int1signal = digitalRead(encoderPinB);
 	if (int1history == int1signal)
 		return;
 	int1time = millis();
+}
+
+void initialize_GPIO() {
+  pinMode(BUTTON_A, INPUT_PULLUP);
+  pinMode(BUTTON_B, INPUT_PULLUP);
+  pinMode(BUTTON_C, INPUT_PULLUP);
+
+  pinMode(encoderPinA, INPUT_PULLUP);
+  pinMode(encoderPinB, INPUT_PULLUP);
+
+}
+
+void initialize_display() {
+  display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
+  display.clearDisplay();
+  display.setTextSize(1);
+  display.setTextColor(WHITE);
+  display.display();
+}
+
+void initialize_accelgyro() {
+  accelgyro.setI2CMasterModeEnabled(false);
+  accelgyro.setI2CBypassEnabled(true) ;
+  accelgyro.setSleepEnabled(false);
+
+  accelgyro.initialize();
+  Serial.println(accelgyro.testConnection() ? "MPU6050 connection successful" : "MPU6050 connection failed");
+}
+
+void initialize_mag() {
+  mag.initialize();
+  Serial.println(mag.testConnection() ? "HMC5883L connection successful" : "HMC5883L connection failed");
+}
+
+void initialize_barometer() {
+	barometer.initialize();
+	Serial.println(barometer.testConnection() ? "BMP180 connection successful" : "BMP180 connection failed");
+}
+
+void initialize_rotary_encoder() {
+  attachInterrupt(digitalPinToInterrupt(encoderPinA), int0, CHANGE);
+  attachInterrupt(digitalPinToInterrupt(encoderPinB), int1, CHANGE);
+
+  int0signal = digitalRead(encoderPinA);
+  int0history = int0signal;
+  
+  int1signal = digitalRead(encoderPinB);
+  int1history = int1signal;
 }
 
 
@@ -179,53 +241,26 @@ void setup() {
   Serial.begin(115200);
   Wire.begin();
 
-  pinMode(BUTTON_A, INPUT_PULLUP);
-  pinMode(BUTTON_B, INPUT_PULLUP);
-  pinMode(BUTTON_C, INPUT_PULLUP);
-
-  display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
-  display.clearDisplay();
-  display.setTextSize(1);
-  display.setTextColor(WHITE);
-  display.display();
-
-  accelgyro.setI2CMasterModeEnabled(false);
-  accelgyro.setI2CBypassEnabled(true) ;
-  accelgyro.setSleepEnabled(false);
-
-  // initialize device
-  Serial.println("Initializing I2C devices...");
-  accelgyro.initialize();
-  Serial.println(accelgyro.testConnection() ? "MPU6050 connection successful" : "MPU6050 connection failed");
-  mag.initialize();
-  Serial.println(mag.testConnection() ? "HMC5883L connection successful" : "HMC5883L connection failed");
-  barometer.initialize();
-  Serial.println(barometer.testConnection() ? "BMP180 connection successful" : "BMP180 connection failed");
-
-  // initialize rotary encoder
-  Serial.println("Initializing Rotary Encoder...");
-  pinMode(encoder0PinA, INPUT_PULLUP);
-  pinMode(encoder0PinB, INPUT_PULLUP);
-  attachInterrupt(digitalPinToInterrupt(encoder0PinA), int0, CHANGE);
-  attachInterrupt(digitalPinToInterrupt(encoder0PinB), int1, CHANGE);
-  int0signal = digitalRead(encoder0PinA);
-  int0history = int0signal;
-  int1signal = digitalRead(encoder0PinB);
-  int1history = int1signal;
-  Serial.println("... initializing rotary encoder done.");
+  // initialize devices
+  initialize_GPIO();
+  initialize_display();
+  initialize_accelgyro();
+  initialize_mag();
+  initialize_barometer();
+  initialize_rotary_encoder();
 }
 
 void loop() {
   char displaybuffer[4][21];  // 4 lines with 21 chars each
   char tempbuffer[3][15];     // temp for float to str conversion
-  long actualRotaryTicks; 
+
 
   int32_t perfStopWatch;
   perfStopWatch = micros();
 
   accelgyro.getMotion6(&ax, &ay, &az, &gx, &gy, &gz);
   mag.getHeading(&mx, &my, &mz);
-
+  
   /*
   // request temperature
   barometer.setControl(BMP085_MODE_TEMPERATURE);
@@ -270,7 +305,7 @@ void loop() {
   // To calculate heading in degrees. 0 degree indicates North
   float heading = atan2(my, mz);
   if (heading < 0)
-    heading += 2 * M_PI;
+    heading += M_TWOPI;
   heading *= 180 / M_PI;
 
 /*
