@@ -176,7 +176,7 @@ void setup() {
   while (!Serial) delay(1);
 #endif
 
-  Serial.begin(9600);
+  Serial.begin(115200);
   Wire.begin();
 
   pinMode(BUTTON_A, INPUT_PULLUP);
@@ -220,9 +220,13 @@ void loop() {
   char tempbuffer[3][15];     // temp for float to str conversion
   long actualRotaryTicks; 
 
+  int32_t perfStopWatch;
+  perfStopWatch = micros();
+
   accelgyro.getMotion6(&ax, &ay, &az, &gx, &gy, &gz);
   mag.getHeading(&mx, &my, &mz);
 
+  /*
   // request temperature
   barometer.setControl(BMP085_MODE_TEMPERATURE);
 
@@ -244,11 +248,11 @@ void loop() {
   // (may pass a second "sea level pressure" parameter here,
   // otherwise uses the standard value of 101325 Pa)
   altitude = barometer.getAltitude(pressure);
-
+  */
   ax_f = ax / 16384.0;
   ay_f = ay / 16384.0;
   az_f = az / 16384.0;
-
+/*
   // display tab-separated accel/gyro x/y/z values
   Serial.print("a/g:\t");
   Serial.print(ax_f); Serial.print("\t");
@@ -262,12 +266,14 @@ void loop() {
   Serial.print(mx); Serial.print("\t");
   Serial.print(my); Serial.print("\t");
   Serial.print(mz); Serial.print("\t");
-
+*/
   // To calculate heading in degrees. 0 degree indicates North
   float heading = atan2(my, mz);
   if (heading < 0)
     heading += 2 * M_PI;
   heading *= 180 / M_PI;
+
+/*
   Serial.print("heading:\t");
   Serial.print(heading); Serial.print("\t");
 
@@ -278,10 +284,13 @@ void loop() {
   Serial.print(altitude);
  
   Serial.print("Rot.enc\t");
+*/
   actualRotaryTicks = (rotaryHalfSteps / 2);
+/*
   Serial.print(actualRotaryTicks);
   Serial.println("");
 
+*/
   dtostrf_sign(ax_f, 4, 2, tempbuffer[0]);   // -x.x
   dtostrf_sign(ay_f, 4, 2, tempbuffer[1]);   // -x.x
   dtostrf_sign(az_f, 4, 2, tempbuffer[2]);   // -x.x
@@ -307,5 +316,8 @@ void loop() {
   yield();
   display.display();
  
+  Serial.print("performance: ");
+  Serial.println(micros() - perfStopWatch);
+
   delay(100);
 }

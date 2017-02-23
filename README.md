@@ -11,9 +11,13 @@ PIN assignment
 ==============
 #4		SDA
 #5		SCL
-#12		Rotary Encoder Pin A (or C)
-#14		Rotary Encoder Pin C (or A)
-GND		Rotary Encoder Pin B
+#12		Rotary Encoder Pin A
+#14		Rotary Encoder Pin B
+GND		Rotary Encoder Pin C/GND
+
+Software TIMER usage
+====================
+name	
 
 Sample (debug) output line
 ==========================
