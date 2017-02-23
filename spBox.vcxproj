@@ -78,7 +78,6 @@
     <ProjectCapability Include="VisualMicro" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="ClassDiagram.cd" />
     <None Include="README.md" />
     <None Include="spBox.ino">
       <FileType>CppCode</FileType>

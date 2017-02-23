@@ -57,10 +57,10 @@ typedef struct
 
 typedef struct 
 {
-	uint32_t  int0time = 0;		// threshold bookkeeping for ISR int0/pinA
-	uint32_t  int1time = 0;		// threshold bookkeeping for ISR int1/pinB
-	uint8_t	int0signal = 0;
-	uint8_t int0history = 0;
+	uint32_t	int0time	= 0;	// ISR threshold 
+	uint32_t	int1time	= 0;	// ISR threshold
+	uint8_t		int0signal	= 0;
+	uint8_t		int0history = 0;
 	uint8_t int1signal = 0;
 	uint8_t int1history = 0;
 	
