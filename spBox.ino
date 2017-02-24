@@ -22,6 +22,8 @@ extern "C" {
 #include "Adafruit_GFX.h"
 #include "Adafruit_SSD1306.h"
 
+#define	SERIAL_STATUS_OUTPUT
+
 #define BUTTON_A		0
 #define BUTTON_B		16
 #define BUTTON_C		2
@@ -33,7 +35,13 @@ extern "C" {
 #define DELAY_MS_1HZ	1000	// milliseconds delay ->  1 Hz
 #define DELAY_MS_10HZ	100		// milliseconds delay -> 10 Hz
 
-#define	SERIAL_STATUS_OUTPUT
+// update_temperature_pressure_step
+#define SENSOR_TEMP_PAUSED				0
+#define SENSOR_REQ_TEMP					1
+#define SENSOR_READ_TEMP_REQ_PRESSURE	2
+#define SENSOR_READ_PRESSURE			3
+#define SENSOR_DONE						4
+
 
 #if (SSD1306_LCDHEIGHT != 32)
 #error("Height incorrect, please fix Adafruit_SSD1306.h!");
@@ -41,10 +49,6 @@ extern "C" {
 
 typedef struct
 {
-	MPU6050		accelgyro;
-	HMC5883L	mag;
-	BMP085		barometer;
-
 	int16_t		ax, ay, az;			// accel values (sensor)
 	float		ax_f, ay_f, az_f;	// accel float values (calculated)
 
@@ -57,8 +61,12 @@ typedef struct
 	float		pressure;			// pressure (sensor)
 	float		altitude;			// altitude (sensor)
 
-	bool		changed_AGM;		// flag -> accel/gyro/magnetometer changed
-	bool		changed_TPA;		// flag -> temperature/pressure/altitude changed
+	bool		do_update_accel_gyro_mag;	
+	bool		do_update_temperature_pressure;
+	bool		do_update_temperature_pressure_step;
+	int8_t		update_temperature_pressure_step;
+	bool		changed_accel_gyro_mag;			// -> re-calculate
+	bool		changed_temperatur_pressure;	// -> re-calculate
 } sGlobalSensors;
 
 typedef struct
@@ -70,7 +78,6 @@ typedef struct
 	uint8_t		int1signal;
 	uint8_t		int1history;
 	long		rotaryHalfSteps;	// internal counter used for rot enc position
-
 	long		actualRotaryTicks;	// rot enc position
 	bool		changed_rotEnc;		// flag -> rotary encoder position changed
 } sGlobalRotEnc;
@@ -78,15 +85,23 @@ typedef struct
 typedef struct
 {
 	char displaybuffer[4][21];  // 4 lines with 21 chars each
+	char tempbuffer[3][15];     // temp for float to str conversion
+	bool update_display;
 } sGlobalDisplay;
 
-sGlobalSensors	sensors;
-sGlobalRotEnc	rotenc;
+MPU6050		accelgyro;
+HMC5883L	mag;
+BMP085		barometer;
 Adafruit_SSD1306  display = Adafruit_SSD1306();	// TODO
-sGlobalDisplay	display_struct;
 
-LOCAL os_timer_t timer_update_barometer_temperature;
+sGlobalSensors	sensors;
+sGlobalDisplay	display_struct;
+volatile sGlobalRotEnc	rotenc;
+
+LOCAL os_timer_t timer_update_temperature_pressure;
+LOCAL os_timer_t timer_update_temperature_pressure_steps;
 LOCAL os_timer_t timer_update_accel_gyro_mag;
+LOCAL os_timer_t timer_update_display;
 
 int32_t lastMicros;		// TODO
 
@@ -212,30 +227,34 @@ void initialize_display() {
 	display.setTextSize(1);
 	display.setTextColor(WHITE);
 	display.display();
+	display_struct.update_display = true;
 }
 
 void initialize_accelgyro() {
-	sensors.accelgyro.setI2CMasterModeEnabled(false);
-	sensors.accelgyro.setI2CBypassEnabled(true);
-	sensors.accelgyro.setSleepEnabled(false);
-	sensors.accelgyro.initialize();
+	accelgyro.setI2CMasterModeEnabled(false);
+	accelgyro.setI2CBypassEnabled(true);
+	accelgyro.setSleepEnabled(false);
+	accelgyro.initialize();
+	sensors.do_update_accel_gyro_mag = false;
+	sensors.changed_accel_gyro_mag = false;
 #ifdef SERIAL_STATUS_OUTPUT
-	Serial.println(sensors.accelgyro.testConnection() ? "MPU6050 connection successful" : "MPU6050 connection failed");
+	Serial.println(accelgyro.testConnection() ? "MPU6050 connection successful" : "MPU6050 connection failed");
 #endif // SERIAL_STATUS_OUTPUT
 }
 
 void initialize_mag() {
-	sensors.mag.initialize();
+	mag.initialize();
 #ifdef SERIAL_STATUS_OUTPUT
-	Serial.println(sensors.mag.testConnection() ? "HMC5883L connection successful" : "HMC5883L connection failed");
+	Serial.println(mag.testConnection() ? "HMC5883L connection successful" : "HMC5883L connection failed");
 #endif // SERIAL_STATUS_OUTPUT
 }
 
 void initialize_barometer() {
-	sensors.barometer.initialize();
-
+	barometer.initialize();
+	sensors.do_update_temperature_pressure = false;
+	sensors.changed_temperatur_pressure = false;
 #ifdef SERIAL_STATUS_OUTPUT
-	Serial.println(sensors.barometer.testConnection() ? "BMP180 connection successful" : "BMP180 connection failed");
+	Serial.println(barometer.testConnection() ? "BMP180 connection successful" : "BMP180 connection failed");
 #endif // SERIAL_STATUS_OUTPUT
 }
 
@@ -247,61 +266,86 @@ void initialize_rotary_encoder() {
 	rotenc.int0history = rotenc.int0signal;
 	rotenc.int1signal = digitalRead(ENCODER_PIN_B);
 	rotenc.int1history = rotenc.int1signal;
+	rotenc.rotaryHalfSteps = 0;
+	rotenc.actualRotaryTicks = 0;
+	rotenc.changed_rotEnc = false;
 }
 
-LOCAL void ICACHE_FLASH_ATTR update_barometer_temperature_cb(void *arg) {
-	// TODO
+LOCAL void ICACHE_FLASH_ATTR update_temperature_pressure_cb(void *arg) {
+	sensors.do_update_temperature_pressure = true;
+}
+
+LOCAL void ICACHE_FLASH_ATTR update_temperature_pressure_step_cb(void *arg) {
+	sensors.do_update_temperature_pressure_step = true;
 }
 
 LOCAL void ICACHE_FLASH_ATTR update_accel_gyro_mag_cb(void *arg) {
-	// TODO
+	sensors.do_update_accel_gyro_mag = true;
 }
 
-void setup_update_barometer_temperature_timer()
+LOCAL void ICACHE_FLASH_ATTR update_display_cb(void *arg) {
+	 display_struct.update_display = true;
+}
+
+
+void setup_update_temperature_pressure_timer()
 {
-	os_timer_disarm(&timer_update_barometer_temperature);
-	os_timer_setfn(&timer_update_barometer_temperature, (os_timer_func_t *) update_barometer_temperature_cb, (void *)0);
-	os_timer_arm(&timer_update_barometer_temperature, DELAY_MS_1HZ, true);
+	os_timer_disarm(&timer_update_temperature_pressure);
+	os_timer_setfn(&timer_update_temperature_pressure, (os_timer_func_t *) update_temperature_pressure_cb, (void *)0);
+	os_timer_arm(&timer_update_temperature_pressure, DELAY_MS_1HZ, true);	// DELAY_MS_1HZ
 }
 
-void setup_update_accel_gyro_mag()
+void setup_update_accel_gyro_mag_timer()
 {
 	os_timer_disarm(&timer_update_accel_gyro_mag);
 	os_timer_setfn(&timer_update_accel_gyro_mag, (os_timer_func_t *)update_accel_gyro_mag_cb, (void *)0);
 	os_timer_arm(&timer_update_accel_gyro_mag, DELAY_MS_10HZ, true);
 }
 
+void setup_update_display_timer()
+{
+	os_timer_disarm(&timer_update_display);
+	os_timer_setfn(&timer_update_display, (os_timer_func_t *)update_display_cb, (void *)0);
+	os_timer_arm(&timer_update_display, 2000, true);
+}
+
 void get_accelgyro()
 {
-	sensors.accelgyro.getMotion6(&sensors.ax, &sensors.ay, &sensors.az, &sensors.gx, &sensors.gy, &sensors.gz);
+	accelgyro.getMotion6(&sensors.ax, &sensors.ay, &sensors.az, &sensors.gx, &sensors.gy, &sensors.gz);
 }
 
 void get_mag()
 {
-	sensors.mag.getHeading(&sensors.mx, &sensors.my, &sensors.mz);
+	mag.getHeading(&sensors.mx, &sensors.my, &sensors.mz);
 }
 
-void get_temperature() 
+void get_temperature_pressure(int8_t step) 
 {
-	// request temperature
-	sensors.barometer.setControl(BMP085_MODE_TEMPERATURE);
+	switch (step){
+		case SENSOR_REQ_TEMP:
+			barometer.setControl(BMP085_MODE_TEMPERATURE);
+			os_timer_disarm(&timer_update_temperature_pressure_steps);
+			os_timer_setfn(&timer_update_temperature_pressure_steps, (os_timer_func_t *)update_temperature_pressure_step_cb, (void *)0);
+			os_timer_arm(&timer_update_temperature_pressure_steps, barometer.getMeasureDelayMilliseconds(), false);
+			break;
 
-	// wait appropriate time for conversion (4.5ms delay)
-	lastMicros = micros();
-	while (micros() - lastMicros < sensors.barometer.getMeasureDelayMicroseconds());
+		case SENSOR_READ_TEMP_REQ_PRESSURE:
+			sensors.temperature = barometer.getTemperatureC();
+			barometer.setControl(BMP085_MODE_PRESSURE_3);
+			os_timer_disarm(&timer_update_temperature_pressure_steps);
+			os_timer_setfn(&timer_update_temperature_pressure_steps, (os_timer_func_t *)update_temperature_pressure_step_cb, (void *)0);
+			os_timer_arm(&timer_update_temperature_pressure_steps, barometer.getMeasureDelayMilliseconds(), false);
+			break;
 
-	// read calibrated temperature value in degrees Celsius
-	sensors.temperature = sensors.barometer.getTemperatureC();
-}
+		case SENSOR_READ_PRESSURE:
+			sensors.pressure = barometer.getPressure();
+			os_timer_disarm(&timer_update_temperature_pressure_steps);
+			sensors.update_temperature_pressure_step = SENSOR_DONE;
+			break;
 
-void get_pressure()
-{
-	// request pressure (3x oversampling mode, high detail, 25.5ms delay)
-	sensors.barometer.setControl(BMP085_MODE_PRESSURE_3);
-	while (micros() - lastMicros < sensors.barometer.getMeasureDelayMicroseconds());
-
-	// read calibrated pressure value in Pascals (Pa)
-	sensors.pressure = sensors.barometer.getPressure();
+		default:
+			break;
+	}
 }
 
 void calc_accelgyro()
@@ -325,7 +369,69 @@ void calc_altitude()
 	// calculate absolute altitude in meters based on known pressure
 	// (may pass a second "sea level pressure" parameter here,
 	// otherwise uses the standard value of 101325 Pa)
-	sensors.altitude = sensors.barometer.getAltitude(sensors.pressure);
+	sensors.altitude = barometer.getAltitude(sensors.pressure);
+}
+
+void check_sensor_updates()
+{
+	if (sensors.do_update_accel_gyro_mag) {
+		sensors.do_update_accel_gyro_mag = false;
+		get_accelgyro();
+		get_mag();
+		sensors.changed_accel_gyro_mag = true;
+	}
+	if (sensors.do_update_temperature_pressure) {
+		sensors.do_update_temperature_pressure = false;
+		sensors.update_temperature_pressure_step = 1;
+		get_temperature_pressure(sensors.update_temperature_pressure_step);
+	} else if (sensors.do_update_temperature_pressure_step) {
+		sensors.do_update_temperature_pressure_step = false;
+		sensors.update_temperature_pressure_step++;
+		get_temperature_pressure(sensors.update_temperature_pressure_step);
+	}
+	if (sensors.update_temperature_pressure_step == SENSOR_DONE){
+		sensors.update_temperature_pressure_step = SENSOR_TEMP_PAUSED;
+		sensors.changed_temperatur_pressure = true;
+	}
+}
+
+void check_sensor_calc()
+{
+	if (sensors.changed_accel_gyro_mag) {
+		sensors.changed_accel_gyro_mag = false;
+		calc_accelgyro();
+		calc_mag();
+	}
+	if (sensors.changed_temperatur_pressure) {
+		sensors.changed_temperatur_pressure = false;
+		calc_altitude();
+	}
+}
+
+void update_display()
+{
+	dtostrf_sign(sensors.ax_f, 4, 2, display_struct.tempbuffer[0]);   // -x.x
+	dtostrf_sign(sensors.ay_f, 4, 2, display_struct.tempbuffer[1]);   // -x.x
+	dtostrf_sign(sensors.az_f, 4, 2, display_struct.tempbuffer[2]);   // -x.x
+	snprintf(display_struct.displaybuffer[0], 21, "A %s %s %s", display_struct.tempbuffer[0], display_struct.tempbuffer[1], display_struct.tempbuffer[2]);
+
+	snprintf(display_struct.displaybuffer[1], 21, "G: %+4d %+4d %+4d", sensors.gx, sensors.gy, sensors.gz);
+
+	dtostrf(sensors.heading, 3, 0, display_struct.tempbuffer[0]);   // xxx
+	dtostrf(sensors.temperature, 5, 2, display_struct.tempbuffer[1]);   // -xx.x
+	snprintf(display_struct.displaybuffer[2], 21, "H: %s, T: %s", display_struct.tempbuffer[0], display_struct.tempbuffer[1]);
+
+	dtostrf(sensors.altitude, 4, 0, display_struct.tempbuffer[0]);   // xxxx
+	dtostrf(sensors.pressure / 100.0, 4, 0, display_struct.tempbuffer[1]);   // xxxx
+	snprintf(display_struct.displaybuffer[3], 21, "Alt: %s, P: %s", display_struct.tempbuffer[0], display_struct.tempbuffer[1]);
+
+	display.clearDisplay();
+	display.setCursor(0, 0);
+
+	display.println(display_struct.displaybuffer[0]);
+	//  display.println(display_struct.displaybuffer[1]);
+	display.println(display_struct.displaybuffer[2]);
+	display.println(display_struct.displaybuffer[3]);
 }
 
 void setup() {
@@ -344,30 +450,43 @@ void setup() {
 	initialize_barometer();
 	initialize_rotary_encoder();
 
-	setup_update_barometer_temperature_timer();
-	setup_update_accel_gyro_mag();
+//	sensors.update_temperature_pressure_step = SENSOR_TEMP_PAUSED;
+//	setup_update_temperature_pressure_timer();
+
+//	setup_update_accel_gyro_mag_timer();
+	setup_update_display_timer();
 }
 
 void loop() {
-	char tempbuffer[3][15];     // temp for float to str conversion
 
-	int32_t perfStopWatch_getvalues;
-	int32_t perfStopWatch_output;
+int32_t perfStopWatch_getvalues;
+int32_t perfStopWatch_output;
+perfStopWatch_getvalues = micros();
+
+	check_sensor_updates();
+	check_sensor_calc();
 	
-	perfStopWatch_getvalues = micros();
-
-	get_accelgyro();
-	get_mag();
-	get_temperature();
-	get_pressure();
-
-	calc_accelgyro();
-	calc_mag();
-	calc_altitude();
-
 perfStopWatch_getvalues -= micros();
 perfStopWatch_output = micros();
 
+perfStopWatch_output -= micros();
+
+	if (display_struct.update_display) {
+		display_struct.update_display = false;
+		update_display();
+	}
+
+Serial.print("performance: ");
+Serial.print(-perfStopWatch_getvalues);
+Serial.print(" ");
+Serial.println(-perfStopWatch_output);
+
+	yield();
+	display.display();
+	yield();
+
+//	delay(100);
+/*
 	// display tab-separated accel/gyro x/y/z values
 	Serial.print("a/g:\t");
 	Serial.print(sensors.ax_f); Serial.print("\t");
@@ -395,40 +514,5 @@ perfStopWatch_output = micros();
 	rotenc.actualRotaryTicks = (rotenc.rotaryHalfSteps / 2);
 	Serial.print(rotenc.actualRotaryTicks);
 	Serial.println("");
-
-	dtostrf_sign(sensors.ax_f, 4, 2, tempbuffer[0]);   // -x.x
-	dtostrf_sign(sensors.ay_f, 4, 2, tempbuffer[1]);   // -x.x
-	dtostrf_sign(sensors.az_f, 4, 2, tempbuffer[2]);   // -x.x
-	snprintf(display_struct.displaybuffer[0], 21, "A %s %s %s", tempbuffer[0], tempbuffer[1], tempbuffer[2]);
-
-	snprintf(display_struct.displaybuffer[1], 21, "G: %+4d %+4d %+4d", sensors.gx, sensors.gy, sensors.gz);
-
-	dtostrf(sensors.heading, 3, 0, tempbuffer[0]);   // xxx
-	dtostrf(sensors.temperature, 5, 2, tempbuffer[1]);   // -xx.x
-	snprintf(display_struct.displaybuffer[2], 21, "H: %s, T: %s", tempbuffer[0], tempbuffer[1]);
-
-	dtostrf(sensors.altitude, 4, 0, tempbuffer[0]);   // xxxx
-	dtostrf(sensors.pressure / 100.0, 4, 0, tempbuffer[1]);   // xxxx
-	snprintf(display_struct.displaybuffer[3], 21, "Alt: %s, P: %s", tempbuffer[0], tempbuffer[1]);
-
-	display.clearDisplay();
-	display.setCursor(0, 0);
-
-	display.println(display_struct.displaybuffer[0]);
-	//  display.println(display_struct.displaybuffer[1]);
-	display.println(display_struct.displaybuffer[2]);
-	display.println(display_struct.displaybuffer[3]);
-
-perfStopWatch_output -= micros();
-
-Serial.print("performance: ");
-Serial.print(-perfStopWatch_getvalues);
-Serial.print(" ");
-Serial.println(-perfStopWatch_output);
-
-	delay(10);
-	yield();
-	display.display();
-
-	delay(100);
+*/
 }
