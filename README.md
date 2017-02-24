@@ -37,10 +37,16 @@ i2cdevlib (see https://www.i2cdevlib.com/usage)
 Adafruit GFX
 Adafruit SSD1306
 
+Serial Output
+=============
+
+a/g:	0.40	0.52	0.79	-233	141	6	mag:	149	-347	-532	heading:	0.00	T/P/A	23.00	95865.00	464.83Rot.enc	0
+performance: 29829 2651
+(first performance value: get sensor data
+second value: output)
 
 Sample (debug) output line
 ==========================
-a/g:	0.70	0.46	0.59	-174	117	13	mag:	-108	-384	-530	heading:	215.92	T/P/A	21.30	96817.00	382.27
 display.println("abcdefghijklmnopqrstu");
 display.println("123456789012345678901");
 display.println("a:  +0.70 +0.46 +0.59");
