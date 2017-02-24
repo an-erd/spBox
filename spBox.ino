@@ -7,14 +7,13 @@
 // 
 
 #include <arduino.h>
-#include <stdlib.h>
-#include <Wire.h>
-#include <I2Cdev.h>
-#include <MPU6050.h>
-#include <HMC5883L.h>
-#include <BMP085.h>
-#include <Adafruit_GFX.h>
-#include <Adafruit_SSD1306.h>
+#include "Wire.h"
+#include "I2Cdev.h"
+#include "MPU6050.h"
+#include "HMC5883L.h"
+#include "BMP085.h"
+#include "Adafruit_GFX.h"
+#include "Adafruit_SSD1306.h"
 
 // Buttons on the ADAFRUIT FeatherWing OLED, PRODUCT ID: 2900
 #define BUTTON_A		0
@@ -28,51 +27,62 @@
 
 #define THRESHOLD		7	// debounce threshold in milliseconds
 
-MPU6050           accelgyro;
-HMC5883L          mag;
-BMP085            barometer;
-Adafruit_SSD1306  display = Adafruit_SSD1306();
-
 #if (SSD1306_LCDHEIGHT != 32)
 #error("Height incorrect, please fix Adafruit_SSD1306.h!");
 #endif
 
 typedef struct 
 {
-	int16_t ax, ay, az;				// accel values (sensor)
-	float   ax_f, ay_f, az_f;		// accel float values (calculated)
-	
-	int16_t gx, gy, gz;				// gyro values (sensor)
-	
-	int16_t mx, my, mz;				// magnetometer values (sensor)
-	float	heading;				// calculated heading (calculated)
+	MPU6050		accelgyro;
+	HMC5883L	mag;
+	BMP085		barometer;
 
-	float   temperature;			// temperature (sensor)
-	float   pressure;				// pressure (sensor)
-	float   altitude;				// altitude (sensor)
+	int16_t		ax, ay, az;			// accel values (sensor)
+	float		ax_f, ay_f, az_f;	// accel float values (calculated)
+	
+	int16_t		gx, gy, gz;			// gyro values (sensor)
+	
+	int16_t		mx, my, mz;			// magnetometer values (sensor)
+	float		heading;			// calculated heading (calculated)
+
+	float		temperature;		// temperature (sensor)
+	float		pressure;			// pressure (sensor)
+	float		altitude;			// altitude (sensor)
   
-	bool	changed_AGM;			// flag -> accel/gyro/magnetometer changed
-	bool	changed_TPA;			// flag -> temperature/pressure/altitude changed
+	bool		changed_AGM;		// flag -> accel/gyro/magnetometer changed
+	bool		changed_TPA;		// flag -> temperature/pressure/altitude changed
 } sGlobalSensors;
 
 typedef struct 
 {
-	uint32_t	int0time	= 0;	// ISR threshold 
-	uint32_t	int1time	= 0;	// ISR threshold
-	uint8_t		int0signal	= 0;
-	uint8_t		int0history = 0;
-	uint8_t int1signal = 0;
-	uint8_t int1history = 0;
-	
-	long	rotaryHalfSteps;		// internal counter used for rot enc position
+	uint32_t	int0time;			// ISR threshold 
+	uint32_t	int1time;			// ISR threshold
+	uint8_t		int0signal;
+	uint8_t		int0history;
+	uint8_t		int1signal;
+	uint8_t		int1history;
+	long		rotaryHalfSteps;	// internal counter used for rot enc position
 
-	long	actualRotaryTicks;		// rot enc position
-	bool	changed_rotEnc;			// flag -> rotary encoder position changed 
+	long		actualRotaryTicks;	// rot enc position
+	bool		changed_rotEnc;		// flag -> rotary encoder position changed 
 } sGlobalRotEnc;
 
-// store accel and gyro values from MPU6050, and accel using unit "g"(float)
-int32_t lastMicros;
+typedef struct 
+{
+  char displaybuffer[4][21];  // 4 lines with 21 chars each
+	
 
+
+} sGlobalDisplay;
+
+sGlobalSensors	sensors;
+sGlobalRotEnc	rotenc;
+Adafruit_SSD1306  display = Adafruit_SSD1306();
+sGlobalDisplay	display_struct;
+
+// store accel and gyro values from MPU6050, and accel using unit "g"(float)
+int32_t lastMicros;		// TODO
+Adafruit_SSD1306  display = Adafruit_SSD1306();	// TODO
 
 
 // timer functions
@@ -232,6 +242,63 @@ void initialize_rotary_encoder() {
   int1history = int1signal;
 }
 
+void get_accelgyro()
+{
+  accelgyro.getMotion6(&ax, &ay, &az, &gx, &gy, &gz);
+}
+
+void get_mag()
+{
+  mag.getHeading(&mx, &my, &mz);
+}
+
+void get_temperature()
+{
+  // request temperature
+  barometer.setControl(BMP085_MODE_TEMPERATURE);
+
+  // wait appropriate time for conversion (4.5ms delay)
+  lastMicros = micros();
+  while (micros() - lastMicros < barometer.getMeasureDelayMicroseconds());
+
+  // read calibrated temperature value in degrees Celsius
+  temperature = barometer.getTemperatureC();
+}
+
+void get_pressure()
+{
+  // request pressure (3x oversampling mode, high detail, 23.5ms delay)
+  barometer.setControl(BMP085_MODE_PRESSURE_3);
+  while (micros() - lastMicros < barometer.getMeasureDelayMicroseconds());
+
+  // read calibrated pressure value in Pascals (Pa)
+  pressure = barometer.getPressure();
+}
+
+void calc_accelgyro()
+{
+  ax_f = ax / 16384.0;
+  ay_f = ay / 16384.0;
+  az_f = az / 16384.0;
+}
+
+void calc_mag()
+{
+  // To calculate heading in degrees. 0 degree indicates North
+  float heading = atan2(my, mz);
+  if (heading < 0)
+    heading += M_TWOPI;
+  heading *= 180 / M_PI;
+
+}
+
+void calc_altitude()
+{
+  // calculate absolute altitude in meters based on known pressure
+  // (may pass a second "sea level pressure" parameter here,
+  // otherwise uses the standard value of 101325 Pa)
+  altitude = barometer.getAltitude(pressure);
+}
 
 void setup() {
 #if !defined(ESP8266)
@@ -250,43 +317,13 @@ void setup() {
   initialize_rotary_encoder();
 }
 
-void loop() {
-  char displaybuffer[4][21];  // 4 lines with 21 chars each
-  char tempbuffer[3][15];     // temp for float to str conversion
 
+void loop() {
+  char tempbuffer[3][15];     // temp for float to str conversion
 
   int32_t perfStopWatch;
   perfStopWatch = micros();
-
-  accelgyro.getMotion6(&ax, &ay, &az, &gx, &gy, &gz);
-  mag.getHeading(&mx, &my, &mz);
   
-  /*
-  // request temperature
-  barometer.setControl(BMP085_MODE_TEMPERATURE);
-
-  // wait appropriate time for conversion (4.5ms delay)
-  lastMicros = micros();
-  while (micros() - lastMicros < barometer.getMeasureDelayMicroseconds());
-
-  // read calibrated temperature value in degrees Celsius
-  temperature = barometer.getTemperatureC();
-
-  // request pressure (3x oversampling mode, high detail, 23.5ms delay)
-  barometer.setControl(BMP085_MODE_PRESSURE_3);
-  while (micros() - lastMicros < barometer.getMeasureDelayMicroseconds());
-
-  // read calibrated pressure value in Pascals (Pa)
-  pressure = barometer.getPressure();
-
-  // calculate absolute altitude in meters based on known pressure
-  // (may pass a second "sea level pressure" parameter here,
-  // otherwise uses the standard value of 101325 Pa)
-  altitude = barometer.getAltitude(pressure);
-  */
-  ax_f = ax / 16384.0;
-  ay_f = ay / 16384.0;
-  az_f = az / 16384.0;
 /*
   // display tab-separated accel/gyro x/y/z values
   Serial.print("a/g:\t");
@@ -302,12 +339,6 @@ void loop() {
   Serial.print(my); Serial.print("\t");
   Serial.print(mz); Serial.print("\t");
 */
-  // To calculate heading in degrees. 0 degree indicates North
-  float heading = atan2(my, mz);
-  if (heading < 0)
-    heading += M_TWOPI;
-  heading *= 180 / M_PI;
-
 /*
   Serial.print("heading:\t");
   Serial.print(heading); Serial.print("\t");

@@ -13,6 +13,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "esp_timer_test", "..\esp_ti
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Blink", "..\My Examples\Blink\Blink.vcxproj", "{5D3579F2-6AE5-46D2-8BE5-AFDE002F461B}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "tester", "..\libraries\Adafruit_FeatherOLED\examples\tester\tester.vcxproj", "{4BDA57DA-2B39-41ED-876D-FCE1950ADD1C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -38,6 +40,10 @@ Global
 		{5D3579F2-6AE5-46D2-8BE5-AFDE002F461B}.Debug|x86.Build.0 = Debug|Win32
 		{5D3579F2-6AE5-46D2-8BE5-AFDE002F461B}.Release|x86.ActiveCfg = Release|Win32
 		{5D3579F2-6AE5-46D2-8BE5-AFDE002F461B}.Release|x86.Build.0 = Release|Win32
+		{4BDA57DA-2B39-41ED-876D-FCE1950ADD1C}.Debug|x86.ActiveCfg = Debug|Win32
+		{4BDA57DA-2B39-41ED-876D-FCE1950ADD1C}.Debug|x86.Build.0 = Debug|Win32
+		{4BDA57DA-2B39-41ED-876D-FCE1950ADD1C}.Release|x86.ActiveCfg = Release|Win32
+		{4BDA57DA-2B39-41ED-876D-FCE1950ADD1C}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
