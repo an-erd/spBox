@@ -325,7 +325,7 @@ void get_temperature_pressure(int8_t step)
 		case SENSOR_REQ_TEMP:
 			barometer.setControl(BMP085_MODE_TEMPERATURE);
 			os_timer_disarm(&timer_update_temperature_pressure_steps);
-			os_timer_setfn(&timer_update_temperature_pressure_steps, (os_timer_func_t *)update_temperature_pressure_step_cb, (void *)0);
+			os_timer_setfn(&timer_update_temperature_pressure_steps, (os_timer_func_t *)update_temperature_pressure_cb, (void *)0);
 			os_timer_arm(&timer_update_temperature_pressure_steps, barometer.getMeasureDelayMilliseconds(), false);
 			break;
 
@@ -333,7 +333,7 @@ void get_temperature_pressure(int8_t step)
 			sensors.temperature = barometer.getTemperatureC();
 			barometer.setControl(BMP085_MODE_PRESSURE_3);
 			os_timer_disarm(&timer_update_temperature_pressure_steps);
-			os_timer_setfn(&timer_update_temperature_pressure_steps, (os_timer_func_t *)update_temperature_pressure_step_cb, (void *)0);
+			os_timer_setfn(&timer_update_temperature_pressure_steps, (os_timer_func_t *)update_temperature_pressure_cb, (void *)0);
 			os_timer_arm(&timer_update_temperature_pressure_steps, barometer.getMeasureDelayMilliseconds(), false);
 			break;
 
@@ -450,11 +450,11 @@ void setup() {
 	initialize_barometer();
 	initialize_rotary_encoder();
 
-//	sensors.update_temperature_pressure_step = SENSOR_TEMP_PAUSED;
-//	setup_update_temperature_pressure_timer();
+	//sensors.update_temperature_pressure_step = SENSOR_TEMP_PAUSED;
+	//setup_update_temperature_pressure_timer();
 
-//	setup_update_accel_gyro_mag_timer();
-	setup_update_display_timer();
+	setup_update_accel_gyro_mag_timer();
+	//setup_update_display_timer();
 }
 
 void loop() {
@@ -471,10 +471,10 @@ perfStopWatch_output = micros();
 
 perfStopWatch_output -= micros();
 
-	if (display_struct.update_display) {
-		display_struct.update_display = false;
-		update_display();
-	}
+	//if (display_struct.update_display) {
+	//	display_struct.update_display = false;
+	//	update_display();
+	//}
 
 Serial.print("performance: ");
 Serial.print(-perfStopWatch_getvalues);
