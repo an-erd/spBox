@@ -36,7 +36,7 @@ extern "C" {
 #define DELAY_MS_10HZ	100		// milliseconds delay -> 10 Hz
 
 // update_temperature_pressure_step
-#define SENSOR_TEMP_PAUSED				0
+#define SENSOR_PAUSED				0
 #define SENSOR_REQ_TEMP					1
 #define SENSOR_READ_TEMP_REQ_PRESSURE	2
 #define SENSOR_READ_PRESSURE			3
@@ -319,13 +319,13 @@ void get_mag()
 	mag.getHeading(&sensors.mx, &sensors.my, &sensors.mz);
 }
 
-void get_temperature_pressure(int8_t step) 
+void get_temperature_pressure() 
 {
-	switch (step){
+	switch (sensors.update_temperature_pressure_step){
 		case SENSOR_REQ_TEMP:
 			barometer.setControl(BMP085_MODE_TEMPERATURE);
 			os_timer_disarm(&timer_update_temperature_pressure_steps);
-			os_timer_setfn(&timer_update_temperature_pressure_steps, (os_timer_func_t *)update_temperature_pressure_cb, (void *)0);
+			os_timer_setfn(&timer_update_temperature_pressure_steps, (os_timer_func_t *)update_temperature_pressure_step_cb, (void *)0);
 			os_timer_arm(&timer_update_temperature_pressure_steps, barometer.getMeasureDelayMilliseconds(), false);
 			break;
 
@@ -380,17 +380,18 @@ void check_sensor_updates()
 		get_mag();
 		sensors.changed_accel_gyro_mag = true;
 	}
+
 	if (sensors.do_update_temperature_pressure) {
 		sensors.do_update_temperature_pressure = false;
-		sensors.update_temperature_pressure_step = 1;
-		get_temperature_pressure(sensors.update_temperature_pressure_step);
+		sensors.update_temperature_pressure_step = SENSOR_REQ_TEMP;	// first step
+		get_temperature_pressure();
 	} else if (sensors.do_update_temperature_pressure_step) {
 		sensors.do_update_temperature_pressure_step = false;
 		sensors.update_temperature_pressure_step++;
-		get_temperature_pressure(sensors.update_temperature_pressure_step);
+		get_temperature_pressure();
 	}
 	if (sensors.update_temperature_pressure_step == SENSOR_DONE){
-		sensors.update_temperature_pressure_step = SENSOR_TEMP_PAUSED;
+		sensors.update_temperature_pressure_step = SENSOR_PAUSED;
 		sensors.changed_temperatur_pressure = true;
 	}
 }
@@ -450,11 +451,11 @@ void setup() {
 	initialize_barometer();
 	initialize_rotary_encoder();
 
-	//sensors.update_temperature_pressure_step = SENSOR_TEMP_PAUSED;
-	//setup_update_temperature_pressure_timer();
-
+	sensors.update_temperature_pressure_step = SENSOR_PAUSED;
+	sensors.do_update_temperature_pressure_step = false;
+	setup_update_temperature_pressure_timer();
 	setup_update_accel_gyro_mag_timer();
-	//setup_update_display_timer();
+	setup_update_display_timer();
 }
 
 void loop() {
