@@ -24,23 +24,36 @@ extern "C" {
 
 #define	SERIAL_STATUS_OUTPUT
 
-#define BUTTON_A		0
-#define BUTTON_B		16
-#define BUTTON_C		2
+// #define BUTTON_A		0		// huzzah oled 
+#define BUTTON_B		16		// huzzah oled 
+// #define BUTTON_C		2		// huzzah oled 
 #define ENCODER_PIN_A	12
 #define ENCODER_PIN_B	14
-#define LED				0
+#define ENCODER_SW		13
+#define LED_R			0		// rot enc led red (and huzzah led red)
+#define LED_G			2		// rot enc led green (and huzzah led blue)
+
 
 #define THRESHOLD		7		// debounce threshold in milliseconds
 #define DELAY_MS_1HZ	1000	// milliseconds delay ->  1 Hz
+#define DELAY_MS_2HZ	500		// milliseconds delay ->  2 Hz
 #define DELAY_MS_10HZ	100		// milliseconds delay -> 10 Hz
 
 // update_temperature_pressure_step
-#define SENSOR_PAUSED				0
+#define SENSOR_PAUSED					0
 #define SENSOR_REQ_TEMP					1
 #define SENSOR_READ_TEMP_REQ_PRESSURE	2
 #define SENSOR_READ_PRESSURE			3
 #define SENSOR_DONE						4
+
+#define MPU6050_GXOFFSET	0
+#define MPU6050_GYOFFSET	0
+#define MPU6050_GZOFFSET	0
+#define MPU6050_G_GAIN		131
+#define MPU6050_AXOFFSET	0
+#define MPU6050_AYOFFSET	0
+#define MPU6050_AZOFFSET	0
+#define MPU6050_A_GAIN		32768
 
 
 #if (SSD1306_LCDHEIGHT != 32)
@@ -53,7 +66,8 @@ typedef struct
 	float		ax_f, ay_f, az_f;	// accel float values (calculated)
 
 	int16_t		gx, gy, gz;			// gyro values (sensor)
-
+	float		gx_f, gy_f, gz_f;	// gyro float values (calculated)
+		
 	int16_t		mx, my, mz;			// magnetometer values (sensor)
 	float		heading;			// calculated heading (calculated)
 
@@ -61,15 +75,10 @@ typedef struct
 	float		pressure;			// pressure (sensor)
 	float		altitude;			// altitude (sensor)
 
-	bool		do_update_accel_gyro_mag;	
-	bool		do_update_temperature_pressure;
-	bool		do_update_temperature_pressure_step;
 	int8_t		update_temperature_pressure_step;
 	bool		changed_accel_gyro_mag;			// -> re-calculate
 	bool		changed_temperatur_pressure;	// -> re-calculate
 } sGlobalSensors;
-
-volatile bool do_update_accel_gyro_mag;	// TEMP TODO
 
 typedef struct
 {
@@ -97,6 +106,10 @@ BMP085		barometer;
 Adafruit_SSD1306  display = Adafruit_SSD1306();	// TODO
 
 sGlobalSensors	sensors;
+volatile bool	do_update_accel_gyro_mag;	
+volatile bool	do_update_temperature_pressure;
+volatile bool	do_update_temperature_pressure_step;
+
 sGlobalDisplay	display_struct;
 volatile sGlobalRotEnc	rotenc;
 
@@ -216,11 +229,16 @@ void int1() {
 }
 
 void initialize_GPIO() {
-	pinMode(BUTTON_A, INPUT_PULLUP);
+	//pinMode(BUTTON_A, INPUT_PULLUP);
 	pinMode(BUTTON_B, INPUT_PULLUP);
-	pinMode(BUTTON_C, INPUT_PULLUP);
+	//pinMode(BUTTON_C, INPUT_PULLUP);
 	pinMode(ENCODER_PIN_A, INPUT_PULLUP);
 	pinMode(ENCODER_PIN_B, INPUT_PULLUP);
+	pinMode(ENCODER_SW, INPUT);
+	pinMode(LED_R, OUTPUT);
+	pinMode(LED_G, OUTPUT);
+	digitalWrite(LED_R, HIGH);
+	digitalWrite(LED_G, HIGH);
 }
 
 void initialize_display() {
@@ -236,8 +254,8 @@ void initialize_accelgyro() {
 	accelgyro.setI2CMasterModeEnabled(false);
 	accelgyro.setI2CBypassEnabled(true);
 	accelgyro.setSleepEnabled(false);
-	accelgyro.initialize();
-	sensors.do_update_accel_gyro_mag = false;
+	accelgyro.initialize();		// init w/gyro FS_SEL=0 -> div. by 131 and AFS_SEL=0, -> div. by 16,384
+	do_update_accel_gyro_mag = false;
 	sensors.changed_accel_gyro_mag = false;
 #ifdef SERIAL_STATUS_OUTPUT
 	Serial.println(accelgyro.testConnection() ? "MPU6050 connection successful" : "MPU6050 connection failed");
@@ -253,7 +271,7 @@ void initialize_mag() {
 
 void initialize_barometer() {
 	barometer.initialize();
-	sensors.do_update_temperature_pressure = false;
+	do_update_temperature_pressure = false;
 	sensors.changed_temperatur_pressure = false;
 #ifdef SERIAL_STATUS_OUTPUT
 	Serial.println(barometer.testConnection() ? "BMP180 connection successful" : "BMP180 connection failed");
@@ -273,23 +291,21 @@ void initialize_rotary_encoder() {
 	rotenc.changed_rotEnc = false;
 }
 
-LOCAL void ICACHE_FLASH_ATTR update_temperature_pressure_cb(void *arg) {
-	sensors.do_update_temperature_pressure = true;
+ void update_temperature_pressure_cb(void *arg) {		// LOCAL void ICACHE_FLASH_ATTR ...
+	do_update_temperature_pressure = true;
 }
 
-LOCAL void ICACHE_FLASH_ATTR update_temperature_pressure_step_cb(void *arg) {
-	sensors.do_update_temperature_pressure_step = true;
+ void update_temperature_pressure_step_cb(void *arg) {
+	do_update_temperature_pressure_step = true;
 }
 
-LOCAL void ICACHE_FLASH_ATTR update_accel_gyro_mag_cb(void *arg) {
-	sensors.do_update_accel_gyro_mag = true;
-	// do_update_accel_gyro_mag = true;
+void update_accel_gyro_mag_cb(void *arg) {
+	do_update_accel_gyro_mag = true;
 }
 
-LOCAL void ICACHE_FLASH_ATTR update_display_cb(void *arg) {
+void update_display_cb(void *arg) {
 	 display_struct.update_display = true;
 }
-
 
 void setup_update_temperature_pressure_timer()
 {
@@ -309,7 +325,7 @@ void setup_update_display_timer()
 {
 	os_timer_disarm(&timer_update_display);
 	os_timer_setfn(&timer_update_display, (os_timer_func_t *)update_display_cb, (void *)0);
-	os_timer_arm(&timer_update_display, 2000, true);
+	os_timer_arm(&timer_update_display, DELAY_MS_2HZ, true);
 }
 
 void get_accelgyro()
@@ -326,6 +342,7 @@ void get_temperature_pressure()
 {
 	switch (sensors.update_temperature_pressure_step){
 		case SENSOR_REQ_TEMP:
+			//Serial.println("SENSOR_REQ_TEMP");
 			barometer.setControl(BMP085_MODE_TEMPERATURE);
 			os_timer_disarm(&timer_update_temperature_pressure_steps);
 			os_timer_setfn(&timer_update_temperature_pressure_steps, (os_timer_func_t *)update_temperature_pressure_step_cb, (void *)0);
@@ -333,14 +350,16 @@ void get_temperature_pressure()
 			break;
 
 		case SENSOR_READ_TEMP_REQ_PRESSURE:
+			//Serial.println("SENSOR_READ_TEMP_REQ_PRESSURE");
 			sensors.temperature = barometer.getTemperatureC();
 			barometer.setControl(BMP085_MODE_PRESSURE_3);
 			os_timer_disarm(&timer_update_temperature_pressure_steps);
-			os_timer_setfn(&timer_update_temperature_pressure_steps, (os_timer_func_t *)update_temperature_pressure_cb, (void *)0);
+			os_timer_setfn(&timer_update_temperature_pressure_steps, (os_timer_func_t *)update_temperature_pressure_step_cb, (void *)0);
 			os_timer_arm(&timer_update_temperature_pressure_steps, barometer.getMeasureDelayMilliseconds(), false);
 			break;
 
 		case SENSOR_READ_PRESSURE:
+			//Serial.println("SENSOR_READ_PRESSURE");
 			sensors.pressure = barometer.getPressure();
 			os_timer_disarm(&timer_update_temperature_pressure_steps);
 			sensors.update_temperature_pressure_step = SENSOR_DONE;
@@ -353,9 +372,12 @@ void get_temperature_pressure()
 
 void calc_accelgyro()
 {
-	sensors.ax_f = sensors.ax / 16384.0;	// TODO
-	sensors.ay_f = sensors.ay / 16384.0;
-	sensors.az_f = sensors.az / 16384.0;
+	sensors.ax_f = (float)(sensors.ax - MPU6050_AXOFFSET) / MPU6050_A_GAIN;
+	sensors.ay_f = (float)(sensors.ay - MPU6050_AYOFFSET) / MPU6050_A_GAIN;
+	sensors.az_f = (float)(sensors.az - MPU6050_AZOFFSET) / MPU6050_A_GAIN;
+	sensors.gx_f = (float)(sensors.gx - MPU6050_GXOFFSET) / MPU6050_G_GAIN;
+	sensors.gy_f = (float)(sensors.gy - MPU6050_GYOFFSET) / MPU6050_G_GAIN;
+	sensors.gz_f = (float)(sensors.gz - MPU6050_GZOFFSET) / MPU6050_G_GAIN;
 }
 
 void calc_mag()
@@ -365,6 +387,7 @@ void calc_mag()
 	if (heading < 0)
 		heading += M_TWOPI;
 	heading *= 180 / M_PI;
+	sensors.heading = heading;
 }
 
 void calc_altitude()
@@ -377,19 +400,19 @@ void calc_altitude()
 
 void check_sensor_updates()
 {
-	if (sensors.do_update_accel_gyro_mag) {
-		sensors.do_update_accel_gyro_mag = false;
+	if (do_update_accel_gyro_mag) {
+		do_update_accel_gyro_mag = false;
 		get_accelgyro();
 		get_mag();
 		sensors.changed_accel_gyro_mag = true;
 	}
 
-	if (sensors.do_update_temperature_pressure) {
-		sensors.do_update_temperature_pressure = false;
+	if (do_update_temperature_pressure) {
+		do_update_temperature_pressure = false;
 		sensors.update_temperature_pressure_step = SENSOR_REQ_TEMP;	// first step
 		get_temperature_pressure();
-	} else if (sensors.do_update_temperature_pressure_step) {
-		sensors.do_update_temperature_pressure_step = false;
+	} else if (do_update_temperature_pressure_step) {
+		do_update_temperature_pressure_step = false;
 		sensors.update_temperature_pressure_step++;
 		get_temperature_pressure();
 	}
@@ -419,21 +442,24 @@ void update_display()
 	dtostrf_sign(sensors.az_f, 4, 2, display_struct.tempbuffer[2]);   // -x.x
 	snprintf(display_struct.displaybuffer[0], 21, "A %s %s %s", display_struct.tempbuffer[0], display_struct.tempbuffer[1], display_struct.tempbuffer[2]);
 
-	snprintf(display_struct.displaybuffer[1], 21, "G: %+4d %+4d %+4d", sensors.gx, sensors.gy, sensors.gz);
+	dtostrf_sign(sensors.gx_f, 4, 1, display_struct.tempbuffer[0]);   // -x.x
+	dtostrf_sign(sensors.gy_f, 4, 1, display_struct.tempbuffer[1]);   // -x.x
+	dtostrf_sign(sensors.gz_f, 4, 1, display_struct.tempbuffer[2]);   // -x.x
+	snprintf(display_struct.displaybuffer[1], 21, "G %s %s %s", display_struct.tempbuffer[0], display_struct.tempbuffer[1], display_struct.tempbuffer[2]);
 
 	dtostrf(sensors.heading, 3, 0, display_struct.tempbuffer[0]);   // xxx
 	dtostrf(sensors.temperature, 5, 2, display_struct.tempbuffer[1]);   // -xx.x
-	snprintf(display_struct.displaybuffer[2], 21, "H: %s, T: %s", display_struct.tempbuffer[0], display_struct.tempbuffer[1]);
+	snprintf(display_struct.displaybuffer[2], 21, "H %s, T %s", display_struct.tempbuffer[0], display_struct.tempbuffer[1]);
 
 	dtostrf(sensors.altitude, 4, 0, display_struct.tempbuffer[0]);   // xxxx
 	dtostrf(sensors.pressure / 100.0, 4, 0, display_struct.tempbuffer[1]);   // xxxx
-	snprintf(display_struct.displaybuffer[3], 21, "Alt: %s, P: %s", display_struct.tempbuffer[0], display_struct.tempbuffer[1]);
+	snprintf(display_struct.displaybuffer[3], 21, "Alt %s, P %s", display_struct.tempbuffer[0], display_struct.tempbuffer[1]);
 
 	display.clearDisplay();
 	display.setCursor(0, 0);
 
 	display.println(display_struct.displaybuffer[0]);
-	//  display.println(display_struct.displaybuffer[1]);
+	display.println(display_struct.displaybuffer[1]);
 	display.println(display_struct.displaybuffer[2]);
 	display.println(display_struct.displaybuffer[3]);
 }
@@ -455,50 +481,50 @@ void setup() {
 	initialize_rotary_encoder();
 
 	sensors.update_temperature_pressure_step = SENSOR_PAUSED;
-	sensors.do_update_temperature_pressure_step = false;
+	do_update_temperature_pressure_step = false;
 	setup_update_temperature_pressure_timer();
 	setup_update_accel_gyro_mag_timer();
-//	setup_update_display_timer();
+	setup_update_display_timer();
 }
 
 void loop() {
 
-int32_t perfStopWatch_getvalues;
-int32_t perfStopWatch_output;
-perfStopWatch_getvalues = micros();
+//int32_t perfStopWatch_getvalues;
+//int32_t perfStopWatch_output;
+//perfStopWatch_getvalues = micros();
 
 	check_sensor_updates();
 	check_sensor_calc();
 	
-perfStopWatch_getvalues -= micros();
-perfStopWatch_output = micros();
-
-perfStopWatch_output -= micros();
+//perfStopWatch_getvalues -= micros();
+//perfStopWatch_output = micros();
+//
+//perfStopWatch_output -= micros();
 
 	if (display_struct.update_display) {
 		display_struct.update_display = false;
 		update_display();
 	}
 
-Serial.print("performance: ");
-Serial.print(-perfStopWatch_getvalues);
-Serial.print(" ");
-Serial.println(-perfStopWatch_output);
+//Serial.print("performance: ");
+//Serial.print(-perfStopWatch_getvalues);
+//Serial.print(" ");
+//Serial.println(-perfStopWatch_output);
 
 	yield();
 	display.display();
 	yield();
 
-	delay(100);
+//	delay(100);
 
 	// display tab-separated accel/gyro x/y/z values
 	Serial.print("a/g:\t");
 	Serial.print(sensors.ax_f); Serial.print("\t");
 	Serial.print(sensors.ay_f); Serial.print("\t");
 	Serial.print(sensors.az_f); Serial.print("\t");
-	Serial.print(sensors.gx); Serial.print("\t");
-	Serial.print(sensors.gy); Serial.print("\t");
-	Serial.print(sensors.gz); Serial.print("\t");
+	Serial.print(sensors.gx_f); Serial.print("\t");
+	Serial.print(sensors.gy_f); Serial.print("\t");
+	Serial.print(sensors.gz_f); Serial.print("\t");
 
 	Serial.print("mag:\t");
 	Serial.print(sensors.mx); Serial.print("\t");
@@ -511,9 +537,9 @@ Serial.println(-perfStopWatch_output);
 	Serial.print("T/P/A\t");
 	Serial.print(sensors.temperature); Serial.print("\t");
 	Serial.print(sensors.pressure); Serial.print("\t");
-	Serial.print(sensors.altitude);
+	Serial.print(sensors.altitude); Serial.print("\t");
 
-	Serial.print("Rot.enc\t");
+	Serial.print("Rot.enc:\t");
 
 	rotenc.actualRotaryTicks = (rotenc.rotaryHalfSteps / 2);
 	Serial.print(rotenc.actualRotaryTicks);

@@ -60,3 +60,8 @@ display.println("abcdefghijklmnopqrstu");
 display.println("123456789012345678901");
 display.println("a:  +0.70 +0.46 +0.59");
 display.println("H: 215 T: 21.3");
+
+
+___________________________________________________________
+Crash:
+
