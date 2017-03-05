@@ -23,6 +23,7 @@ extern "C" {
 #include "Adafruit_SSD1306.h"
 
 #define	SERIAL_STATUS_OUTPUT
+#define MEASURE_PREFORMANCE
 
 // #define BUTTON_A		0		// huzzah oled 
 #define BUTTON_B		16		// huzzah oled 
@@ -509,18 +510,6 @@ void update_display()
 	display.println(display_struct.displaybuffer[3]);
 }
 
-
-//void long_button_press_cb(void *arg) {
-//	// TODO
-//}
-//
-//void long_button_press_timer() {
-//	os_timer_disarm(&timer_long_button_press);
-//	os_timer_setfn(&timer_long_button_press, (os_timer_func_t *)long_button_press_cb, (void *)0);
-//	os_timer_arm(&timer_long_button_press, DELAY_MS_TWOSEC, true);
-//}
-
-
 void setup() {
 #if !defined(ESP8266)
 	while (!Serial) delay(1);
@@ -546,35 +535,35 @@ void setup() {
 }
 
 void loop() {
-
-//int32_t perfStopWatch_getvalues;
-//int32_t perfStopWatch_output;
-//perfStopWatch_getvalues = micros();
+#ifdef MEASURE_PREFORMANCE
+	int32_t perfStopWatch_getvalues;
+	int32_t perfStopWatch_output;
+	perfStopWatch_getvalues = micros();
+#endif
 
 	check_sensor_updates();
 	check_sensor_calc();
 	
-//perfStopWatch_getvalues -= micros();
-//perfStopWatch_output = micros();
-//
-//perfStopWatch_output -= micros();
+#ifdef MEASURE_PREFORMANCE
+	perfStopWatch_getvalues -= micros();
+	perfStopWatch_output = micros();
+	perfStopWatch_output -= micros();
+#endif
 
 	if (display_struct.update_display) {
 		display_struct.update_display = false;
 		update_display();
 	}
-
-//Serial.print("performance: ");
-//Serial.print(-perfStopWatch_getvalues);
-//Serial.print(" ");
-//Serial.println(-perfStopWatch_output);
-
+#ifdef MEASURE_PREFORMANCE
+	Serial.print("performance us: ");
+	Serial.print(-perfStopWatch_getvalues);
+	Serial.print(" ");
+	Serial.println(-perfStopWatch_output);
+#endif
+	
 	yield();
 	display.display();
 	yield();
-
-//	delay(100);
-
 
 	//// display tab-separated accel/gyro x/y/z values
 	//Serial.print("a/g:\t");
@@ -598,22 +587,22 @@ void loop() {
 	//Serial.print(sensors.pressure); Serial.print("\t");
 	//Serial.print(sensors.altitude); Serial.print("\t");
 
-	if (rotenc.changed_rotEnc || button.changed) {
-		
-		Serial.print("Rot.enc:\t");
-		Serial.print(rotenc.actualRotaryTicks);
-		Serial.print(" Button: changed ");
-		Serial.print(button.changed);
-		Serial.print(", long ");
-		Serial.print(button.long_diff_change);
-		Serial.print(", int_signal ");
-		Serial.print(button.int_signal);
-		Serial.print(",  button signal ");
-		Serial.print(digitalRead(ENCODER_SW));
-		Serial.println("");
+	//if (rotenc.changed_rotEnc || button.changed) {
+	//	
+	//	Serial.print("Rot.enc:\t");
+	//	Serial.print(rotenc.actualRotaryTicks);
+	//	Serial.print(" Button: changed ");
+	//	Serial.print(button.changed);
+	//	Serial.print(", long ");
+	//	Serial.print(button.long_diff_change);
+	//	Serial.print(", int_signal ");
+	//	Serial.print(button.int_signal);
+	//	Serial.print(",  button signal ");
+	//	Serial.print(digitalRead(ENCODER_SW));
+	//	Serial.println("");
 
-		rotenc.changed_rotEnc = false;
-		button.changed = false;
-		button.long_diff_change = false;
-	}
+	//	rotenc.changed_rotEnc = false;
+	//	button.changed = false;
+	//	button.long_diff_change = false;
+	//}
 }
