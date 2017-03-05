@@ -38,6 +38,7 @@ extern "C" {
 #define DELAY_MS_1HZ	1000	// milliseconds delay ->  1 Hz
 #define DELAY_MS_2HZ	500		// milliseconds delay ->  2 Hz
 #define DELAY_MS_10HZ	100		// milliseconds delay -> 10 Hz
+#define DELAY_MS_TWOSEC	2000	// milliseconds delay -> 0.5 Hz = 2 sec
 
 // update_temperature_pressure_step
 #define SENSOR_PAUSED					0
@@ -99,6 +100,7 @@ typedef struct
 	uint8_t		int_signal;
 	uint8_t		int_history;
 	bool		changed;
+	bool		long_diff_change;
 } sGlobalButton;
 
 typedef struct
@@ -126,6 +128,7 @@ LOCAL os_timer_t timer_update_temperature_pressure;
 LOCAL os_timer_t timer_update_temperature_pressure_steps;
 LOCAL os_timer_t timer_update_accel_gyro_mag;
 LOCAL os_timer_t timer_update_display;
+LOCAL os_timer_t timer_long_button_press;
 
 int32_t lastMicros;		// TODO
 
@@ -214,6 +217,7 @@ char * dtostrf_sign(double number, signed char width, unsigned char prec, char *
 
 // rotary encoder interrupt routines
 void int0() {
+	bool calc_ticks = false;
 	if (millis() - rotenc.int0time < THRESHOLD)
 		return;
 	rotenc.int0history = rotenc.int0signal;
@@ -223,13 +227,15 @@ void int0() {
 	rotenc.int0time = millis();
 	if (rotenc.int0signal == rotenc.int1signal) {
 		rotenc.rotaryHalfSteps--;
-		rotenc.changed_rotEnc = true;
 	}
 	else {
 		rotenc.rotaryHalfSteps++;
+	}
+	if (rotenc.rotaryHalfSteps % 2 == 0) {
+		rotenc.actualRotaryTicks = rotenc.rotaryHalfSteps / 2;
 		rotenc.changed_rotEnc = true;
 	}
-}
+}		
 
 void int1() {
 	if (millis() - rotenc.int1time < THRESHOLD)
@@ -242,12 +248,15 @@ void int1() {
 }
 
 void int2() {
-	if (millis() - button.int_time < THRESHOLD)
+	uint32_t time_diff;
+	time_diff = millis() - button.int_time;
+	if ( time_diff < THRESHOLD)
 		return;
 	button.int_history = button.int_signal;
 	button.int_signal = digitalRead(ENCODER_SW);
 	if (button.int_history == button.int_signal)
 		return;
+	button.long_diff_change = (time_diff > DELAY_MS_TWOSEC) ? true : false;
 	button.int_time = millis();
 	button.changed = true;
 }
@@ -500,6 +509,18 @@ void update_display()
 	display.println(display_struct.displaybuffer[3]);
 }
 
+
+//void long_button_press_cb(void *arg) {
+//	// TODO
+//}
+//
+//void long_button_press_timer() {
+//	os_timer_disarm(&timer_long_button_press);
+//	os_timer_setfn(&timer_long_button_press, (os_timer_func_t *)long_button_press_cb, (void *)0);
+//	os_timer_arm(&timer_long_button_press, DELAY_MS_TWOSEC, true);
+//}
+
+
 void setup() {
 #if !defined(ESP8266)
 	while (!Serial) delay(1);
@@ -580,12 +601,11 @@ void loop() {
 	if (rotenc.changed_rotEnc || button.changed) {
 		
 		Serial.print("Rot.enc:\t");
-
-		rotenc.actualRotaryTicks = (rotenc.rotaryHalfSteps / 2);
 		Serial.print(rotenc.actualRotaryTicks);
-
 		Serial.print(" Button: changed ");
 		Serial.print(button.changed);
+		Serial.print(", long ");
+		Serial.print(button.long_diff_change);
 		Serial.print(", int_signal ");
 		Serial.print(button.int_signal);
 		Serial.print(",  button signal ");
@@ -594,5 +614,6 @@ void loop() {
 
 		rotenc.changed_rotEnc = false;
 		button.changed = false;
+		button.long_diff_change = false;
 	}
 }
