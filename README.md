@@ -9,11 +9,20 @@ address 0x77	GY-87/BMP180 	barometric pressure/temperature/altitude
 
 PIN assignment
 ==============
+#0		Rotary Encoder LED R		(Huzzah OLED Button A, red led)
+#2		Rotary Encoder LED G		(Huzzah OLED Button C, blue led)
 #4		SDA
 #5		SCL
 #12		Rotary Encoder Pin A
+#13		Rotary Encoder Switch 
 #14		Rotary Encoder Pin B
+#15		
+#16									(Huzzah OLED Button B)
 GND		Rotary Encoder Pin C/GND
+VCC		Rotary Encoder VCC
+		
+		
+
 
 Software TIMER usage
 ====================

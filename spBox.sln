@@ -13,6 +13,16 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "esp_timer_test", "..\esp_ti
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Blink", "..\My Examples\Blink\Blink.vcxproj", "{5D3579F2-6AE5-46D2-8BE5-AFDE002F461B}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ssd1306_128x32_i2c", "..\My Examples\ssd1306_128x32_i2c\ssd1306_128x32_i2c.vcxproj", "{986EE642-5BA8-4C67-887F-F646E2E92BA4}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "i2c scanner", "..\i2c scanner\i2c scanner.vcxproj", "{44DB88C5-3A38-46DA-9F6B-730AF811F1A8}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BMP085_basic", "..\My Examples\BMP085_basic\BMP085_basic.vcxproj", "{41BFC917-AD2D-4681-91D1-EF533F0E2125}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "tester", "..\My Examples\tester\tester.vcxproj", "{0E3CCF9F-8C1C-456F-A9E9-399989A1F835}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "oled test code", "..\oled test code\oled test code.vcxproj", "{14536A26-01F6-4751-9F1F-14AD688F8ED2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -38,6 +48,26 @@ Global
 		{5D3579F2-6AE5-46D2-8BE5-AFDE002F461B}.Debug|x86.Build.0 = Debug|Win32
 		{5D3579F2-6AE5-46D2-8BE5-AFDE002F461B}.Release|x86.ActiveCfg = Release|Win32
 		{5D3579F2-6AE5-46D2-8BE5-AFDE002F461B}.Release|x86.Build.0 = Release|Win32
+		{986EE642-5BA8-4C67-887F-F646E2E92BA4}.Debug|x86.ActiveCfg = Debug|Win32
+		{986EE642-5BA8-4C67-887F-F646E2E92BA4}.Debug|x86.Build.0 = Debug|Win32
+		{986EE642-5BA8-4C67-887F-F646E2E92BA4}.Release|x86.ActiveCfg = Release|Win32
+		{986EE642-5BA8-4C67-887F-F646E2E92BA4}.Release|x86.Build.0 = Release|Win32
+		{44DB88C5-3A38-46DA-9F6B-730AF811F1A8}.Debug|x86.ActiveCfg = Debug|Win32
+		{44DB88C5-3A38-46DA-9F6B-730AF811F1A8}.Debug|x86.Build.0 = Debug|Win32
+		{44DB88C5-3A38-46DA-9F6B-730AF811F1A8}.Release|x86.ActiveCfg = Release|Win32
+		{44DB88C5-3A38-46DA-9F6B-730AF811F1A8}.Release|x86.Build.0 = Release|Win32
+		{41BFC917-AD2D-4681-91D1-EF533F0E2125}.Debug|x86.ActiveCfg = Debug|Win32
+		{41BFC917-AD2D-4681-91D1-EF533F0E2125}.Debug|x86.Build.0 = Debug|Win32
+		{41BFC917-AD2D-4681-91D1-EF533F0E2125}.Release|x86.ActiveCfg = Release|Win32
+		{41BFC917-AD2D-4681-91D1-EF533F0E2125}.Release|x86.Build.0 = Release|Win32
+		{0E3CCF9F-8C1C-456F-A9E9-399989A1F835}.Debug|x86.ActiveCfg = Debug|Win32
+		{0E3CCF9F-8C1C-456F-A9E9-399989A1F835}.Debug|x86.Build.0 = Debug|Win32
+		{0E3CCF9F-8C1C-456F-A9E9-399989A1F835}.Release|x86.ActiveCfg = Release|Win32
+		{0E3CCF9F-8C1C-456F-A9E9-399989A1F835}.Release|x86.Build.0 = Release|Win32
+		{14536A26-01F6-4751-9F1F-14AD688F8ED2}.Debug|x86.ActiveCfg = Debug|Win32
+		{14536A26-01F6-4751-9F1F-14AD688F8ED2}.Debug|x86.Build.0 = Debug|Win32
+		{14536A26-01F6-4751-9F1F-14AD688F8ED2}.Release|x86.ActiveCfg = Release|Win32
+		{14536A26-01F6-4751-9F1F-14AD688F8ED2}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -69,6 +69,8 @@ typedef struct
 	bool		changed_temperatur_pressure;	// -> re-calculate
 } sGlobalSensors;
 
+volatile bool do_update_accel_gyro_mag;	// TEMP TODO
+
 typedef struct
 {
 	uint32_t	int0time;			// ISR threshold
@@ -281,6 +283,7 @@ LOCAL void ICACHE_FLASH_ATTR update_temperature_pressure_step_cb(void *arg) {
 
 LOCAL void ICACHE_FLASH_ATTR update_accel_gyro_mag_cb(void *arg) {
 	sensors.do_update_accel_gyro_mag = true;
+	// do_update_accel_gyro_mag = true;
 }
 
 LOCAL void ICACHE_FLASH_ATTR update_display_cb(void *arg) {
@@ -455,7 +458,7 @@ void setup() {
 	sensors.do_update_temperature_pressure_step = false;
 	setup_update_temperature_pressure_timer();
 	setup_update_accel_gyro_mag_timer();
-	setup_update_display_timer();
+//	setup_update_display_timer();
 }
 
 void loop() {
@@ -472,10 +475,10 @@ perfStopWatch_output = micros();
 
 perfStopWatch_output -= micros();
 
-	//if (display_struct.update_display) {
-	//	display_struct.update_display = false;
-	//	update_display();
-	//}
+	if (display_struct.update_display) {
+		display_struct.update_display = false;
+		update_display();
+	}
 
 Serial.print("performance: ");
 Serial.print(-perfStopWatch_getvalues);
@@ -486,8 +489,8 @@ Serial.println(-perfStopWatch_output);
 	display.display();
 	yield();
 
-//	delay(100);
-/*
+	delay(100);
+
 	// display tab-separated accel/gyro x/y/z values
 	Serial.print("a/g:\t");
 	Serial.print(sensors.ax_f); Serial.print("\t");
@@ -515,5 +518,4 @@ Serial.println(-perfStopWatch_output);
 	rotenc.actualRotaryTicks = (rotenc.rotaryHalfSteps / 2);
 	Serial.print(rotenc.actualRotaryTicks);
 	Serial.println("");
-*/
 }
