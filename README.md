@@ -46,6 +46,18 @@ i2cdevlib (see https://www.i2cdevlib.com/usage)
 Adafruit GFX
 Adafruit SSD1306
 
+Upload procedure
+================
+Caused by an yet unknown reason, uploading the code without interaction does not work 
+Workaround:
+Press and hold Button A, meanwhile press/release Reset, start uploading process, release Button A. Maybe works, because Button A is #0 and thus relevant for booting/uploading.
+Needs some investigation.
+
+Power consumption
+=================
+not optimizes yet. Device should power off or put itslf in sleep mode after whatever time.
+How to wake up again? Reset=
+
 Serial Output
 =============
 

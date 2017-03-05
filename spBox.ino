@@ -49,11 +49,11 @@ extern "C" {
 #define MPU6050_GXOFFSET	0
 #define MPU6050_GYOFFSET	0
 #define MPU6050_GZOFFSET	0
-#define MPU6050_G_GAIN		131
+#define MPU6050_G_GAIN		(32.8)
 #define MPU6050_AXOFFSET	0
 #define MPU6050_AYOFFSET	0
 #define MPU6050_AZOFFSET	0
-#define MPU6050_A_GAIN		32768
+#define MPU6050_A_GAIN		16384
 
 
 #if (SSD1306_LCDHEIGHT != 32)
@@ -95,6 +95,14 @@ typedef struct
 
 typedef struct
 {
+	uint32_t	int_time;		
+	uint8_t		int_signal;
+	uint8_t		int_history;
+	bool		changed;
+} sGlobalButton;
+
+typedef struct
+{
 	char displaybuffer[4][21];  // 4 lines with 21 chars each
 	char tempbuffer[3][15];     // temp for float to str conversion
 	bool update_display;
@@ -112,6 +120,7 @@ volatile bool	do_update_temperature_pressure_step;
 
 sGlobalDisplay	display_struct;
 volatile sGlobalRotEnc	rotenc;
+volatile sGlobalButton button;
 
 LOCAL os_timer_t timer_update_temperature_pressure;
 LOCAL os_timer_t timer_update_temperature_pressure_steps;
@@ -212,10 +221,14 @@ void int0() {
 	if (rotenc.int0history == rotenc.int0signal)
 		return;
 	rotenc.int0time = millis();
-	if (rotenc.int0signal == rotenc.int1signal)
+	if (rotenc.int0signal == rotenc.int1signal) {
 		rotenc.rotaryHalfSteps--;
-	else
+		rotenc.changed_rotEnc = true;
+	}
+	else {
 		rotenc.rotaryHalfSteps++;
+		rotenc.changed_rotEnc = true;
+	}
 }
 
 void int1() {
@@ -228,17 +241,31 @@ void int1() {
 	rotenc.int1time = millis();
 }
 
+void int2() {
+	if (millis() - button.int_time < THRESHOLD)
+		return;
+	button.int_history = button.int_signal;
+	button.int_signal = digitalRead(ENCODER_SW);
+	if (button.int_history == button.int_signal)
+		return;
+	button.int_time = millis();
+	button.changed = true;
+}
+
 void initialize_GPIO() {
 	//pinMode(BUTTON_A, INPUT_PULLUP);
 	pinMode(BUTTON_B, INPUT_PULLUP);
 	//pinMode(BUTTON_C, INPUT_PULLUP);
 	pinMode(ENCODER_PIN_A, INPUT_PULLUP);
 	pinMode(ENCODER_PIN_B, INPUT_PULLUP);
-	pinMode(ENCODER_SW, INPUT);
 	pinMode(LED_R, OUTPUT);
 	pinMode(LED_G, OUTPUT);
 	digitalWrite(LED_R, HIGH);
 	digitalWrite(LED_G, HIGH);
+
+	pinMode(ENCODER_SW, OUTPUT);
+	digitalWrite(ENCODER_SW, 0);
+	pinMode(ENCODER_SW, INPUT_PULLUP);
 }
 
 void initialize_display() {
@@ -254,7 +281,8 @@ void initialize_accelgyro() {
 	accelgyro.setI2CMasterModeEnabled(false);
 	accelgyro.setI2CBypassEnabled(true);
 	accelgyro.setSleepEnabled(false);
-	accelgyro.initialize();		// init w/gyro FS_SEL=0 -> div. by 131 and AFS_SEL=0, -> div. by 16,384
+	accelgyro.initialize();		// init w/gyro FS_250 -> div. by 131 and AFS_SEL=0, -> div. by 16,384
+	accelgyro.setFullScaleGyroRange(MPU6050_GYRO_FS_1000);	// ... div. by 32.8
 	do_update_accel_gyro_mag = false;
 	sensors.changed_accel_gyro_mag = false;
 #ifdef SERIAL_STATUS_OUTPUT
@@ -289,6 +317,14 @@ void initialize_rotary_encoder() {
 	rotenc.rotaryHalfSteps = 0;
 	rotenc.actualRotaryTicks = 0;
 	rotenc.changed_rotEnc = false;
+}
+
+void initialize_button() {
+	attachInterrupt(digitalPinToInterrupt(ENCODER_SW), int2, CHANGE);
+
+	button.int_signal = digitalRead(ENCODER_SW);
+	button.int_history = button.int_signal;
+	button.changed = false;
 }
 
  void update_temperature_pressure_cb(void *arg) {		// LOCAL void ICACHE_FLASH_ATTR ...
@@ -386,7 +422,7 @@ void calc_mag()
 	float heading = atan2(sensors.my, sensors.mz);
 	if (heading < 0)
 		heading += M_TWOPI;
-	heading *= 180 / M_PI;
+	heading *= 180.0 / M_PI;
 	sensors.heading = heading;
 }
 
@@ -442,9 +478,9 @@ void update_display()
 	dtostrf_sign(sensors.az_f, 4, 2, display_struct.tempbuffer[2]);   // -x.x
 	snprintf(display_struct.displaybuffer[0], 21, "A %s %s %s", display_struct.tempbuffer[0], display_struct.tempbuffer[1], display_struct.tempbuffer[2]);
 
-	dtostrf_sign(sensors.gx_f, 4, 1, display_struct.tempbuffer[0]);   // -x.x
-	dtostrf_sign(sensors.gy_f, 4, 1, display_struct.tempbuffer[1]);   // -x.x
-	dtostrf_sign(sensors.gz_f, 4, 1, display_struct.tempbuffer[2]);   // -x.x
+	dtostrf_sign(sensors.gx_f, 5, 1, display_struct.tempbuffer[0]);   // -x.x
+	dtostrf_sign(sensors.gy_f, 5, 1, display_struct.tempbuffer[1]);   // -x.x
+	dtostrf_sign(sensors.gz_f, 5, 1, display_struct.tempbuffer[2]);   // -x.x
 	snprintf(display_struct.displaybuffer[1], 21, "G %s %s %s", display_struct.tempbuffer[0], display_struct.tempbuffer[1], display_struct.tempbuffer[2]);
 
 	dtostrf(sensors.heading, 3, 0, display_struct.tempbuffer[0]);   // xxx
@@ -479,6 +515,7 @@ void setup() {
 	initialize_mag();
 	initialize_barometer();
 	initialize_rotary_encoder();
+	initialize_button();
 
 	sensors.update_temperature_pressure_step = SENSOR_PAUSED;
 	do_update_temperature_pressure_step = false;
@@ -517,31 +554,45 @@ void loop() {
 
 //	delay(100);
 
-	// display tab-separated accel/gyro x/y/z values
-	Serial.print("a/g:\t");
-	Serial.print(sensors.ax_f); Serial.print("\t");
-	Serial.print(sensors.ay_f); Serial.print("\t");
-	Serial.print(sensors.az_f); Serial.print("\t");
-	Serial.print(sensors.gx_f); Serial.print("\t");
-	Serial.print(sensors.gy_f); Serial.print("\t");
-	Serial.print(sensors.gz_f); Serial.print("\t");
 
-	Serial.print("mag:\t");
-	Serial.print(sensors.mx); Serial.print("\t");
-	Serial.print(sensors.my); Serial.print("\t");
-	Serial.print(sensors.mz); Serial.print("\t");
+	//// display tab-separated accel/gyro x/y/z values
+	//Serial.print("a/g:\t");
+	//Serial.print(sensors.ax_f); Serial.print("\t");
+	//Serial.print(sensors.ay_f); Serial.print("\t");
+	//Serial.print(sensors.az_f); Serial.print("\t");
+	//Serial.print(sensors.gx_f); Serial.print("\t");
+	//Serial.print(sensors.gy_f); Serial.print("\t");
+	//Serial.print(sensors.gz_f); Serial.print("\t");
 
-	Serial.print("heading:\t");
-	Serial.print(sensors.heading); Serial.print("\t");
+	//Serial.print("mag:\t");
+	//Serial.print(sensors.mx); Serial.print("\t");
+	//Serial.print(sensors.my); Serial.print("\t");
+	//Serial.print(sensors.mz); Serial.print("\t");
 
-	Serial.print("T/P/A\t");
-	Serial.print(sensors.temperature); Serial.print("\t");
-	Serial.print(sensors.pressure); Serial.print("\t");
-	Serial.print(sensors.altitude); Serial.print("\t");
+	//Serial.print("heading:\t");
+	//Serial.print(sensors.heading); Serial.print("\t");
 
-	Serial.print("Rot.enc:\t");
+	//Serial.print("T/P/A\t");
+	//Serial.print(sensors.temperature); Serial.print("\t");
+	//Serial.print(sensors.pressure); Serial.print("\t");
+	//Serial.print(sensors.altitude); Serial.print("\t");
 
-	rotenc.actualRotaryTicks = (rotenc.rotaryHalfSteps / 2);
-	Serial.print(rotenc.actualRotaryTicks);
-	Serial.println("");
+	if (rotenc.changed_rotEnc || button.changed) {
+		
+		Serial.print("Rot.enc:\t");
+
+		rotenc.actualRotaryTicks = (rotenc.rotaryHalfSteps / 2);
+		Serial.print(rotenc.actualRotaryTicks);
+
+		Serial.print(" Button: changed ");
+		Serial.print(button.changed);
+		Serial.print(", int_signal ");
+		Serial.print(button.int_signal);
+		Serial.print(",  button signal ");
+		Serial.print(digitalRead(ENCODER_SW));
+		Serial.println("");
+
+		rotenc.changed_rotEnc = false;
+		button.changed = false;
+	}
 }
