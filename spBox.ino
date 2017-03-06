@@ -10,10 +10,14 @@
 extern "C" {
 #include "c_types.h"
 #include "user_interface.h"
-// #include "ets_sys.h"
+	// #include "ets_sys.h"
 #include "osapi.h"
 }
 
+#include <ESP8266WiFi\src\ESP8266WiFi.h>
+#include <ESP8266mDNS\ESP8266mDNS.h>
+#include <ESP8266WiFi\src\WiFiUdp.h>
+#include <ArduinoOTA\ArduinoOTA.h>
 #include "Wire.h"
 #include "I2Cdev.h"
 #include "MPU6050.h"
@@ -23,23 +27,28 @@ extern "C" {
 #include "Adafruit_SSD1306.h"
 
 #define	SERIAL_STATUS_OUTPUT
-#define MEASURE_PREFORMANCE
+#undef MEASURE_PREFORMANCE
+#define DEBUG_ESP_OTA
+#define DEBUG_ESP_PORT
 
-// #define BUTTON_A		0		// huzzah oled 
-#define BUTTON_B		16		// huzzah oled 
-// #define BUTTON_C		2		// huzzah oled 
+const char* ssid = "W12";
+const char* password = "EYo6Hv4qRO7P1JSpAqZCH6vGVPHwznRWODIIIdhd1pBkeWCYie0knb1pOQ9t2cc";
+
+// #define BUTTON_A		0		// huzzah oled
+#define BUTTON_B		16		// huzzah oled
+// #define BUTTON_C		2		// huzzah oled
 #define ENCODER_PIN_A	12
 #define ENCODER_PIN_B	14
 #define ENCODER_SW		13
 #define LED_R			0		// rot enc led red (and huzzah led red)
 #define LED_G			2		// rot enc led green (and huzzah led blue)
 
-
 #define THRESHOLD		7		// debounce threshold in milliseconds
 #define DELAY_MS_1HZ	1000	// milliseconds delay ->  1 Hz
 #define DELAY_MS_2HZ	500		// milliseconds delay ->  2 Hz
-#define DELAY_MS_10HZ	100		// milliseconds delay -> 10 Hz
-#define DELAY_MS_TWOSEC	2000	// milliseconds delay -> 0.5 Hz = 2 sec
+#define DELAY_MS_10HZ	100
+#define DELAY_MS_TWOSEC	2000
+#define DELAY_MS_TENSEC	10000
 
 // update_temperature_pressure_step
 #define SENSOR_PAUSED					0
@@ -57,7 +66,6 @@ extern "C" {
 #define MPU6050_AZOFFSET	0
 #define MPU6050_A_GAIN		16384
 
-
 #if (SSD1306_LCDHEIGHT != 32)
 #error("Height incorrect, please fix Adafruit_SSD1306.h!");
 #endif
@@ -69,7 +77,7 @@ typedef struct
 
 	int16_t		gx, gy, gz;			// gyro values (sensor)
 	float		gx_f, gy_f, gz_f;	// gyro float values (calculated)
-		
+
 	int16_t		mx, my, mz;			// magnetometer values (sensor)
 	float		heading;			// calculated heading (calculated)
 
@@ -97,11 +105,12 @@ typedef struct
 
 typedef struct
 {
-	uint32_t	int_time;		
+	uint32_t	int_time;
 	uint8_t		int_signal;
 	uint8_t		int_history;
 	bool		changed;
-	bool		long_diff_change;
+	bool		long_diff_change;		// long time gone since change
+	bool		very_long_diff_change;	// very long time gone since change
 } sGlobalButton;
 
 typedef struct
@@ -117,7 +126,7 @@ BMP085		barometer;
 Adafruit_SSD1306  display = Adafruit_SSD1306();	// TODO
 
 sGlobalSensors	sensors;
-volatile bool	do_update_accel_gyro_mag;	
+volatile bool	do_update_accel_gyro_mag;
 volatile bool	do_update_temperature_pressure;
 volatile bool	do_update_temperature_pressure_step;
 
@@ -125,6 +134,7 @@ sGlobalDisplay	display_struct;
 volatile sGlobalRotEnc	rotenc;
 volatile sGlobalButton button;
 
+bool	WIFI_status;
 LOCAL os_timer_t timer_update_temperature_pressure;
 LOCAL os_timer_t timer_update_temperature_pressure_steps;
 LOCAL os_timer_t timer_update_accel_gyro_mag;
@@ -236,7 +246,7 @@ void int0() {
 		rotenc.actualRotaryTicks = rotenc.rotaryHalfSteps / 2;
 		rotenc.changed_rotEnc = true;
 	}
-}		
+}
 
 void int1() {
 	if (millis() - rotenc.int1time < THRESHOLD)
@@ -251,13 +261,14 @@ void int1() {
 void int2() {
 	uint32_t time_diff;
 	time_diff = millis() - button.int_time;
-	if ( time_diff < THRESHOLD)
+	if (time_diff < THRESHOLD)
 		return;
 	button.int_history = button.int_signal;
 	button.int_signal = digitalRead(ENCODER_SW);
 	if (button.int_history == button.int_signal)
 		return;
 	button.long_diff_change = (time_diff > DELAY_MS_TWOSEC) ? true : false;
+	button.very_long_diff_change = (time_diff > DELAY_MS_TENSEC) ? true : false;
 	button.int_time = millis();
 	button.changed = true;
 }
@@ -337,11 +348,11 @@ void initialize_button() {
 	button.changed = false;
 }
 
- void update_temperature_pressure_cb(void *arg) {		// LOCAL void ICACHE_FLASH_ATTR ...
+void update_temperature_pressure_cb(void *arg) {		// LOCAL void ICACHE_FLASH_ATTR ...
 	do_update_temperature_pressure = true;
 }
 
- void update_temperature_pressure_step_cb(void *arg) {
+void update_temperature_pressure_step_cb(void *arg) {
 	do_update_temperature_pressure_step = true;
 }
 
@@ -350,13 +361,13 @@ void update_accel_gyro_mag_cb(void *arg) {
 }
 
 void update_display_cb(void *arg) {
-	 display_struct.update_display = true;
+	display_struct.update_display = true;
 }
 
 void setup_update_temperature_pressure_timer()
 {
 	os_timer_disarm(&timer_update_temperature_pressure);
-	os_timer_setfn(&timer_update_temperature_pressure, (os_timer_func_t *) update_temperature_pressure_cb, (void *)0);
+	os_timer_setfn(&timer_update_temperature_pressure, (os_timer_func_t *)update_temperature_pressure_cb, (void *)0);
 	os_timer_arm(&timer_update_temperature_pressure, DELAY_MS_1HZ, true);	// DELAY_MS_1HZ
 }
 
@@ -384,35 +395,35 @@ void get_mag()
 	mag.getHeading(&sensors.mx, &sensors.my, &sensors.mz);
 }
 
-void get_temperature_pressure() 
+void get_temperature_pressure()
 {
-	switch (sensors.update_temperature_pressure_step){
-		case SENSOR_REQ_TEMP:
-			//Serial.println("SENSOR_REQ_TEMP");
-			barometer.setControl(BMP085_MODE_TEMPERATURE);
-			os_timer_disarm(&timer_update_temperature_pressure_steps);
-			os_timer_setfn(&timer_update_temperature_pressure_steps, (os_timer_func_t *)update_temperature_pressure_step_cb, (void *)0);
-			os_timer_arm(&timer_update_temperature_pressure_steps, barometer.getMeasureDelayMilliseconds(), false);
-			break;
+	switch (sensors.update_temperature_pressure_step) {
+	case SENSOR_REQ_TEMP:
+		//Serial.println("SENSOR_REQ_TEMP");
+		barometer.setControl(BMP085_MODE_TEMPERATURE);
+		os_timer_disarm(&timer_update_temperature_pressure_steps);
+		os_timer_setfn(&timer_update_temperature_pressure_steps, (os_timer_func_t *)update_temperature_pressure_step_cb, (void *)0);
+		os_timer_arm(&timer_update_temperature_pressure_steps, barometer.getMeasureDelayMilliseconds(), false);
+		break;
 
-		case SENSOR_READ_TEMP_REQ_PRESSURE:
-			//Serial.println("SENSOR_READ_TEMP_REQ_PRESSURE");
-			sensors.temperature = barometer.getTemperatureC();
-			barometer.setControl(BMP085_MODE_PRESSURE_3);
-			os_timer_disarm(&timer_update_temperature_pressure_steps);
-			os_timer_setfn(&timer_update_temperature_pressure_steps, (os_timer_func_t *)update_temperature_pressure_step_cb, (void *)0);
-			os_timer_arm(&timer_update_temperature_pressure_steps, barometer.getMeasureDelayMilliseconds(), false);
-			break;
+	case SENSOR_READ_TEMP_REQ_PRESSURE:
+		//Serial.println("SENSOR_READ_TEMP_REQ_PRESSURE");
+		sensors.temperature = barometer.getTemperatureC();
+		barometer.setControl(BMP085_MODE_PRESSURE_3);
+		os_timer_disarm(&timer_update_temperature_pressure_steps);
+		os_timer_setfn(&timer_update_temperature_pressure_steps, (os_timer_func_t *)update_temperature_pressure_step_cb, (void *)0);
+		os_timer_arm(&timer_update_temperature_pressure_steps, barometer.getMeasureDelayMilliseconds(), false);
+		break;
 
-		case SENSOR_READ_PRESSURE:
-			//Serial.println("SENSOR_READ_PRESSURE");
-			sensors.pressure = barometer.getPressure();
-			os_timer_disarm(&timer_update_temperature_pressure_steps);
-			sensors.update_temperature_pressure_step = SENSOR_DONE;
-			break;
+	case SENSOR_READ_PRESSURE:
+		//Serial.println("SENSOR_READ_PRESSURE");
+		sensors.pressure = barometer.getPressure();
+		os_timer_disarm(&timer_update_temperature_pressure_steps);
+		sensors.update_temperature_pressure_step = SENSOR_DONE;
+		break;
 
-		default:
-			break;
+	default:
+		break;
 	}
 }
 
@@ -457,12 +468,13 @@ void check_sensor_updates()
 		do_update_temperature_pressure = false;
 		sensors.update_temperature_pressure_step = SENSOR_REQ_TEMP;	// first step
 		get_temperature_pressure();
-	} else if (do_update_temperature_pressure_step) {
+	}
+	else if (do_update_temperature_pressure_step) {
 		do_update_temperature_pressure_step = false;
 		sensors.update_temperature_pressure_step++;
 		get_temperature_pressure();
 	}
-	if (sensors.update_temperature_pressure_step == SENSOR_DONE){
+	if (sensors.update_temperature_pressure_step == SENSOR_DONE) {
 		sensors.update_temperature_pressure_step = SENSOR_PAUSED;
 		sensors.changed_temperatur_pressure = true;
 	}
@@ -481,6 +493,54 @@ void check_sensor_calc()
 	}
 }
 
+void check_button() {
+	//	ArduinoOTA.handle();		// TODO
+
+	if (!button.changed)
+		return;
+
+	if (button.int_signal) {
+		if (!button.long_diff_change) {
+			// kurz LOW -> HIGH
+			Serial.println(" Button: kurz LOW jetzt HIGH");
+		}
+		else {
+			// lange LOW -> HIGH
+			Serial.println(" Button: lange LOW jetzt HIGH");
+		}
+	}
+	else {
+		if (!button.long_diff_change) {
+			// kurz HIGH -> LOW
+			Serial.println(" Button: kurz HIGH jetzt LOW");
+		}
+		else {
+			if (!button.very_long_diff_change) {
+				// lange HIGH ->  LOW
+				Serial.println(" Button: lange HIGH jetzt LOW");
+				if (WIFI_status == false) {
+					WiFi.mode(WIFI_STA);			// WL_CONNECTED
+					WiFi.begin();
+					Serial.println("WIFI turned on");
+					WIFI_status = true;
+				}
+				else {
+					WiFi.mode(WIFI_OFF);
+					Serial.println("WIFI turned off");
+					WIFI_status = false;
+				}
+			}
+			else
+			{
+				Serial.println(" Button: very lange HIGH jetzt LOW");
+			}
+		}
+	}
+	button.changed = false;
+	button.long_diff_change = false;
+	button.very_long_diff_change = false;
+}
+
 void update_display()
 {
 	dtostrf_sign(sensors.ax_f, 4, 2, display_struct.tempbuffer[0]);   // -x.x
@@ -495,11 +555,12 @@ void update_display()
 
 	dtostrf(sensors.heading, 3, 0, display_struct.tempbuffer[0]);   // xxx
 	dtostrf(sensors.temperature, 5, 2, display_struct.tempbuffer[1]);   // -xx.x
-	snprintf(display_struct.displaybuffer[2], 21, "H %s, T %s", display_struct.tempbuffer[0], display_struct.tempbuffer[1]);
+	snprintf(display_struct.displaybuffer[2], 21, "H %s T %s", display_struct.tempbuffer[0], display_struct.tempbuffer[1]);
 
-	dtostrf(sensors.altitude, 4, 0, display_struct.tempbuffer[0]);   // xxxx
-	dtostrf(sensors.pressure / 100.0, 4, 0, display_struct.tempbuffer[1]);   // xxxx
-	snprintf(display_struct.displaybuffer[3], 21, "Alt %s, P %s", display_struct.tempbuffer[0], display_struct.tempbuffer[1]);
+	dtostrf(sensors.altitude, 4, 0, display_struct.tempbuffer[0]);			// xxxx
+	dtostrf(sensors.pressure / 100.0, 4, 0, display_struct.tempbuffer[1]);  // xxxx
+	dtostrf(WiFi.status(), 1, 0, display_struct.tempbuffer[2]);				// x
+	snprintf(display_struct.displaybuffer[3], 21, "Alt %s P %s   W%s", display_struct.tempbuffer[0], display_struct.tempbuffer[1], display_struct.tempbuffer[2]);
 
 	display.clearDisplay();
 	display.setCursor(0, 0);
@@ -510,6 +571,54 @@ void update_display()
 	display.println(display_struct.displaybuffer[3]);
 }
 
+void initialize_WLAN() {
+	Serial.println("Booting");
+	WIFI_status = false;
+	WiFi.mode(WIFI_STA);
+	WiFi.begin(ssid, password);
+	while (WiFi.waitForConnectResult() != WL_CONNECTED) {
+		Serial.println("Connection Failed! Rebooting...");
+		delay(5000);
+		ESP.restart();
+	}
+	Serial.print("IP address: ");
+	Serial.println(WiFi.localIP());
+	Serial.print("WLAN status: ");
+	Serial.println(WiFi.status());
+
+	WIFI_status = true;
+}
+
+void initialize_OTA() {
+	// Port defaults to 8266
+	// ArduinoOTA.setPort(8266);
+
+	// Hostname defaults to esp8266-[ChipID]
+	// ArduinoOTA.setHostname("esp8266-XXX");
+
+	// No authentication by default
+	// ArduinoOTA.setPassword((const char *)"123");
+
+	ArduinoOTA.onStart([]() {
+		Serial.println("Start");
+	});
+	ArduinoOTA.onEnd([]() {
+		Serial.println("\nEnd");
+	});
+	ArduinoOTA.onProgress([](unsigned int progress, unsigned int total) {
+		Serial.printf("Progress: %u%%\r", (progress / (total / 100)));
+	});
+	ArduinoOTA.onError([](ota_error_t error) {
+		Serial.printf("Error[%u]: ", error);
+		if (error == OTA_AUTH_ERROR) Serial.println("Auth Failed");
+		else if (error == OTA_BEGIN_ERROR) Serial.println("Begin Failed");
+		else if (error == OTA_CONNECT_ERROR) Serial.println("Connect Failed");
+		else if (error == OTA_RECEIVE_ERROR) Serial.println("Receive Failed");
+		else if (error == OTA_END_ERROR) Serial.println("End Failed");
+	});
+	ArduinoOTA.begin();
+}
+
 void setup() {
 #if !defined(ESP8266)
 	while (!Serial) delay(1);
@@ -518,7 +627,8 @@ void setup() {
 	Serial.begin(115200);
 	Wire.begin();
 
-	// initialize devices
+	initialize_WLAN();
+	//initialize_OTA();
 	initialize_GPIO();
 	initialize_display();
 	initialize_accelgyro();
@@ -543,24 +653,26 @@ void loop() {
 
 	check_sensor_updates();
 	check_sensor_calc();
-	
+
 #ifdef MEASURE_PREFORMANCE
 	perfStopWatch_getvalues -= micros();
 	perfStopWatch_output = micros();
 	perfStopWatch_output -= micros();
 #endif
 
+	check_button();
+
 	if (display_struct.update_display) {
 		display_struct.update_display = false;
 		update_display();
-	}
+}
 #ifdef MEASURE_PREFORMANCE
 	Serial.print("performance us: ");
 	Serial.print(-perfStopWatch_getvalues);
 	Serial.print(" ");
 	Serial.println(-perfStopWatch_output);
 #endif
-	
+
 	yield();
 	display.display();
 	yield();
@@ -588,7 +700,7 @@ void loop() {
 	//Serial.print(sensors.altitude); Serial.print("\t");
 
 	//if (rotenc.changed_rotEnc || button.changed) {
-	//	
+	//
 	//	Serial.print("Rot.enc:\t");
 	//	Serial.print(rotenc.actualRotaryTicks);
 	//	Serial.print(" Button: changed ");
