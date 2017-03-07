@@ -14,6 +14,11 @@ extern "C" {
 #include "osapi.h"
 }
 
+//#include <ESP8266WiFi.h>
+//#include <ESP8266mDNS.h>
+//#include <WiFiUdp.h>
+//#include <ArduinoOTA.h>
+
 #include <ESP8266WiFi\src\ESP8266WiFi.h>
 #include <ESP8266mDNS\ESP8266mDNS.h>
 #include <ESP8266WiFi\src\WiFiUdp.h>
@@ -134,7 +139,9 @@ sGlobalDisplay	display_struct;
 volatile sGlobalRotEnc	rotenc;
 volatile sGlobalButton button;
 
-bool	WIFI_status;
+bool	WLAN_initialized;
+bool	WLAN_status_on;
+
 LOCAL os_timer_t timer_update_temperature_pressure;
 LOCAL os_timer_t timer_update_temperature_pressure_steps;
 LOCAL os_timer_t timer_update_accel_gyro_mag;
@@ -518,17 +525,8 @@ void check_button() {
 			if (!button.very_long_diff_change) {
 				// lange HIGH ->  LOW
 				Serial.println(" Button: lange HIGH jetzt LOW");
-				if (WIFI_status == false) {
-					WiFi.mode(WIFI_STA);			// WL_CONNECTED
-					WiFi.begin();
-					Serial.println("WIFI turned on");
-					WIFI_status = true;
-				}
-				else {
-					WiFi.mode(WIFI_OFF);
-					Serial.println("WIFI turned off");
-					WIFI_status = false;
-				}
+
+				switch_WLAN((WLAN_status_on ? false : true));
 			}
 			else
 			{
@@ -572,21 +570,42 @@ void update_display()
 }
 
 void initialize_WLAN() {
-	Serial.println("Booting");
-	WIFI_status = false;
+	Serial.println("Initializing WLAN");
+	WLAN_status_on = false;
 	WiFi.mode(WIFI_STA);
 	WiFi.begin(ssid, password);
-	while (WiFi.waitForConnectResult() != WL_CONNECTED) {
-		Serial.println("Connection Failed! Rebooting...");
-		delay(5000);
-		ESP.restart();
-	}
+	//while (WiFi.waitForConnectResult() != WL_CONNECTED) {
+	//	Serial.println("Connection Failed! Rebooting...");
+	//	delay(5000);
+	//	ESP.restart();
+	//}
 	Serial.print("IP address: ");
 	Serial.println(WiFi.localIP());
 	Serial.print("WLAN status: ");
 	Serial.println(WiFi.status());
 
-	WIFI_status = true;
+	WLAN_initialized = true;
+	WLAN_status_on = true;
+}
+
+void switch_WLAN(bool turn_on) {
+	if (turn_on) {
+		if (!WLAN_initialized) {
+			initialize_WLAN();
+		}
+		else {
+			WiFi.mode(WIFI_STA);			// WL_CONNECTED
+			WiFi.begin();
+			Serial.println("WLAN turned on");
+			WLAN_status_on = true;
+		}
+	}
+	else
+	{
+		WiFi.mode(WIFI_OFF);
+		Serial.println("WLAN turned off");
+		WLAN_status_on = false;
+	}
 }
 
 void initialize_OTA() {
@@ -627,7 +646,7 @@ void setup() {
 	Serial.begin(115200);
 	Wire.begin();
 
-	initialize_WLAN();
+	//initialize_WLAN();
 	//initialize_OTA();
 	initialize_GPIO();
 	initialize_display();
@@ -665,7 +684,7 @@ void loop() {
 	if (display_struct.update_display) {
 		display_struct.update_display = false;
 		update_display();
-}
+	}
 #ifdef MEASURE_PREFORMANCE
 	Serial.print("performance us: ");
 	Serial.print(-perfStopWatch_getvalues);
