@@ -33,8 +33,6 @@ extern "C" {
 
 #define	SERIAL_STATUS_OUTPUT
 #undef MEASURE_PREFORMANCE
-#define DEBUG_ESP_OTA
-#define DEBUG_ESP_PORT
 
 const char* ssid = "W12";
 const char* password = "EYo6Hv4qRO7P1JSpAqZCH6vGVPHwznRWODIIIdhd1pBkeWCYie0knb1pOQ9t2cc";
@@ -62,14 +60,21 @@ const char* password = "EYo6Hv4qRO7P1JSpAqZCH6vGVPHwznRWODIIIdhd1pBkeWCYie0knb1p
 #define SENSOR_READ_PRESSURE			3
 #define SENSOR_DONE						4
 
-#define MPU6050_GXOFFSET	0
-#define MPU6050_GYOFFSET	0
-#define MPU6050_GZOFFSET	0
-#define MPU6050_G_GAIN		(32.8)
 #define MPU6050_AXOFFSET	0
 #define MPU6050_AYOFFSET	0
 #define MPU6050_AZOFFSET	0
-#define MPU6050_A_GAIN		16384
+#define MPU6050_A_GAIN		2048		// MPU6050_ACCEL_FS_16
+
+#define MPU6050_GXOFFSET	0
+#define MPU6050_GYOFFSET	0
+#define MPU6050_GZOFFSET	0
+#define MPU6050_G_GAIN		(16.4)		// MPU6050_GYRO_FS_2000
+#define MPU6050_DEG_RAD_CONV		0.01745329251994329576	// CONST
+#define MPU6050_GAIN_DEG_RAD_CONV	0.00106422515365507901	// MPU6050_DEG_RAD_CONV / MPU6050_G_GAIN
+
+#define MAX_NUMBER_DISPLAY_SCREENS		2
+#define DISPLAY_SCR_OVERVIEW			0
+#define DISPLAY_SCR_MAXVALUES			1
 
 #if (SSD1306_LCDHEIGHT != 32)
 #error("Height incorrect, please fix Adafruit_SSD1306.h!");
@@ -79,9 +84,11 @@ typedef struct
 {
 	int16_t		ax, ay, az;			// accel values (sensor)
 	float		ax_f, ay_f, az_f;	// accel float values (calculated)
+	float		max_ax_f, max_ay_f, max_az_f, min_ax_f, min_ay_f, min_az_f;
 
 	int16_t		gx, gy, gz;			// gyro values (sensor)
 	float		gx_f, gy_f, gz_f;	// gyro float values (calculated)
+	float		max_gx_f, max_gy_f, max_gz_f, min_gx_f, min_gy_f, min_gz_f;
 
 	int16_t		mx, my, mz;			// magnetometer values (sensor)
 	float		heading;			// calculated heading (calculated)
@@ -128,7 +135,7 @@ typedef struct
 MPU6050		accelgyro;
 HMC5883L	mag;
 BMP085		barometer;
-Adafruit_SSD1306  display = Adafruit_SSD1306();	// TODO
+Adafruit_SSD1306  display = Adafruit_SSD1306();
 
 sGlobalSensors	sensors;
 volatile bool	do_update_accel_gyro_mag;
@@ -251,6 +258,7 @@ void int0() {
 	}
 	if (rotenc.rotaryHalfSteps % 2 == 0) {
 		rotenc.actualRotaryTicks = rotenc.rotaryHalfSteps / 2;
+		rotenc.actualRotaryTicks %= MAX_NUMBER_DISPLAY_SCREENS;		// TODO different screens hard coded uuuugh.
 		rotenc.changed_rotEnc = true;
 	}
 }
@@ -310,7 +318,9 @@ void initialize_accelgyro() {
 	accelgyro.setI2CBypassEnabled(true);
 	accelgyro.setSleepEnabled(false);
 	accelgyro.initialize();		// init w/gyro FS_250 -> div. by 131 and AFS_SEL=0, -> div. by 16,384
-	accelgyro.setFullScaleGyroRange(MPU6050_GYRO_FS_1000);	// ... div. by 32.8
+	accelgyro.setFullScaleAccelRange(MPU6050_ACCEL_FS_16);		// scale factor 2048
+	accelgyro.setFullScaleGyroRange(MPU6050_GYRO_FS_2000);		// scale factor 16.4
+
 	do_update_accel_gyro_mag = false;
 	sensors.changed_accel_gyro_mag = false;
 #ifdef SERIAL_STATUS_OUTPUT
@@ -439,15 +449,54 @@ void calc_accelgyro()
 	sensors.ax_f = (float)(sensors.ax - MPU6050_AXOFFSET) / MPU6050_A_GAIN;
 	sensors.ay_f = (float)(sensors.ay - MPU6050_AYOFFSET) / MPU6050_A_GAIN;
 	sensors.az_f = (float)(sensors.az - MPU6050_AZOFFSET) / MPU6050_A_GAIN;
-	sensors.gx_f = (float)(sensors.gx - MPU6050_GXOFFSET) / MPU6050_G_GAIN;
-	sensors.gy_f = (float)(sensors.gy - MPU6050_GYOFFSET) / MPU6050_G_GAIN;
-	sensors.gz_f = (float)(sensors.gz - MPU6050_GZOFFSET) / MPU6050_G_GAIN;
+	//sensors.gx_f = (float)(sensors.gx - MPU6050_GXOFFSET) / MPU6050_G_GAIN;		// deg/s
+	//sensors.gy_f = (float)(sensors.gy - MPU6050_GYOFFSET) / MPU6050_G_GAIN;
+	//sensors.gz_f = (float)(sensors.gz - MPU6050_GZOFFSET) / MPU6050_G_GAIN;
+	sensors.gx_f = (float)(sensors.gx - MPU6050_GXOFFSET) * MPU6050_GAIN_DEG_RAD_CONV;	// rad/s
+	sensors.gy_f = (float)(sensors.gy - MPU6050_GYOFFSET) * MPU6050_GAIN_DEG_RAD_CONV;
+	sensors.gz_f = (float)(sensors.gz - MPU6050_GZOFFSET) * MPU6050_GAIN_DEG_RAD_CONV;
+}
+
+void reset_min_max_accelgyro() {
+	sensors.max_ax_f = sensors.min_ax_f = sensors.ax_f;
+	sensors.max_ay_f = sensors.min_ay_f = sensors.ay_f;
+	sensors.max_az_f = sensors.min_az_f = sensors.az_f;
+	sensors.max_gx_f = sensors.min_gx_f = sensors.gx_f;
+	sensors.max_gy_f = sensors.min_gy_f = sensors.gy_f;
+	sensors.max_gz_f = sensors.min_gz_f = sensors.gz_f;
+}
+
+void update_min_max_accelgyro() {
+	if (sensors.ax_f > sensors.max_ax_f)
+		sensors.max_ax_f = sensors.ax_f;
+	if (sensors.ay_f > sensors.max_ay_f)
+		sensors.max_ay_f = sensors.ay_f;
+	if (sensors.az_f > sensors.max_az_f)
+		sensors.max_az_f = sensors.az_f;
+	if (sensors.ax_f < sensors.min_ax_f)
+		sensors.min_ax_f = sensors.ax_f;
+	if (sensors.ay_f < sensors.min_ay_f)
+		sensors.min_ay_f = sensors.ay_f;
+	if (sensors.az_f < sensors.min_az_f)
+		sensors.min_az_f = sensors.az_f;
+	if (sensors.gx_f > sensors.max_gx_f)
+		sensors.max_gx_f = sensors.gx_f;
+	if (sensors.gy_f > sensors.max_gy_f)
+		sensors.max_gy_f = sensors.gy_f;
+	if (sensors.gz_f > sensors.max_gz_f)
+		sensors.max_gz_f = sensors.gz_f;
+	if (sensors.gx_f < sensors.min_gx_f)
+		sensors.min_gx_f = sensors.gx_f;
+	if (sensors.gy_f < sensors.min_gy_f)
+		sensors.min_gy_f = sensors.gy_f;
+	if (sensors.gz_f < sensors.min_gz_f)
+		sensors.min_gz_f = sensors.gz_f;
 }
 
 void calc_mag()
 {
 	// To calculate heading in degrees. 0 degree indicates North
-	float heading = atan2(sensors.my, sensors.mz);
+	float heading = atan2(sensors.mz, sensors.my);
 	if (heading < 0)
 		heading += M_TWOPI;
 	heading *= 180.0 / M_PI;
@@ -492,6 +541,8 @@ void check_sensor_calc()
 	if (sensors.changed_accel_gyro_mag) {
 		sensors.changed_accel_gyro_mag = false;
 		calc_accelgyro();
+		if (rotenc.actualRotaryTicks == DISPLAY_SCR_MAXVALUES)		// AAARGH TODO
+			update_min_max_accelgyro();
 		calc_mag();
 	}
 	if (sensors.changed_temperatur_pressure) {
@@ -520,6 +571,9 @@ void check_button() {
 		if (!button.long_diff_change) {
 			// kurz HIGH -> LOW
 			Serial.println(" Button: kurz HIGH jetzt LOW");
+			if (rotenc.actualRotaryTicks == DISPLAY_SCR_MAXVALUES) {
+				reset_min_max_accelgyro();
+			}
 		}
 		else {
 			if (!button.very_long_diff_change) {
@@ -539,33 +593,75 @@ void check_button() {
 	button.very_long_diff_change = false;
 }
 
-void update_display()
-{
-	dtostrf_sign(sensors.ax_f, 4, 2, display_struct.tempbuffer[0]);   // -x.x
-	dtostrf_sign(sensors.ay_f, 4, 2, display_struct.tempbuffer[1]);   // -x.x
-	dtostrf_sign(sensors.az_f, 4, 2, display_struct.tempbuffer[2]);   // -x.x
+void check_rotary_encoder() {
+}
+
+void update_display_scr1() {
+	dtostrf_sign(sensors.ax_f, 4, 2, display_struct.tempbuffer[0]);
+	dtostrf_sign(sensors.ay_f, 4, 2, display_struct.tempbuffer[1]);
+	dtostrf_sign(sensors.az_f, 4, 2, display_struct.tempbuffer[2]);
 	snprintf(display_struct.displaybuffer[0], 21, "A %s %s %s", display_struct.tempbuffer[0], display_struct.tempbuffer[1], display_struct.tempbuffer[2]);
 
-	dtostrf_sign(sensors.gx_f, 5, 1, display_struct.tempbuffer[0]);   // -x.x
-	dtostrf_sign(sensors.gy_f, 5, 1, display_struct.tempbuffer[1]);   // -x.x
-	dtostrf_sign(sensors.gz_f, 5, 1, display_struct.tempbuffer[2]);   // -x.x
+	dtostrf_sign(sensors.gx_f, 4, 2, display_struct.tempbuffer[0]);
+	dtostrf_sign(sensors.gy_f, 4, 2, display_struct.tempbuffer[1]);
+	dtostrf_sign(sensors.gz_f, 4, 2, display_struct.tempbuffer[2]);
 	snprintf(display_struct.displaybuffer[1], 21, "G %s %s %s", display_struct.tempbuffer[0], display_struct.tempbuffer[1], display_struct.tempbuffer[2]);
 
-	dtostrf(sensors.heading, 3, 0, display_struct.tempbuffer[0]);   // xxx
-	dtostrf(sensors.temperature, 5, 2, display_struct.tempbuffer[1]);   // -xx.x
+	dtostrf(sensors.heading, 3, 0, display_struct.tempbuffer[0]);
+	dtostrf(sensors.temperature, 5, 2, display_struct.tempbuffer[1]);
 	snprintf(display_struct.displaybuffer[2], 21, "H %s T %s", display_struct.tempbuffer[0], display_struct.tempbuffer[1]);
 
-	dtostrf(sensors.altitude, 4, 0, display_struct.tempbuffer[0]);			// xxxx
-	dtostrf(sensors.pressure / 100.0, 4, 0, display_struct.tempbuffer[1]);  // xxxx
-	dtostrf(WiFi.status(), 1, 0, display_struct.tempbuffer[2]);				// x
+	dtostrf(sensors.altitude, 4, 0, display_struct.tempbuffer[0]);
+	dtostrf(sensors.pressure / 100.0, 4, 0, display_struct.tempbuffer[1]);
+	dtostrf(WiFi.status(), 1, 0, display_struct.tempbuffer[2]);
 	snprintf(display_struct.displaybuffer[3], 21, "Alt %s P %s   W%s", display_struct.tempbuffer[0], display_struct.tempbuffer[1], display_struct.tempbuffer[2]);
+}
+
+void update_display_scr2() {
+	dtostrf_sign(sensors.max_ax_f, 4, 2, display_struct.tempbuffer[0]);
+	dtostrf_sign(sensors.max_ay_f, 4, 2, display_struct.tempbuffer[1]);
+	dtostrf_sign(sensors.max_az_f, 4, 2, display_struct.tempbuffer[2]);
+	snprintf(display_struct.displaybuffer[0], 21, "A/ %s %s %s", display_struct.tempbuffer[0], display_struct.tempbuffer[1], display_struct.tempbuffer[2]);
+
+	dtostrf_sign(sensors.min_ax_f, 4, 2, display_struct.tempbuffer[0]);
+	dtostrf_sign(sensors.min_ay_f, 4, 2, display_struct.tempbuffer[1]);
+	dtostrf_sign(sensors.min_az_f, 4, 2, display_struct.tempbuffer[2]);
+	snprintf(display_struct.displaybuffer[1], 21, "A\\ %s %s %s", display_struct.tempbuffer[0], display_struct.tempbuffer[1], display_struct.tempbuffer[2]);
+
+	dtostrf_sign(sensors.max_gx_f, 4, 2, display_struct.tempbuffer[0]);
+	dtostrf_sign(sensors.max_gy_f, 4, 2, display_struct.tempbuffer[1]);
+	dtostrf_sign(sensors.max_gz_f, 4, 2, display_struct.tempbuffer[2]);
+	snprintf(display_struct.displaybuffer[2], 21, "G/ %s %s %s", display_struct.tempbuffer[0], display_struct.tempbuffer[1], display_struct.tempbuffer[2]);
+
+	dtostrf_sign(sensors.min_gx_f, 4, 2, display_struct.tempbuffer[0]);
+	dtostrf_sign(sensors.min_gy_f, 4, 2, display_struct.tempbuffer[1]);
+	dtostrf_sign(sensors.min_gz_f, 4, 2, display_struct.tempbuffer[2]);
+	snprintf(display_struct.displaybuffer[3], 21, "G\\ %s %s %s", display_struct.tempbuffer[0], display_struct.tempbuffer[1], display_struct.tempbuffer[2]);
+}
+
+void update_display()
+{
+	switch (rotenc.actualRotaryTicks)
+	{
+	case DISPLAY_SCR_OVERVIEW:
+		update_display_scr1();
+		break;
+	case DISPLAY_SCR_MAXVALUES:
+		update_display_scr2();
+		break;
+	default:
+		break;
+	}
 
 	display.clearDisplay();
-	display.setCursor(0, 0);
 
+	display.setCursor(3, 0);	// move x by 3 px caused by housing
 	display.println(display_struct.displaybuffer[0]);
+	display.setCursor(3, display.getCursorY());
 	display.println(display_struct.displaybuffer[1]);
+	display.setCursor(3, display.getCursorY());
 	display.println(display_struct.displaybuffer[2]);
+	display.setCursor(3, display.getCursorY());
 	display.println(display_struct.displaybuffer[3]);
 }
 
@@ -647,6 +743,7 @@ void setup() {
 	Wire.begin();
 
 	//initialize_WLAN();
+	WiFi.mode(WIFI_OFF);
 	//initialize_OTA();
 	initialize_GPIO();
 	initialize_display();
@@ -680,6 +777,7 @@ void loop() {
 #endif
 
 	check_button();
+	check_rotary_encoder();
 
 	if (display_struct.update_display) {
 		display_struct.update_display = false;
@@ -695,45 +793,4 @@ void loop() {
 	yield();
 	display.display();
 	yield();
-
-	//// display tab-separated accel/gyro x/y/z values
-	//Serial.print("a/g:\t");
-	//Serial.print(sensors.ax_f); Serial.print("\t");
-	//Serial.print(sensors.ay_f); Serial.print("\t");
-	//Serial.print(sensors.az_f); Serial.print("\t");
-	//Serial.print(sensors.gx_f); Serial.print("\t");
-	//Serial.print(sensors.gy_f); Serial.print("\t");
-	//Serial.print(sensors.gz_f); Serial.print("\t");
-
-	//Serial.print("mag:\t");
-	//Serial.print(sensors.mx); Serial.print("\t");
-	//Serial.print(sensors.my); Serial.print("\t");
-	//Serial.print(sensors.mz); Serial.print("\t");
-
-	//Serial.print("heading:\t");
-	//Serial.print(sensors.heading); Serial.print("\t");
-
-	//Serial.print("T/P/A\t");
-	//Serial.print(sensors.temperature); Serial.print("\t");
-	//Serial.print(sensors.pressure); Serial.print("\t");
-	//Serial.print(sensors.altitude); Serial.print("\t");
-
-	//if (rotenc.changed_rotEnc || button.changed) {
-	//
-	//	Serial.print("Rot.enc:\t");
-	//	Serial.print(rotenc.actualRotaryTicks);
-	//	Serial.print(" Button: changed ");
-	//	Serial.print(button.changed);
-	//	Serial.print(", long ");
-	//	Serial.print(button.long_diff_change);
-	//	Serial.print(", int_signal ");
-	//	Serial.print(button.int_signal);
-	//	Serial.print(",  button signal ");
-	//	Serial.print(digitalRead(ENCODER_SW));
-	//	Serial.println("");
-
-	//	rotenc.changed_rotEnc = false;
-	//	button.changed = false;
-	//	button.long_diff_change = false;
-	//}
-}
+	}
