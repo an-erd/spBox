@@ -311,35 +311,7 @@ void testfillrect(void) {
 }
 void initialize_display() {
 	display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
-
 	display.clearDisplay();
-	//testfillrect();
-	//delay(5000);
-
-	/*display.clearDisplay();
-	Serial.print(display.height());
-	Serial.print(" ");
-	Serial.print(display.width());
-	Serial.println(" ");
-	for (int16_t i = 0; i < 10; i++) {
-		display.clearDisplay();
-		display.fillRect(i, i, display.width(), display.height(), 1);
-		display.display();
-		Serial.println(i);
-		delay(5000);
-	}*/
-	//display.clearDisplay();
-	//display.drawPixel(0, 0, 1);
-	//display.drawPixel(1, 31, 1);
-	//display.drawPixel(2, 0, 1);
-	//display.drawPixel(3, 31, 1);
-	//display.drawPixel(display.width(), 0, 1);
-	//display.drawPixel(display.width(), display.height(), 1);
-	//display.display();
-	//delay(5000);
-
-	display.clearDisplay();
-
 	display.setTextSize(1);
 	display.setTextColor(WHITE);
 	display.display();

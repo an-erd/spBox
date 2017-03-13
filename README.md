@@ -151,3 +151,40 @@ Old code segments:
 	//	button.changed = false;
 	//	button.long_diff_change = false;
 	//}
+
+
+		//testfillrect();
+	//delay(5000);
+
+	/*display.clearDisplay();
+	Serial.print(display.height());
+	Serial.print(" ");
+	Serial.print(display.width());
+	Serial.println(" ");
+	for (int16_t i = 0; i < 10; i++) {
+	display.clearDisplay();
+	display.fillRect(i, i, display.width(), display.height(), 1);
+	display.display();
+	Serial.println(i);
+	delay(5000);
+	}*/
+	//display.clearDisplay();
+	//display.drawPixel(0, 0, 1);
+	//display.drawPixel(1, 31, 1);
+	//display.drawPixel(2, 0, 1);
+	//display.drawPixel(3, 31, 1);
+	//display.drawPixel(display.width(), 0, 1);
+	//display.drawPixel(display.width(), display.height(), 1);
+	//display.display();
+	//delay(10000);
+
+	display.clearDisplay();
+	Serial.print(display.height());
+	Serial.print(" ");
+	Serial.print(display.width());
+	Serial.println(" ");
+	display.drawRect(0, 0, display.width() - 1, display.height() - 1, 1);
+	display.display();
+	delay(30000);
+	display.clearDisplay();
+
