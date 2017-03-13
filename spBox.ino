@@ -37,9 +37,6 @@ extern "C" {
 const char* ssid = "W12";
 const char* password = "EYo6Hv4qRO7P1JSpAqZCH6vGVPHwznRWODIIIdhd1pBkeWCYie0knb1pOQ9t2cc";
 
-// #define BUTTON_A		0		// huzzah oled
-#define BUTTON_B		16		// huzzah oled
-// #define BUTTON_C		2		// huzzah oled
 #define ENCODER_PIN_A	12
 #define ENCODER_PIN_B	14
 #define ENCODER_SW		13
@@ -289,9 +286,6 @@ void int2() {
 }
 
 void initialize_GPIO() {
-	//pinMode(BUTTON_A, INPUT_PULLUP);
-	pinMode(BUTTON_B, INPUT_PULLUP);
-	//pinMode(BUTTON_C, INPUT_PULLUP);
 	pinMode(ENCODER_PIN_A, INPUT_PULLUP);
 	pinMode(ENCODER_PIN_B, INPUT_PULLUP);
 	pinMode(LED_R, OUTPUT);
@@ -304,9 +298,48 @@ void initialize_GPIO() {
 	pinMode(ENCODER_SW, INPUT_PULLUP);
 }
 
+// TODO
+void testfillrect(void) {
+	uint8_t color = 1;
+	for (int16_t i = 0; i < display.height() / 2; i += 3) {
+		// alternate colors
+		display.fillRect(i, i, display.width() - i * 2, display.height() - i * 2, color % 2);
+		display.display();
+		delay(1);
+		color++;
+	}
+}
 void initialize_display() {
 	display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
+
 	display.clearDisplay();
+	//testfillrect();
+	//delay(5000);
+
+	/*display.clearDisplay();
+	Serial.print(display.height());
+	Serial.print(" ");
+	Serial.print(display.width());
+	Serial.println(" ");
+	for (int16_t i = 0; i < 10; i++) {
+		display.clearDisplay();
+		display.fillRect(i, i, display.width(), display.height(), 1);
+		display.display();
+		Serial.println(i);
+		delay(5000);
+	}*/
+	//display.clearDisplay();
+	//display.drawPixel(0, 0, 1);
+	//display.drawPixel(1, 31, 1);
+	//display.drawPixel(2, 0, 1);
+	//display.drawPixel(3, 31, 1);
+	//display.drawPixel(display.width(), 0, 1);
+	//display.drawPixel(display.width(), display.height(), 1);
+	//display.display();
+	//delay(5000);
+
+	display.clearDisplay();
+
 	display.setTextSize(1);
 	display.setTextColor(WHITE);
 	display.display();
@@ -618,24 +651,24 @@ void update_display_scr1() {
 }
 
 void update_display_scr2() {
-	dtostrf_sign(sensors.max_ax_f, 4, 2, display_struct.tempbuffer[0]);
-	dtostrf_sign(sensors.max_ay_f, 4, 2, display_struct.tempbuffer[1]);
-	dtostrf_sign(sensors.max_az_f, 4, 2, display_struct.tempbuffer[2]);
+	dtostrf_sign(sensors.max_ax_f, 5, 1, display_struct.tempbuffer[0]);
+	dtostrf_sign(sensors.max_ay_f, 5, 1, display_struct.tempbuffer[1]);
+	dtostrf_sign(sensors.max_az_f, 5, 1, display_struct.tempbuffer[2]);
 	snprintf(display_struct.displaybuffer[0], 21, "A/ %s %s %s", display_struct.tempbuffer[0], display_struct.tempbuffer[1], display_struct.tempbuffer[2]);
 
-	dtostrf_sign(sensors.min_ax_f, 4, 2, display_struct.tempbuffer[0]);
-	dtostrf_sign(sensors.min_ay_f, 4, 2, display_struct.tempbuffer[1]);
-	dtostrf_sign(sensors.min_az_f, 4, 2, display_struct.tempbuffer[2]);
+	dtostrf_sign(sensors.min_ax_f, 5, 1, display_struct.tempbuffer[0]);
+	dtostrf_sign(sensors.min_ay_f, 5, 1, display_struct.tempbuffer[1]);
+	dtostrf_sign(sensors.min_az_f, 5, 1, display_struct.tempbuffer[2]);
 	snprintf(display_struct.displaybuffer[1], 21, "A\\ %s %s %s", display_struct.tempbuffer[0], display_struct.tempbuffer[1], display_struct.tempbuffer[2]);
 
-	dtostrf_sign(sensors.max_gx_f, 4, 2, display_struct.tempbuffer[0]);
-	dtostrf_sign(sensors.max_gy_f, 4, 2, display_struct.tempbuffer[1]);
-	dtostrf_sign(sensors.max_gz_f, 4, 2, display_struct.tempbuffer[2]);
+	dtostrf_sign(sensors.max_gx_f, 5, 1, display_struct.tempbuffer[0]);
+	dtostrf_sign(sensors.max_gy_f, 5, 1, display_struct.tempbuffer[1]);
+	dtostrf_sign(sensors.max_gz_f, 5, 1, display_struct.tempbuffer[2]);
 	snprintf(display_struct.displaybuffer[2], 21, "G/ %s %s %s", display_struct.tempbuffer[0], display_struct.tempbuffer[1], display_struct.tempbuffer[2]);
 
-	dtostrf_sign(sensors.min_gx_f, 4, 2, display_struct.tempbuffer[0]);
-	dtostrf_sign(sensors.min_gy_f, 4, 2, display_struct.tempbuffer[1]);
-	dtostrf_sign(sensors.min_gz_f, 4, 2, display_struct.tempbuffer[2]);
+	dtostrf_sign(sensors.min_gx_f, 5, 1, display_struct.tempbuffer[0]);
+	dtostrf_sign(sensors.min_gy_f, 5, 1, display_struct.tempbuffer[1]);
+	dtostrf_sign(sensors.min_gz_f, 5, 1, display_struct.tempbuffer[2]);
 	snprintf(display_struct.displaybuffer[3], 21, "G\\ %s %s %s", display_struct.tempbuffer[0], display_struct.tempbuffer[1], display_struct.tempbuffer[2]);
 }
 
@@ -793,4 +826,4 @@ void loop() {
 	yield();
 	display.display();
 	yield();
-	}
+}
