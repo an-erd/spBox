@@ -30,6 +30,7 @@ extern "C" {
 #include "BMP085.h"
 #include "Adafruit_GFX.h"
 #include "Adafruit_SSD1306.h"
+//#include "Adafruit_FeatherOLED\Adafruit_FeatherOLED_WiFi.h"
 
 #define	SERIAL_STATUS_OUTPUT
 #undef MEASURE_PREFORMANCE
@@ -72,6 +73,7 @@ const char* password = "EYo6Hv4qRO7P1JSpAqZCH6vGVPHwznRWODIIIdhd1pBkeWCYie0knb1p
 #define MAX_NUMBER_DISPLAY_SCREENS		2
 #define DISPLAY_SCR_OVERVIEW			0
 #define DISPLAY_SCR_MAXVALUES			1
+#define DISPLAY_SCR_WLAN_STATUS			2
 
 #if (SSD1306_LCDHEIGHT != 32)
 #error("Height incorrect, please fix Adafruit_SSD1306.h!");
@@ -132,6 +134,7 @@ typedef struct
 MPU6050		accelgyro;
 HMC5883L	mag;
 BMP085		barometer;
+//Adafruit_FeatherOLED_WiFi display = Adafruit_FeatherOLED_WiFi();
 Adafruit_SSD1306  display = Adafruit_SSD1306();
 
 sGlobalSensors	sensors;
@@ -298,17 +301,6 @@ void initialize_GPIO() {
 	pinMode(ENCODER_SW, INPUT_PULLUP);
 }
 
-// TODO
-void testfillrect(void) {
-	uint8_t color = 1;
-	for (int16_t i = 0; i < display.height() / 2; i += 3) {
-		// alternate colors
-		display.fillRect(i, i, display.width() - i * 2, display.height() - i * 2, color % 2);
-		display.display();
-		delay(1);
-		color++;
-	}
-}
 void initialize_display() {
 	display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
 	display.clearDisplay();
@@ -644,30 +636,51 @@ void update_display_scr2() {
 	snprintf(display_struct.displaybuffer[3], 21, "G\\ %s %s %s", display_struct.tempbuffer[0], display_struct.tempbuffer[1], display_struct.tempbuffer[2]);
 }
 
+void update_display_scr3() {
+	//int8_t rssi = WiFi.RSSI();
+	//uint32_t ipAddress = WiFi.localIP();
+	//display.setBatteryVisible(false);
+
+	//display.setConnected(true);
+	//display.setConnectedVisible(true);
+	//display.setRSSIVisible(true);
+	//display.setRSSIIcon(true);
+	//display.setRSSI(rssi);
+	//display.setIPAddress(ipAddress);
+	//display.refreshIcons();
+	//display.clearMsgArea();
+}
+
+void update_display_print_buffer() {
+	display.clearDisplay();
+	//display.setCursor(3, 0);	// move x by 3 px caused by housing
+	display.println(display_struct.displaybuffer[0]);
+	//display.setCursor(3, display.getCursorY());
+	display.println(display_struct.displaybuffer[1]);
+	//display.setCursor(3, display.getCursorY());
+	display.println(display_struct.displaybuffer[2]);
+	//display.setCursor(3, display.getCursorY());
+	display.println(display_struct.displaybuffer[3]);
+}
+
 void update_display()
 {
 	switch (rotenc.actualRotaryTicks)
 	{
 	case DISPLAY_SCR_OVERVIEW:
 		update_display_scr1();
+		update_display_print_buffer();
 		break;
 	case DISPLAY_SCR_MAXVALUES:
 		update_display_scr2();
+		update_display_print_buffer();
+		break;
+	case DISPLAY_SCR_WLAN_STATUS:
+		update_display_scr3();
 		break;
 	default:
 		break;
 	}
-
-	display.clearDisplay();
-
-	display.setCursor(3, 0);	// move x by 3 px caused by housing
-	display.println(display_struct.displaybuffer[0]);
-	display.setCursor(3, display.getCursorY());
-	display.println(display_struct.displaybuffer[1]);
-	display.setCursor(3, display.getCursorY());
-	display.println(display_struct.displaybuffer[2]);
-	display.setCursor(3, display.getCursorY());
-	display.println(display_struct.displaybuffer[3]);
 }
 
 void initialize_WLAN() {
@@ -784,10 +797,14 @@ void loop() {
 	check_button();
 	check_rotary_encoder();
 
+	//if (rotenc.actualRotaryTicks == DISPLAY_SCR_WLAN_STATUS)
+	//	display_struct.update_display = true;
+
 	if (display_struct.update_display) {
 		display_struct.update_display = false;
 		update_display();
 	}
+
 #ifdef MEASURE_PREFORMANCE
 	Serial.print("performance us: ");
 	Serial.print(-perfStopWatch_getvalues);
