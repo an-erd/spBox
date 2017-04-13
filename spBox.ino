@@ -783,10 +783,7 @@ void setup() {
 
 
 	//// LCDML
-	Serial.println(F(_LCDML_VERSION)); // only for examples
-									   // Enable all items with _LCDML_G1
-	LCDML_DISP_groupEnable(_LCDML_G1); // enable group 1
-									   // LCDMenu Setup
+	LCDML_DISP_groupEnable(_LCDML_G1);
 	LCDML_setup(_LCDML_BACK_cnt);
 }
 
@@ -809,16 +806,16 @@ void loop() {
 	check_button();
 	check_rotary_encoder();
 
-	check_menu();
-	update_display();
+	//check_menu();
+	//update_display();
 
-	if (rotenc.actualRotaryTicks == DISPLAY_SCR_WLAN_STATUS)
-		display_struct.update_display = true;
+	//if (rotenc.actualRotaryTicks == DISPLAY_SCR_WLAN_STATUS)
+	//	display_struct.update_display = true;
 
-	if (display_struct.update_display) {
-		display_struct.update_display = false;
-		update_display();
-	}
+	//if (display_struct.update_display) {
+	//	display_struct.update_display = false;
+	//	update_display();
+	//}
 
 	LCDML_run(_LCDML_priority);
 
