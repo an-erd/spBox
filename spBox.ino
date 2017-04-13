@@ -16,6 +16,7 @@
 #include <WiFiUdp.h>
 #include <ArduinoOTA.h>
 #include <Wire.h>
+#include <Time.h>
 #include <I2Cdev.h>
 #include <MPU6050.h>
 #include <HMC5883L.h>
@@ -61,11 +62,6 @@ const char* password = "EYo6Hv4qRO7P1JSpAqZCH6vGVPHwznRWODIIIdhd1pBkeWCYie0knb1p
 #define MPU6050_G_GAIN		(16.4)		// MPU6050_GYRO_FS_2000
 #define MPU6050_DEG_RAD_CONV		0.01745329251994329576	// CONST
 #define MPU6050_GAIN_DEG_RAD_CONV	0.00106422515365507901	// MPU6050_DEG_RAD_CONV / MPU6050_G_GAIN
-
-#define MAX_NUMBER_DISPLAY_SCREENS		3
-#define DISPLAY_SCR_OVERVIEW			0
-#define DISPLAY_SCR_MAXVALUES			1
-#define DISPLAY_SCR_WLAN_STATUS			2
 
 #include "LCDML_DEFS.h"
 
@@ -133,7 +129,6 @@ MPU6050		accelgyro;
 HMC5883L	mag;
 BMP085		barometer;
 Adafruit_FeatherOLED_WiFi display = Adafruit_FeatherOLED_WiFi();
-//Adafruit_SSD1306  display = Adafruit_SSD1306();
 
 sGlobalSensors	sensors;
 volatile bool	do_update_accel_gyro_mag;
@@ -141,7 +136,7 @@ volatile bool	do_update_temperature_pressure;
 volatile bool	do_update_temperature_pressure_step;
 
 sGlobalDisplay	display_struct;
-volatile sGlobalRotEnc	rotenc;
+volatile sGlobalRotEnc rotenc;
 volatile sGlobalButton button;
 
 bool	WLAN_initialized;
@@ -150,11 +145,10 @@ bool	WLAN_status_on;
 LOCAL os_timer_t timer_update_temperature_pressure;
 LOCAL os_timer_t timer_update_temperature_pressure_steps;
 LOCAL os_timer_t timer_update_accel_gyro_mag;
-LOCAL os_timer_t timer_update_display;
 
 int32_t lastMicros;		// TODO
 
-						// = dtostre() function experimental ============================
+// = dtostre() function experimental ============================
 char * dtostrf_sign(double number, signed char width, unsigned char prec, char *s) {
 	bool negative = false;
 
@@ -371,10 +365,6 @@ void update_accel_gyro_mag_cb(void *arg) {
 	do_update_accel_gyro_mag = true;
 }
 
-void update_display_cb(void *arg) {
-	display_struct.update_display = true;
-}
-
 void setup_update_temperature_pressure_timer()
 {
 	os_timer_disarm(&timer_update_temperature_pressure);
@@ -387,13 +377,6 @@ void setup_update_accel_gyro_mag_timer()
 	os_timer_disarm(&timer_update_accel_gyro_mag);
 	os_timer_setfn(&timer_update_accel_gyro_mag, (os_timer_func_t *)update_accel_gyro_mag_cb, (void *)0);
 	os_timer_arm(&timer_update_accel_gyro_mag, DELAY_MS_10HZ, true);
-}
-
-void setup_update_display_timer()
-{
-	os_timer_disarm(&timer_update_display);
-	os_timer_setfn(&timer_update_display, (os_timer_func_t *)update_display_cb, (void *)0);
-	os_timer_arm(&timer_update_display, DELAY_MS_2HZ, true);
 }
 
 void get_accelgyro()
@@ -535,7 +518,7 @@ void check_sensor_calc()
 	if (sensors.changed_accel_gyro_mag) {
 		sensors.changed_accel_gyro_mag = false;
 		calc_accelgyro();
-		if (rotenc.actualRotaryTicks == DISPLAY_SCR_MAXVALUES)		// AAARGH TODO
+		if (true)		// AAARGH TODO
 			update_min_max_accelgyro();
 		calc_mag();
 	}
@@ -565,9 +548,9 @@ void check_button() {
 		if (!button.long_diff_change) {
 			// kurz HIGH -> LOW
 			Serial.println(" Button: kurz HIGH jetzt LOW");
-			if (rotenc.actualRotaryTicks == DISPLAY_SCR_MAXVALUES) {
-				reset_min_max_accelgyro();
-			}
+			//if (rotenc.actualRotaryTicks == DISPLAY_SCR_MAXVALUES) {
+			//	reset_min_max_accelgyro();
+			//}
 			button.LCDML_button_pressed = true;
 		}
 		else {
@@ -595,16 +578,11 @@ void check_rotary_encoder() {
 		if (rotenc.rotaryHalfSteps % 2 == 0) {
 			rotenc.actualRotaryTicks = rotenc.rotaryHalfSteps / 2;
 			rotenc.LCDML_rotenc_value = rotenc.actualRotaryTicks;
-			//rotenc.actualRotaryTicks %= MAX_NUMBER_DISPLAY_SCREENS;		// TODO different screens hard coded uuuugh.
-			//rotenc.changed_rotEnc = true;
 		}
 	}
 }
 
-void check_menu() {
-}
-
-void update_display_scr1() {
+void update_print_buffer_scr1() {
 	dtostrf_sign(sensors.ax_f, 4, 2, display_struct.tempbuffer[0]);
 	dtostrf_sign(sensors.ay_f, 4, 2, display_struct.tempbuffer[1]);
 	dtostrf_sign(sensors.az_f, 4, 2, display_struct.tempbuffer[2]);
@@ -625,7 +603,7 @@ void update_display_scr1() {
 	snprintf(display_struct.displaybuffer[3], 21, "Alt %s P %s   W%s", display_struct.tempbuffer[0], display_struct.tempbuffer[1], display_struct.tempbuffer[2]);
 }
 
-void update_display_scr2() {
+void update_print_buffer_scr2() {
 	dtostrf_sign(sensors.max_ax_f, 5, 1, display_struct.tempbuffer[0]);
 	dtostrf_sign(sensors.max_ay_f, 5, 1, display_struct.tempbuffer[1]);
 	dtostrf_sign(sensors.max_az_f, 5, 1, display_struct.tempbuffer[2]);
@@ -651,48 +629,53 @@ void update_display_scr3() {
 	int8_t rssi = WiFi.RSSI();
 	uint32_t ipAddress = WiFi.localIP();
 
-	display.setBatteryVisible(false);
-	display.setConnectedVisible(true);
-	display.setRSSIVisible(true);
-	display.setRSSIIcon(true);
-
-	display.setConnected(WiFi.status() == WL_CONNECTED);
-
-	display.setRSSI(rssi);
-	display.setIPAddress(ipAddress);
-
+	bool is_connected;
+	is_connected = WiFi.status() == WL_CONNECTED;
+	display.setConnected(is_connected);
+	if (is_connected) {
+		display.setRSSI(rssi);
+		display.setIPAddress(ipAddress);
+	}
 	display.refreshIcons();
 	display.clearMsgArea();
-	display.println("test");
+	switch (WiFi.status()) {
+	case WL_IDLE_STATUS:
+		display.print("Idle Status");
+		break;
+	case WL_NO_SSID_AVAIL:
+		display.print("");
+		break;
+	case WL_SCAN_COMPLETED:
+		display.print("Scan Completed");
+		break;
+	case WL_CONNECTED:
+		display.print(WiFi.SSID());
+		break;
+	case WL_CONNECT_FAILED:
+		display.print("Connect Failed");
+		break;
+	case WL_CONNECTION_LOST:
+		display.print("Connection Lost");
+		break;
+	case WL_DISCONNECTED:
+		display.print("Disconnected");
+		break;
+	case WL_NO_SHIELD:
+		display.print("No Shield");
+		break;
+	}
+
+	display.display();
 }
 
-void update_display_print_buffer() {
+void update_display_with_print_buffer() {
 	display.clearDisplay();
 	display.setCursor(0, 0);
 	display.println(display_struct.displaybuffer[0]);
 	display.println(display_struct.displaybuffer[1]);
 	display.println(display_struct.displaybuffer[2]);
 	display.println(display_struct.displaybuffer[3]);
-}
-
-void update_display()
-{
-	switch (rotenc.actualRotaryTicks)
-	{
-	case DISPLAY_SCR_OVERVIEW:
-		update_display_scr1();
-		update_display_print_buffer();
-		break;
-	case DISPLAY_SCR_MAXVALUES:
-		update_display_scr2();
-		update_display_print_buffer();
-		break;
-	case DISPLAY_SCR_WLAN_STATUS:
-		update_display_scr3();
-		break;
-	default:
-		break;
-	}
+	display.display();
 }
 
 void initialize_WLAN() {
@@ -772,8 +755,8 @@ void setup() {
 	Serial.begin(115200);
 	Wire.begin();
 
-	//initialize_WLAN();
-	WiFi.mode(WIFI_OFF);
+	initialize_WLAN();
+	//WiFi.mode(WIFI_OFF);
 	//initialize_OTA();
 	initialize_GPIO();
 	initialize_display();
@@ -787,9 +770,7 @@ void setup() {
 	do_update_temperature_pressure_step = false;
 	setup_update_temperature_pressure_timer();
 	setup_update_accel_gyro_mag_timer();
-	setup_update_display_timer();
 
-	//// LCDML
 	LCDML_DISP_groupEnable(_LCDML_G1);
 	LCDML_setup(_LCDML_BACK_cnt);
 }
@@ -812,20 +793,6 @@ void loop() {
 
 	check_button();
 	check_rotary_encoder();
-	if (true) {
-		//update_LCDML_rot_enc_sw();
-	}
-	else {
-		check_menu();
-		update_display();
-		//if (rotenc.actualRotaryTicks == DISPLAY_SCR_WLAN_STATUS)
-		//	display_struct.update_display = true;
-
-		//if (display_struct.update_display) {
-		//	display_struct.update_display = false;
-		//	update_display();
-		//}
-	}
 
 	LCDML_run(_LCDML_priority);
 
@@ -837,6 +804,4 @@ void loop() {
 #endif
 
 	yield();
-	//display.display();
-	//yield();
 }

@@ -1,192 +1,198 @@
-/* ===================================================================== *
- *                                                                       *
- * DISPLAY SYSTEM                                                        *
- *                                                                       *
- * ===================================================================== *
- * every "disp menu function" needs three functions
- * - void LCDML_DISP_setup(func_name)
- * - void LCDML_DISP_loop(func_name)
- * - void LCDML_DISP_loop_end(func_name)
- *
- * EXAMPLE CODE:
-	void LCDML_DISP_setup(..menu_func_name..)
-	{
-	  // setup
-	  // is called only if it is started
-
-	  // starts a trigger event for the loop function every 100 millisecounds
-	  LCDML_DISP_triggerMenu(100);
-	}
-
-	void LCDML_DISP_loop(..menu_func_name..)
-	{
-	  // loop
-	  // is called when it is triggert
-	  // - with LCDML_DISP_triggerMenu( millisecounds )
-	  // - with every button status change
-
-	  // check if any button is presed (enter, up, down, left, right)
-	  if(LCDML_BUTTON_checkAny()) {
-		LCDML_DISP_funcend();
-	  }
-	}
-
-	void LCDML_DISP_loop_end(..menu_func_name..)
-	{
-	  // loop end
-	  // this functions is ever called when a DISP function is quit
-	  // you can here reset some global vars or do nothing
-	}
- * ===================================================================== *
- */
-
- // *********************************************************************
+// ############################################################################
 void LCDML_DISP_setup(LCDML_FUNC_back)
-// *********************************************************************
 {
-	// setup
-	// is called only if it is started
 }
 
 void LCDML_DISP_loop(LCDML_FUNC_back)
 {
-	// loop
-	// is called when it is triggert
-	LCDML_DISP_resetIsTimer(); // reset the initscreen timer
-	LCDML.goBack();            // go back
-	LCDML_DISP_funcend();      // LCDML_DISP_funcend calls the loop_end function
+	LCDML_DISP_resetIsTimer();
+	LCDML.goBack();
+	LCDML_DISP_funcend();
 }
 
 void LCDML_DISP_loop_end(LCDML_FUNC_back)
 {
-	// loop end
-	// this functions is ever called when a DISP function is quit
-	// you can here reset some global vars or do nothing
 }
 
-// *********************************************************************
-void LCDML_DISP_setup(LCDML_FUNC_information)
-// *********************************************************************
+// ############################################################################
+void LCDML_DISP_setup(LCDML_FUNC_sensor_overview)
 {
-	// setup function
-	Serial.println(F("==========================================="));
-	Serial.println(F("================  FUNC ===================="));
-	Serial.println(F("==========================================="));
-
-	Serial.println(F("To close this"));
-	Serial.println(F("function press"));
-	Serial.println(F("any button or use"));
-	Serial.println(F("back button"));
+	update_print_buffer_scr1();
+	update_display_with_print_buffer();
+	LCDML_DISP_triggerMenu(DELAY_MS_10HZ);
 }
 
-void LCDML_DISP_loop(LCDML_FUNC_information)
+void LCDML_DISP_loop(LCDML_FUNC_sensor_overview)
 {
-	// loop function, can be run in a loop when LCDML_DISP_triggerMenu(xx) is set
-	// the quit button works in every DISP function without any checks; it starts the loop_end function
-	if (LCDML_BUTTON_checkAny()) { // check if any button is presed (enter, up, down, left, right)
-	  // LCDML_DISP_funcend calls the loop_end function
+	update_print_buffer_scr1();
+	update_display_with_print_buffer();
+	if (LCDML_BUTTON_checkAny()) {
+		LCDML_DISP_resetIsTimer();
 		LCDML_DISP_funcend();
 	}
 }
 
-void LCDML_DISP_loop_end(LCDML_FUNC_information)
+void LCDML_DISP_loop_end(LCDML_FUNC_sensor_overview)
 {
-	// this functions is ever called when a DISP function is quit
-	// you can here reset some global vars or do nothing
 }
 
-// *********************************************************************
-uint8_t g_func_timer_info = 0;  // time counter (global variable)
-unsigned long g_timer_1 = 0;    // timer variable (globale variable)
-void LCDML_DISP_setup(LCDML_FUNC_timer_info)
-// *********************************************************************
+// ############################################################################
+void LCDML_DISP_setup(LCDML_FUNC_sensor_min_max)
 {
-	// setup function
-	Serial.println(F("==========================================="));
-	Serial.println(F("================  FUNC ===================="));
-	Serial.println(F("==========================================="));
-	Serial.println(F("wait 10 secounds or press back button"));
-	g_func_timer_info = 10;       // reset and set timer
-	LCDML_DISP_triggerMenu(100);  // starts a trigger event for the loop function every 100 millisecounds
+	update_print_buffer_scr2();
+	update_display_with_print_buffer();
+	LCDML_DISP_triggerMenu(DELAY_MS_2HZ);
 }
 
-void LCDML_DISP_loop(LCDML_FUNC_timer_info)
+void LCDML_DISP_loop(LCDML_FUNC_sensor_min_max)
 {
-	// loop function, can be run in a loop when LCDML_DISP_triggerMenu(xx) is set
-	// the quit button works in every DISP function without any checks; it starts the loop_end function
-
-	// this function is called every 100 millisecounds
-
-	// this timer checks every 1000 millisecounds if it is called
-	if ((millis() - g_timer_1) >= 1000) {
-		g_timer_1 = millis();
-		g_func_timer_info--;                // increment the value every secound
-		Serial.println(g_func_timer_info);  // print the time counter value
+	update_print_buffer_scr2();
+	update_display_with_print_buffer();
+	if (LCDML_BUTTON_checkAny()) {
+		LCDML_DISP_resetIsTimer();
+		LCDML_DISP_funcend();
 	}
+}
 
-	// reset the initscreen timer
+void LCDML_DISP_loop_end(LCDML_FUNC_sensor_min_max)
+{
+}
+
+// ############################################################################
+void LCDML_DISP_setup(LCDML_FUNC_sensor_min_max_reset)
+{
+}
+
+void LCDML_DISP_loop(LCDML_FUNC_sensor_min_max_reset)
+{
+	reset_min_max_accelgyro();
+
 	LCDML_DISP_resetIsTimer();
+	LCDML_DISP_funcend();
+}
 
-	// this function can only be ended when quit button is pressed or the time is over
-	// check if the function ends normaly
-	if (g_func_timer_info <= 0)
-	{
-		// end function for callback
+void LCDML_DISP_loop_end(LCDML_FUNC_sensor_min_max_reset)
+{
+}
+
+// ############################################################################
+void LCDML_DISP_setup(LCDML_FUNC_status_wlan)
+{
+	display.setBatteryVisible(false);
+	display.setConnectedVisible(true);
+	display.setRSSIVisible(true);
+	display.setRSSIIcon(true);
+
+	update_display_scr3();
+
+	LCDML_DISP_triggerMenu(DELAY_MS_2HZ);
+}
+
+void LCDML_DISP_loop(LCDML_FUNC_status_wlan)
+{
+	update_display_scr3();
+
+	if (LCDML_BUTTON_checkAny()) {
+		LCDML_DISP_resetIsTimer();
 		LCDML_DISP_funcend();
 	}
 }
 
-void LCDML_DISP_loop_end(LCDML_FUNC_timer_info)
+void LCDML_DISP_loop_end(LCDML_FUNC_status_wlan)
 {
-	// this functions is ever called when a DISP function is quit
-	// you can here reset some global vars or do nothing
 }
 
-// *********************************************************************
-uint8_t g_button_value = 0; // button value counter (global variable)
-void LCDML_DISP_setup(LCDML_FUNC_p2)
-// *********************************************************************
+// ############################################################################
+int16_t	gConfigAltitude;
+uint8	gConfigAltitudeCursorX;
+uint8	gConfigAltitudeCursorY;
+int32_t	gConfigAltitudeRotEncHist;
+
+void LCDML_DISP_setup(LCDML_FUNC_config_altitude)
 {
-	// setup function
-	// print lcd content
-	Serial.println(F("==========================================="));
-	Serial.println(F("================  FUNC ===================="));
-	Serial.println(F("==========================================="));
-	Serial.println(F("press a or w"));
-	Serial.println(F("count: 0 of 3"));
-	// Reset Button Value
-	g_button_value = 0;
+	gConfigAltitude = sensors.altitude;
+	gConfigAltitudeRotEncHist = rotenc.LCDML_rotenc_value;
+
+	display.clearDisplay();
+	display.setCursor(0, 0);
+	display.println("Durch Drehen eingeben");
+	display.println("und Knopf drücken.");
+	display.println(" ");
+	display.print("Neue Höhe:");
+	gConfigAltitudeCursorX = display.getCursorX();
+	gConfigAltitudeCursorY = display.getCursorY();
+	display.print(gConfigAltitude);
+	display.display();
+
+	LCDML_DISP_triggerMenu(500);
 }
 
-void LCDML_DISP_loop(LCDML_FUNC_p2)
+void LCDML_DISP_loop(LCDML_FUNC_config_altitude)
 {
-	// loop function, can be run in a loop when LCDML_DISP_triggerMenu(xx) is set
-	// the quit button works in every DISP function without any checks; it starts the loop_end function
+	if (LCDML_BUTTON_checkUp() || LCDML_BUTTON_checkDown()) {
+		int aDiff = abs(gConfigAltitudeRotEncHist - rotenc.LCDML_rotenc_value);
 
-	if (LCDML_BUTTON_checkAny()) // check if any button is pressed (enter, up, down, left, right)
-	{
-		if (LCDML_BUTTON_checkLeft() || LCDML_BUTTON_checkUp()) // check if button left is pressed
-		{
-			LCDML_BUTTON_resetLeft(); // reset the left button
-			LCDML_BUTTON_resetUp(); // reset the left button
-			g_button_value++;
-
-			// update lcd content
-			Serial.print(F("count: "));
-			Serial.print(g_button_value); //print change content
-			Serial.println(F(" of 3"));
+		if (aDiff > 7) {
+			gConfigAltitude += 1000 * (LCDML_BUTTON_checkUp() ? -1 : 1);
 		}
+		else if (aDiff > 4) {
+			gConfigAltitude += 100 * (LCDML_BUTTON_checkUp() ? -1 : 1);
+		}
+		else if (aDiff > 2) {
+			gConfigAltitude += 10 * (LCDML_BUTTON_checkUp() ? -1 : 1);
+		}
+		else {
+			gConfigAltitude += 1 * (LCDML_BUTTON_checkUp() ? -1 : 1);
+		}
+
+		//Serial.print(gConfigAltitudeCursorX); Serial.print(" "); Serial.println(gConfigAltitudeCursorY);
+		gConfigAltitudeRotEncHist = rotenc.LCDML_rotenc_value;
+
+		//display.clearDisplay();
+		display.setCursor(0, 0);
+		display.println("Durch Drehen eingeben");
+		display.println("und Knopf drücken.");
+		display.println();
+		display.print("Neue Höhe:");
+		display.print(gConfigAltitude);
+		display.display();
+		//display.fillRect(gConfigAltitudeCursorX, gConfigAltitudeCursorY, _LCDML_FONT_W * 5, _LCDML_FONT_H, BLACK);
+		//display.setCursor(gConfigAltitudeCursorX, gConfigAltitudeCursorY);
+		//display.print(gConfigAltitude);
+		//display.display();
+		LCDML_BUTTON_resetUp();
+		LCDML_BUTTON_resetDown();
 	}
 
-	// check if button count is three
-	if (g_button_value >= 3) {
-		// end function for callback
+	if (LCDML_BUTTON_checkEnter()) {
+		LCDML_DISP_resetIsTimer();
 		LCDML_DISP_funcend();
 	}
 }
 
-void LCDML_DISP_loop_end(LCDML_FUNC_p2)
+void LCDML_DISP_loop_end(LCDML_FUNC_config_altitude)
 {
-	// this functions is ever called when a DISP function is quit
-	// you can here reset some global vars or do nothing
+}
+
+// ############################################################################
+void LCDML_DISP_setup(LCDML_FUNC_ownerinformation)
+{
+	display.clearDisplay();
+	display.setCursor(0, 0);
+	display.println("Andreas Erdmann");
+	display.display();
+	LCDML_DISP_triggerMenu(100);
+}
+
+void LCDML_DISP_loop(LCDML_FUNC_ownerinformation)
+{
+	if (LCDML_BUTTON_checkAny()) {
+		LCDML_DISP_resetIsTimer();
+		LCDML.goBack();
+		LCDML_DISP_funcend();
+	}
+}
+
+void LCDML_DISP_loop_end(LCDML_FUNC_ownerinformation)
+{
 }
