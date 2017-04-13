@@ -7,13 +7,9 @@
 //
 
 #include <arduino.h>
-//extern "C" {
 #include "c_types.h"
 #include "user_interface.h"
-// #include "ets_sys.h"
 #include "osapi.h"
-//}
-
 #include <LCDMenuLib.h>
 #include <ESP8266WiFi.h>
 #include <ESP8266mDNS.h>
