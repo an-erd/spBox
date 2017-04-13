@@ -27,6 +27,7 @@
 #define	SERIAL_STATUS_OUTPUT
 #undef MEASURE_PREFORMANCE
 
+
 const char* ssid = "W12";
 const char* password = "EYo6Hv4qRO7P1JSpAqZCH6vGVPHwznRWODIIIdhd1pBkeWCYie0knb1pOQ9t2cc";
 
@@ -67,63 +68,7 @@ const char* password = "EYo6Hv4qRO7P1JSpAqZCH6vGVPHwznRWODIIIdhd1pBkeWCYie0knb1p
 #define DISPLAY_SCR_MAXVALUES			1
 #define DISPLAY_SCR_WLAN_STATUS			2
 
-///// LCDML 
-// lib config
-#define _LCDML_DISP_cfg_button_press_time          200    // button press time in ms
-
-// ********************************************************************* 
-// LCDML TYPE SELECT
-// *********************************************************************
-// settings for lcd 
-#define _LCDML_DISP_cols             20
-#define _LCDML_DISP_rows             4  
-
-
-// *********************************************************************
-// LCDML MENU/DISP
-// *********************************************************************
-// create menu
-// menu element count - last element id
-// this value must be the same as the last menu element
-#define _LCDML_DISP_cnt    11
-
-// LCDML_root        => layer 0 
-// LCDML_root_X      => layer 1 
-// LCDML_root_X_X    => layer 2 
-// LCDML_root_X_X_X  => layer 3 
-// LCDML_root_... 	 => layer ... 
-
-// LCDMenuLib_add(id, group, prev_layer_element, new_element_num, lang_char_array, callback_function)
-LCDML_DISP_init(_LCDML_DISP_cnt);
-LCDML_DISP_add(0, _LCDML_G1, LCDML_root, 1, "Information", LCDML_FUNC_information);
-LCDML_DISP_add(1, _LCDML_G1, LCDML_root, 2, "Time info", LCDML_FUNC_timer_info);
-LCDML_DISP_add(2, _LCDML_G1, LCDML_root, 3, "Settings", LCDML_FUNC);
-LCDML_DISP_add(3, _LCDML_G1, LCDML_root_3, 1, "Change value", LCDML_FUNC);
-LCDML_DISP_add(4, _LCDML_G1, LCDML_root_3, 2, "Something", LCDML_FUNC);
-LCDML_DISP_add(5, _LCDML_G1, LCDML_root, 4, "Program", LCDML_FUNC);
-LCDML_DISP_add(6, _LCDML_G1, LCDML_root_4, 1, "Program 1", LCDML_FUNC);
-LCDML_DISP_add(7, _LCDML_G1, LCDML_root_4_1, 1, "P1 start", LCDML_FUNC);
-LCDML_DISP_add(8, _LCDML_G1, LCDML_root_4_1, 2, "Settings", LCDML_FUNC);
-LCDML_DISP_add(9, _LCDML_G1, LCDML_root_4_1_2, 1, "Warm", LCDML_FUNC);
-LCDML_DISP_add(10, _LCDML_G1, LCDML_root_4_1_2, 2, "Long", LCDML_FUNC);
-LCDML_DISP_add(11, _LCDML_G1, LCDML_root_4, 2, "Program 2", LCDML_FUNC_p2);
-LCDML_DISP_createMenu(_LCDML_DISP_cnt);
-
-
-
-// ********************************************************************* 
-// LCDML BACKEND (core of the menu, do not change here anything yet)
-// ********************************************************************* 
-// define backend function  
-#define _LCDML_BACK_cnt    1  // last backend function id
-
-LCDML_BACK_init(_LCDML_BACK_cnt);
-LCDML_BACK_new_timebased_dynamic(0, (20UL), _LCDML_start, LCDML_BACKEND_control);
-LCDML_BACK_new_timebased_dynamic(1, (10000000UL), _LCDML_stop, LCDML_BACKEND_menu);
-LCDML_BACK_create();
-////////////////////////////////////
-
-
+#include "LCDML_DEFS.h"
 
 #if (SSD1306_LCDHEIGHT != 32)
 #error("Height incorrect, please fix Adafruit_SSD1306.h!");

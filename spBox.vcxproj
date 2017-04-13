@@ -88,6 +88,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="LCDML_DEFS.h" />
     <ClInclude Include="__vm\.spBox.vsarduino.h" />
   </ItemGroup>
   <PropertyGroup>
