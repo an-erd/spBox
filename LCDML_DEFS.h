@@ -16,41 +16,42 @@
 #define _LCDML_DISP_rows						_LCDML_rows
 
 // LCDMenuLib_add(id, group, prev_layer_element, new_element_num, lang_char_array, callback_function)
-#define _LCDML_DISP_cnt    32
+#define _LCDML_DISP_cnt    33
 LCDML_DISP_init(_LCDML_DISP_cnt);
 LCDML_DISP_add(0, _LCDML_G1, LCDML_root, 1, "Information", LCDML_FUNC);
 LCDML_DISP_add(1, _LCDML_G1, LCDML_root_1, 1, "Sensor", LCDML_FUNC);
 LCDML_DISP_add(2, _LCDML_G1, LCDML_root_1_1, 1, "Overview", LCDML_FUNC);
 LCDML_DISP_add(3, _LCDML_G1, LCDML_root_1_1, 2, "Accel/Gyro", LCDML_FUNC);
 LCDML_DISP_add(4, _LCDML_G1, LCDML_root_1_1_2, 1, "Max. Werte", LCDML_FUNC);
-LCDML_DISP_add(5, _LCDML_G1, LCDML_root_1_1_2, 2, "Zurueck", LCDML_FUNC);
+LCDML_DISP_add(5, _LCDML_G1, LCDML_root_1_1_2, 2, "Zurueck", LCDML_FUNC_back);
 LCDML_DISP_add(6, _LCDML_G1, LCDML_root_1_1, 3, "Temp/Druck/Höhe", LCDML_FUNC);
 LCDML_DISP_add(7, _LCDML_G1, LCDML_root_1_1_3, 1, "Overview", LCDML_FUNC);
-LCDML_DISP_add(8, _LCDML_G1, LCDML_root_1_1_3, 2, "Zurueck", LCDML_FUNC);
+LCDML_DISP_add(8, _LCDML_G1, LCDML_root_1_1_3, 2, "Zurueck", LCDML_FUNC_back);
 LCDML_DISP_add(9, _LCDML_G1, LCDML_root_1_1, 4, "Kompass", LCDML_FUNC);
 LCDML_DISP_add(10, _LCDML_G1, LCDML_root_1_1_4, 1, "Overview", LCDML_FUNC);
-LCDML_DISP_add(11, _LCDML_G1, LCDML_root_1_1_4, 2, "Zurueck", LCDML_FUNC);
-LCDML_DISP_add(12, _LCDML_G1, LCDML_root, 2, "Status", LCDML_FUNC);
-LCDML_DISP_add(13, _LCDML_G1, LCDML_root_2, 1, "WLAN", LCDML_FUNC);
-LCDML_DISP_add(14, _LCDML_G1, LCDML_root_2, 2, "MQTT", LCDML_FUNC);
-LCDML_DISP_add(15, _LCDML_G1, LCDML_root_2, 3, "Zurueck", LCDML_FUNC);
-LCDML_DISP_add(16, _LCDML_G1, LCDML_root, 3, "Konfiguration", LCDML_FUNC);
-LCDML_DISP_add(17, _LCDML_G1, LCDML_root_3, 1, "WLAN", LCDML_FUNC);
-LCDML_DISP_add(18, _LCDML_G1, LCDML_root_3, 2, "Sensor", LCDML_FUNC);
-LCDML_DISP_add(19, _LCDML_G1, LCDML_root_3_2, 1, "Accel", LCDML_FUNC);
-LCDML_DISP_add(20, _LCDML_G1, LCDML_root_3_2, 2, "Gyro", LCDML_FUNC);
-LCDML_DISP_add(21, _LCDML_G1, LCDML_root_3_2, 3, "Kompass", LCDML_FUNC);
-LCDML_DISP_add(22, _LCDML_G1, LCDML_root_3_2, 4, "Höhe", LCDML_FUNC);
-LCDML_DISP_add(23, _LCDML_G1, LCDML_root_3_2, 5, "Zurueck", LCDML_FUNC);
-LCDML_DISP_add(24, _LCDML_G1, LCDML_root_3, 3, "Zurueck", LCDML_FUNC);
-LCDML_DISP_add(25, _LCDML_G1, LCDML_root, 4, "Information", LCDML_FUNC);
-LCDML_DISP_add(26, _LCDML_G1, LCDML_root_4, 1, "Besitzer", LCDML_FUNC);
-LCDML_DISP_add(27, _LCDML_G1, LCDML_root_4, 2, "Sensor-Ausrichtung", LCDML_FUNC);
-LCDML_DISP_add(28, _LCDML_G1, LCDML_root_4_2, 1, "Accel", LCDML_FUNC);
-LCDML_DISP_add(29, _LCDML_G1, LCDML_root_4_2, 2, "Gyro", LCDML_FUNC);
-LCDML_DISP_add(30, _LCDML_G1, LCDML_root_4_2, 3, "Kompass", LCDML_FUNC);
-LCDML_DISP_add(31, _LCDML_G1, LCDML_root_4_2, 4, "Zurueck", LCDML_FUNC);
-LCDML_DISP_add(32, _LCDML_G1, LCDML_root_4, 3, "Zurueck", LCDML_FUNC);
+LCDML_DISP_add(11, _LCDML_G1, LCDML_root_1_1_4, 2, "Zurueck", LCDML_FUNC_back);
+LCDML_DISP_add(12, _LCDML_G1, LCDML_root_1, 2, "Zurueck", LCDML_FUNC_back);
+LCDML_DISP_add(13, _LCDML_G1, LCDML_root, 2, "Status", LCDML_FUNC);
+LCDML_DISP_add(14, _LCDML_G1, LCDML_root_2, 1, "WLAN", LCDML_FUNC);
+LCDML_DISP_add(15, _LCDML_G1, LCDML_root_2, 2, "MQTT", LCDML_FUNC);
+LCDML_DISP_add(16, _LCDML_G1, LCDML_root_2, 3, "Zurueck", LCDML_FUNC_back);
+LCDML_DISP_add(17, _LCDML_G1, LCDML_root, 3, "Konfiguration", LCDML_FUNC);
+LCDML_DISP_add(18, _LCDML_G1, LCDML_root_3, 1, "WLAN", LCDML_FUNC);
+LCDML_DISP_add(19, _LCDML_G1, LCDML_root_3, 2, "Sensor", LCDML_FUNC);
+LCDML_DISP_add(20, _LCDML_G1, LCDML_root_3_2, 1, "Accel", LCDML_FUNC);
+LCDML_DISP_add(21, _LCDML_G1, LCDML_root_3_2, 2, "Gyro", LCDML_FUNC);
+LCDML_DISP_add(22, _LCDML_G1, LCDML_root_3_2, 3, "Kompass", LCDML_FUNC);
+LCDML_DISP_add(23, _LCDML_G1, LCDML_root_3_2, 4, "Höhe", LCDML_FUNC);
+LCDML_DISP_add(24, _LCDML_G1, LCDML_root_3_2, 5, "Zurueck", LCDML_FUNC_back);
+LCDML_DISP_add(25, _LCDML_G1, LCDML_root_3, 3, "Zurueck", LCDML_FUNC_back);
+LCDML_DISP_add(26, _LCDML_G1, LCDML_root, 4, "Information", LCDML_FUNC);
+LCDML_DISP_add(27, _LCDML_G1, LCDML_root_4, 1, "Besitzer", LCDML_FUNC);
+LCDML_DISP_add(28, _LCDML_G1, LCDML_root_4, 2, "Sensor-Ausrichtung", LCDML_FUNC);
+LCDML_DISP_add(29, _LCDML_G1, LCDML_root_4_2, 1, "Accel", LCDML_FUNC);
+LCDML_DISP_add(30, _LCDML_G1, LCDML_root_4_2, 2, "Gyro", LCDML_FUNC);
+LCDML_DISP_add(31, _LCDML_G1, LCDML_root_4_2, 3, "Kompass", LCDML_FUNC);
+LCDML_DISP_add(32, _LCDML_G1, LCDML_root_4_2, 4, "Zurueck", LCDML_FUNC_back);
+LCDML_DISP_add(33, _LCDML_G1, LCDML_root_4, 3, "Zurueck", LCDML_FUNC_back);
 LCDML_DISP_createMenu(_LCDML_DISP_cnt);
 
 #define _LCDML_BACK_cnt    1  // last backend function id

@@ -27,7 +27,6 @@
 #define	SERIAL_STATUS_OUTPUT
 #undef MEASURE_PREFORMANCE
 
-
 const char* ssid = "W12";
 const char* password = "EYo6Hv4qRO7P1JSpAqZCH6vGVPHwznRWODIIIdhd1pBkeWCYie0knb1pOQ9t2cc";
 
@@ -108,6 +107,8 @@ typedef struct
 	bool		changed_halfSteps;
 	long		actualRotaryTicks;
 	bool		changed_rotEnc;
+	long		LCDML_rotenc_value;
+	long		LCDML_rotenc_value_history;
 } sGlobalRotEnc;
 
 typedef struct
@@ -118,6 +119,7 @@ typedef struct
 	bool		changed;
 	bool		long_diff_change;		// long time gone since change
 	bool		very_long_diff_change;	// very long time gone since change
+	bool		LCDML_button_pressed;
 } sGlobalButton;
 
 typedef struct
@@ -344,6 +346,9 @@ void initialize_rotary_encoder() {
 	rotenc.actualRotaryTicks = 0;
 	rotenc.changed_rotEnc = false;
 	rotenc.changed_halfSteps = false;
+
+	rotenc.LCDML_rotenc_value = 0;
+	rotenc.LCDML_rotenc_value_history = 0;
 }
 
 void initialize_button() {
@@ -563,6 +568,7 @@ void check_button() {
 			if (rotenc.actualRotaryTicks == DISPLAY_SCR_MAXVALUES) {
 				reset_min_max_accelgyro();
 			}
+			button.LCDML_button_pressed = true;
 		}
 		else {
 			if (!button.very_long_diff_change) {
@@ -585,10 +591,12 @@ void check_button() {
 void check_rotary_encoder() {
 	if (rotenc.changed_halfSteps) {
 		rotenc.changed_halfSteps = false;
+
 		if (rotenc.rotaryHalfSteps % 2 == 0) {
 			rotenc.actualRotaryTicks = rotenc.rotaryHalfSteps / 2;
-			rotenc.actualRotaryTicks %= MAX_NUMBER_DISPLAY_SCREENS;		// TODO different screens hard coded uuuugh.
-			rotenc.changed_rotEnc = true;
+			rotenc.LCDML_rotenc_value = rotenc.actualRotaryTicks;
+			//rotenc.actualRotaryTicks %= MAX_NUMBER_DISPLAY_SCREENS;		// TODO different screens hard coded uuuugh.
+			//rotenc.changed_rotEnc = true;
 		}
 	}
 }
@@ -781,7 +789,6 @@ void setup() {
 	setup_update_accel_gyro_mag_timer();
 	setup_update_display_timer();
 
-
 	//// LCDML
 	LCDML_DISP_groupEnable(_LCDML_G1);
 	LCDML_setup(_LCDML_BACK_cnt);
@@ -805,17 +812,20 @@ void loop() {
 
 	check_button();
 	check_rotary_encoder();
+	if (true) {
+		//update_LCDML_rot_enc_sw();
+	}
+	else {
+		check_menu();
+		update_display();
+		//if (rotenc.actualRotaryTicks == DISPLAY_SCR_WLAN_STATUS)
+		//	display_struct.update_display = true;
 
-	//check_menu();
-	//update_display();
-
-	//if (rotenc.actualRotaryTicks == DISPLAY_SCR_WLAN_STATUS)
-	//	display_struct.update_display = true;
-
-	//if (display_struct.update_display) {
-	//	display_struct.update_display = false;
-	//	update_display();
-	//}
+		//if (display_struct.update_display) {
+		//	display_struct.update_display = false;
+		//	update_display();
+		//}
+	}
 
 	LCDML_run(_LCDML_priority);
 
@@ -827,6 +837,6 @@ void loop() {
 #endif
 
 	yield();
-	display.display();
-	yield();
+	//display.display();
+	//yield();
 }
