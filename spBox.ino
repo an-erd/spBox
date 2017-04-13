@@ -7,30 +7,26 @@
 //
 
 #include <arduino.h>
-extern "C" {
+//extern "C" {
 #include "c_types.h"
 #include "user_interface.h"
-	// #include "ets_sys.h"
+// #include "ets_sys.h"
 #include "osapi.h"
-}
+//}
 
-//#include <ESP8266WiFi.h>
-//#include <ESP8266mDNS.h>
-//#include <WiFiUdp.h>
-//#include <ArduinoOTA.h>
-
-#include <ESP8266WiFi\src\ESP8266WiFi.h>
-#include <ESP8266mDNS\ESP8266mDNS.h>
-#include <ESP8266WiFi\src\WiFiUdp.h>
-#include <ArduinoOTA\ArduinoOTA.h>
-#include "Wire.h"
-#include "I2Cdev.h"
-#include "MPU6050.h"
-#include "HMC5883L.h"
-#include "BMP085.h"
-#include "Adafruit_GFX.h"
-#include "Adafruit_SSD1306.h"
-//#include "Adafruit_FeatherOLED\Adafruit_FeatherOLED_WiFi.h"
+#include <LCDMenuLib.h>
+#include <ESP8266WiFi.h>
+#include <ESP8266mDNS.h>
+#include <WiFiUdp.h>
+#include <ArduinoOTA.h>
+#include <Wire.h>
+#include <I2Cdev.h>
+#include <MPU6050.h>
+#include <HMC5883L.h>
+#include <BMP085.h>
+#include <Adafruit_GFX.h>
+#include <Adafruit_SSD1306.h>
+#include <Adafruit_FeatherOLED_WiFi.h>
 
 #define	SERIAL_STATUS_OUTPUT
 #undef MEASURE_PREFORMANCE
@@ -46,7 +42,7 @@ const char* password = "EYo6Hv4qRO7P1JSpAqZCH6vGVPHwznRWODIIIdhd1pBkeWCYie0knb1p
 
 #define THRESHOLD		7		// debounce threshold in milliseconds
 #define DELAY_MS_1HZ	1000	// milliseconds delay ->  1 Hz
-#define DELAY_MS_2HZ	500		// milliseconds delay ->  2 Hz
+#define DELAY_MS_2HZ	500
 #define DELAY_MS_10HZ	100
 #define DELAY_MS_TWOSEC	2000
 #define DELAY_MS_TENSEC	10000
@@ -70,10 +66,68 @@ const char* password = "EYo6Hv4qRO7P1JSpAqZCH6vGVPHwznRWODIIIdhd1pBkeWCYie0knb1p
 #define MPU6050_DEG_RAD_CONV		0.01745329251994329576	// CONST
 #define MPU6050_GAIN_DEG_RAD_CONV	0.00106422515365507901	// MPU6050_DEG_RAD_CONV / MPU6050_G_GAIN
 
-#define MAX_NUMBER_DISPLAY_SCREENS		2
+#define MAX_NUMBER_DISPLAY_SCREENS		3
 #define DISPLAY_SCR_OVERVIEW			0
 #define DISPLAY_SCR_MAXVALUES			1
 #define DISPLAY_SCR_WLAN_STATUS			2
+
+///// LCDML 
+// lib config
+#define _LCDML_DISP_cfg_button_press_time          200    // button press time in ms
+
+// ********************************************************************* 
+// LCDML TYPE SELECT
+// *********************************************************************
+// settings for lcd 
+#define _LCDML_DISP_cols             20
+#define _LCDML_DISP_rows             4  
+
+
+// *********************************************************************
+// LCDML MENU/DISP
+// *********************************************************************
+// create menu
+// menu element count - last element id
+// this value must be the same as the last menu element
+#define _LCDML_DISP_cnt    11
+
+// LCDML_root        => layer 0 
+// LCDML_root_X      => layer 1 
+// LCDML_root_X_X    => layer 2 
+// LCDML_root_X_X_X  => layer 3 
+// LCDML_root_... 	 => layer ... 
+
+// LCDMenuLib_add(id, group, prev_layer_element, new_element_num, lang_char_array, callback_function)
+LCDML_DISP_init(_LCDML_DISP_cnt);
+LCDML_DISP_add(0, _LCDML_G1, LCDML_root, 1, "Information", LCDML_FUNC_information);
+LCDML_DISP_add(1, _LCDML_G1, LCDML_root, 2, "Time info", LCDML_FUNC_timer_info);
+LCDML_DISP_add(2, _LCDML_G1, LCDML_root, 3, "Settings", LCDML_FUNC);
+LCDML_DISP_add(3, _LCDML_G1, LCDML_root_3, 1, "Change value", LCDML_FUNC);
+LCDML_DISP_add(4, _LCDML_G1, LCDML_root_3, 2, "Something", LCDML_FUNC);
+LCDML_DISP_add(5, _LCDML_G1, LCDML_root, 4, "Program", LCDML_FUNC);
+LCDML_DISP_add(6, _LCDML_G1, LCDML_root_4, 1, "Program 1", LCDML_FUNC);
+LCDML_DISP_add(7, _LCDML_G1, LCDML_root_4_1, 1, "P1 start", LCDML_FUNC);
+LCDML_DISP_add(8, _LCDML_G1, LCDML_root_4_1, 2, "Settings", LCDML_FUNC);
+LCDML_DISP_add(9, _LCDML_G1, LCDML_root_4_1_2, 1, "Warm", LCDML_FUNC);
+LCDML_DISP_add(10, _LCDML_G1, LCDML_root_4_1_2, 2, "Long", LCDML_FUNC);
+LCDML_DISP_add(11, _LCDML_G1, LCDML_root_4, 2, "Program 2", LCDML_FUNC_p2);
+LCDML_DISP_createMenu(_LCDML_DISP_cnt);
+
+
+
+// ********************************************************************* 
+// LCDML BACKEND (core of the menu, do not change here anything yet)
+// ********************************************************************* 
+// define backend function  
+#define _LCDML_BACK_cnt    1  // last backend function id
+
+LCDML_BACK_init(_LCDML_BACK_cnt);
+LCDML_BACK_new_timebased_dynamic(0, (20UL), _LCDML_start, LCDML_BACKEND_control);
+LCDML_BACK_new_timebased_dynamic(1, (10000000UL), _LCDML_stop, LCDML_BACKEND_menu);
+LCDML_BACK_create();
+////////////////////////////////////
+
+
 
 #if (SSD1306_LCDHEIGHT != 32)
 #error("Height incorrect, please fix Adafruit_SSD1306.h!");
@@ -109,9 +163,10 @@ typedef struct
 	uint8_t		int0history;
 	uint8_t		int1signal;
 	uint8_t		int1history;
-	long		rotaryHalfSteps;	// internal counter used for rot enc position
-	long		actualRotaryTicks;	// rot enc position
-	bool		changed_rotEnc;		// flag -> rotary encoder position changed
+	long		rotaryHalfSteps;
+	bool		changed_halfSteps;
+	long		actualRotaryTicks;
+	bool		changed_rotEnc;
 } sGlobalRotEnc;
 
 typedef struct
@@ -134,8 +189,8 @@ typedef struct
 MPU6050		accelgyro;
 HMC5883L	mag;
 BMP085		barometer;
-//Adafruit_FeatherOLED_WiFi display = Adafruit_FeatherOLED_WiFi();
-Adafruit_SSD1306  display = Adafruit_SSD1306();
+Adafruit_FeatherOLED_WiFi display = Adafruit_FeatherOLED_WiFi();
+//Adafruit_SSD1306  display = Adafruit_SSD1306();
 
 sGlobalSensors	sensors;
 volatile bool	do_update_accel_gyro_mag;
@@ -153,11 +208,10 @@ LOCAL os_timer_t timer_update_temperature_pressure;
 LOCAL os_timer_t timer_update_temperature_pressure_steps;
 LOCAL os_timer_t timer_update_accel_gyro_mag;
 LOCAL os_timer_t timer_update_display;
-LOCAL os_timer_t timer_long_button_press;
 
 int32_t lastMicros;		// TODO
 
-// = dtostre() function experimental ============================
+						// = dtostre() function experimental ============================
 char * dtostrf_sign(double number, signed char width, unsigned char prec, char *s) {
 	bool negative = false;
 
@@ -240,9 +294,8 @@ char * dtostrf_sign(double number, signed char width, unsigned char prec, char *
 }
 // ====================================================================
 
-// rotary encoder interrupt routines
+// rotary encoder and rotary encoder button interrupt routines
 void int0() {
-	bool calc_ticks = false;
 	if (millis() - rotenc.int0time < THRESHOLD)
 		return;
 	rotenc.int0history = rotenc.int0signal;
@@ -256,11 +309,8 @@ void int0() {
 	else {
 		rotenc.rotaryHalfSteps++;
 	}
-	if (rotenc.rotaryHalfSteps % 2 == 0) {
-		rotenc.actualRotaryTicks = rotenc.rotaryHalfSteps / 2;
-		rotenc.actualRotaryTicks %= MAX_NUMBER_DISPLAY_SCREENS;		// TODO different screens hard coded uuuugh.
-		rotenc.changed_rotEnc = true;
-	}
+
+	rotenc.changed_halfSteps = true;
 }
 
 void int1() {
@@ -352,6 +402,7 @@ void initialize_rotary_encoder() {
 	rotenc.rotaryHalfSteps = 0;
 	rotenc.actualRotaryTicks = 0;
 	rotenc.changed_rotEnc = false;
+	rotenc.changed_halfSteps = false;
 }
 
 void initialize_button() {
@@ -591,6 +642,17 @@ void check_button() {
 }
 
 void check_rotary_encoder() {
+	if (rotenc.changed_halfSteps) {
+		rotenc.changed_halfSteps = false;
+		if (rotenc.rotaryHalfSteps % 2 == 0) {
+			rotenc.actualRotaryTicks = rotenc.rotaryHalfSteps / 2;
+			rotenc.actualRotaryTicks %= MAX_NUMBER_DISPLAY_SCREENS;		// TODO different screens hard coded uuuugh.
+			rotenc.changed_rotEnc = true;
+		}
+	}
+}
+
+void check_menu() {
 }
 
 void update_display_scr1() {
@@ -637,29 +699,30 @@ void update_display_scr2() {
 }
 
 void update_display_scr3() {
-	//int8_t rssi = WiFi.RSSI();
-	//uint32_t ipAddress = WiFi.localIP();
-	//display.setBatteryVisible(false);
+	int8_t rssi = WiFi.RSSI();
+	uint32_t ipAddress = WiFi.localIP();
 
-	//display.setConnected(true);
-	//display.setConnectedVisible(true);
-	//display.setRSSIVisible(true);
-	//display.setRSSIIcon(true);
-	//display.setRSSI(rssi);
-	//display.setIPAddress(ipAddress);
-	//display.refreshIcons();
-	//display.clearMsgArea();
+	display.setBatteryVisible(false);
+	display.setConnectedVisible(true);
+	display.setRSSIVisible(true);
+	display.setRSSIIcon(true);
+
+	display.setConnected(WiFi.status() == WL_CONNECTED);
+
+	display.setRSSI(rssi);
+	display.setIPAddress(ipAddress);
+
+	display.refreshIcons();
+	display.clearMsgArea();
+	display.println("test");
 }
 
 void update_display_print_buffer() {
 	display.clearDisplay();
-	//display.setCursor(3, 0);	// move x by 3 px caused by housing
+	display.setCursor(0, 0);
 	display.println(display_struct.displaybuffer[0]);
-	//display.setCursor(3, display.getCursorY());
 	display.println(display_struct.displaybuffer[1]);
-	//display.setCursor(3, display.getCursorY());
 	display.println(display_struct.displaybuffer[2]);
-	//display.setCursor(3, display.getCursorY());
 	display.println(display_struct.displaybuffer[3]);
 }
 
@@ -776,6 +839,14 @@ void setup() {
 	setup_update_temperature_pressure_timer();
 	setup_update_accel_gyro_mag_timer();
 	setup_update_display_timer();
+
+
+	//// LCDML
+	Serial.println(F(_LCDML_VERSION)); // only for examples
+									   // Enable all items with _LCDML_G1
+	LCDML_DISP_groupEnable(_LCDML_G1); // enable group 1
+									   // LCDMenu Setup
+	LCDML_setup(_LCDML_BACK_cnt);
 }
 
 void loop() {
@@ -797,13 +868,18 @@ void loop() {
 	check_button();
 	check_rotary_encoder();
 
-	//if (rotenc.actualRotaryTicks == DISPLAY_SCR_WLAN_STATUS)
-	//	display_struct.update_display = true;
+	check_menu();
+	update_display();
+
+	if (rotenc.actualRotaryTicks == DISPLAY_SCR_WLAN_STATUS)
+		display_struct.update_display = true;
 
 	if (display_struct.update_display) {
 		display_struct.update_display = false;
 		update_display();
 	}
+
+	LCDML_run(_LCDML_priority);
 
 #ifdef MEASURE_PREFORMANCE
 	Serial.print("performance us: ");
