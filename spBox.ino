@@ -24,19 +24,31 @@
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
 #include <Adafruit_FeatherOLED_WiFi.h>
-//#include <AdafruitIO_WiFi.h>
-//#include <Adafruit_MQTT.h>
-//#include <Adafruit_AIO.h>
+#include <Adafruit_MQTT.h>
+#include <Adafruit_MQTT_Client.h>
 
 #define	SERIAL_STATUS_OUTPUT
 #undef MEASURE_PREFORMANCE
 #define AIO_ENABLED               1
 
-const char* ssid = "W12";
-const char* password = "EYo6Hv4qRO7P1JSpAqZCH6vGVPHwznRWODIIIdhd1pBkeWCYie0knb1pOQ9t2cc";
-#define AIO_KEY "ee3974dd87d3450490aa2840667e8162"
-#define VBAT_ENABLED              1
-#define VBAT_PIN                  A0
+// WLAN
+#define SSID			"W12"
+#define PASSWORD		"EYo6Hv4qRO7P1JSpAqZCH6vGVPHwznRWODIIIdhd1pBkeWCYie0knb1pOQ9t2cc"
+
+// ADAFRUIT IO
+#define AIO_SERVER      "io.adafruit.com"
+#define AIO_SERVERPORT  1883
+#define AIO_USERNAME    "andreaserd"
+#define AIO_KEY			"ee3974dd87d3450490aa2840667e8162"
+
+WiFiClient client;		// WiFiClient class to connect to the MQTT server
+
+// MQTT Client and Feed
+Adafruit_MQTT_Client mqtt(&client, AIO_SERVER, AIO_SERVERPORT, AIO_USERNAME, AIO_KEY);
+Adafruit_MQTT_Publish battery = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/battery");
+
+#define VBAT_ENABLED	1
+#define VBAT_PIN		A0
 
 #define ENCODER_PIN_A	12
 #define ENCODER_PIN_B	14
@@ -646,11 +658,10 @@ void updateVbat()
 	display.setBattery(vbatFloat / 1000.);
 
 	Serial.println(vbatADC);
-	//// Push VBAT out to MQTT if possible
-	//if (AIO_ENABLED && aio.connected())
-	//{
-	//  feedVBAT = vbatFloat/1000;
-	//}
+	if (!battery.publish(vbatADC))
+		Serial.println(F("Failed."));
+	else
+		Serial.println(F("Success!"));
 }
 
 void update_display_scr3() {
@@ -725,7 +736,7 @@ void initialize_WLAN() {
 	Serial.println("Initializing WLAN");
 	WLAN_status_on = false;
 	WiFi.mode(WIFI_STA);
-	WiFi.begin(ssid, password);
+	WiFi.begin(SSID, PASSWORD);
 	//while (WiFi.waitForConnectResult() != WL_CONNECTED) {
 	//	Serial.println("Connection Failed! Rebooting...");
 	//	delay(5000);
@@ -738,6 +749,32 @@ void initialize_WLAN() {
 
 	WLAN_initialized = true;
 	WLAN_status_on = true;
+}
+
+void connect_adafruit_io() {
+	Serial.print(F("Connecting to Adafruit IO... "));
+
+	int8_t ret;
+
+	while ((ret = mqtt.connect()) != 0) {
+		switch (ret) {
+		case 1: Serial.println(F("Wrong protocol")); break;
+		case 2: Serial.println(F("ID rejected")); break;
+		case 3: Serial.println(F("Server unavail")); break;
+		case 4: Serial.println(F("Bad user/pass")); break;
+		case 5: Serial.println(F("Not authed")); break;
+		case 6: Serial.println(F("Failed to subscribe")); break;
+		default: Serial.println(F("Connection failed")); break;
+		}
+
+		if (ret >= 0)
+			mqtt.disconnect();
+
+		Serial.println(F("Retrying connection..."));
+		delay(5000);
+	}
+
+	Serial.println(F("Adafruit IO Connected!"));
 }
 
 void switch_WLAN(bool turn_on) {
@@ -816,9 +853,18 @@ void setup() {
 
 	LCDML_DISP_groupEnable(_LCDML_G1);
 	LCDML_setup(_LCDML_BACK_cnt);
+
+	connect_adafruit_io();
 }
 
 void loop() {
+	//// ping adafruit io a few times to make sure we remain connected
+	//if (!mqtt.ping(3)) {
+	//	// reconnect to adafruit io
+	//	if (!mqtt.connected())
+	//		connect();
+	//}
+
 #ifdef MEASURE_PREFORMANCE
 	int32_t perfStopWatch_getvalues;
 	int32_t perfStopWatch_output;
