@@ -24,12 +24,19 @@
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
 #include <Adafruit_FeatherOLED_WiFi.h>
+//#include <AdafruitIO_WiFi.h>
+//#include <Adafruit_MQTT.h>
+//#include <Adafruit_AIO.h>
 
 #define	SERIAL_STATUS_OUTPUT
 #undef MEASURE_PREFORMANCE
+#define AIO_ENABLED               1
 
 const char* ssid = "W12";
 const char* password = "EYo6Hv4qRO7P1JSpAqZCH6vGVPHwznRWODIIIdhd1pBkeWCYie0knb1pOQ9t2cc";
+#define AIO_KEY "ee3974dd87d3450490aa2840667e8162"
+#define VBAT_ENABLED              1
+#define VBAT_PIN                  A0
 
 #define ENCODER_PIN_A	12
 #define ENCODER_PIN_B	14
@@ -286,6 +293,8 @@ void initialize_GPIO() {
 	pinMode(ENCODER_SW, OUTPUT);
 	digitalWrite(ENCODER_SW, 0);
 	pinMode(ENCODER_SW, INPUT_PULLUP);
+
+	pinMode(VBAT_PIN, INPUT);
 }
 
 void initialize_display() {
@@ -625,10 +634,43 @@ void update_print_buffer_scr2() {
 	snprintf(display_struct.displaybuffer[3], 21, "G\\ %s %s %s", display_struct.tempbuffer[0], display_struct.tempbuffer[1], display_struct.tempbuffer[2]);
 }
 
+void updateVbat()
+{
+	int   vbatADC = 0;
+	float vbatFloat = 0.0F;
+	float vbatLSB = 0.97751F;		// 1000mV/1023 -> mV per LSB
+	float vbatVoltDiv = 0.21321F;	// 271K/1271K resistor voltage divider
+
+	vbatADC = analogRead(VBAT_PIN);
+	vbatFloat = ((float)vbatADC * vbatLSB) / vbatVoltDiv;
+	display.setBattery(vbatFloat / 1000.);
+
+	Serial.println(vbatADC);
+	//// Push VBAT out to MQTT if possible
+	//if (AIO_ENABLED && aio.connected())
+	//{
+	//  feedVBAT = vbatFloat/1000;
+	//}
+}
+
 void update_display_scr3() {
 	int8_t rssi = WiFi.RSSI();
 	uint32_t ipAddress = WiFi.localIP();
 
+	//int level = analogRead(VBAT_PIN);
+	// analog read level is 10 bit 0-1023 (0V-1V).
+	// resistors of the voltage divider 271K and 1M -> 271 / 1271 =
+	// lipo values:
+	// 3.14V -> 0.669V -> analog value 684
+	// 4.20V -> 0.895V -> analog value 915
+	//int perc_level = map(level, 684, 915, 0, 100); // level in percentage
+	//float temp_volt = level * 0.97751 * 4.69;
+	//display.setBattery(temp_volt);
+	//Serial.print("Battery: "); Serial.print(temp_volt); Serial.print(", level "); Serial.println(perc_level);
+	//Serial.println(level);
+	//Adafruit_IO_Feed battery = aio.getFeed("battery");
+	//battery.send(level);
+	updateVbat();
 	bool is_connected;
 	is_connected = WiFi.status() == WL_CONNECTED;
 	display.setConnected(is_connected);
@@ -638,32 +680,33 @@ void update_display_scr3() {
 	}
 	display.refreshIcons();
 	display.clearMsgArea();
-	switch (WiFi.status()) {
-	case WL_IDLE_STATUS:
-		display.print("Idle Status");
-		break;
-	case WL_NO_SSID_AVAIL:
-		display.print("");
-		break;
-	case WL_SCAN_COMPLETED:
-		display.print("Scan Completed");
-		break;
-	case WL_CONNECTED:
-		display.print(WiFi.SSID());
-		break;
-	case WL_CONNECT_FAILED:
-		display.print("Connect Failed");
-		break;
-	case WL_CONNECTION_LOST:
-		display.print("Connection Lost");
-		break;
-	case WL_DISCONNECTED:
-		display.print("Disconnected");
-		break;
-	case WL_NO_SHIELD:
-		display.print("No Shield");
-		break;
-	}
+	//display.print(level);
+	//switch (WiFi.status()) {
+	//case WL_IDLE_STATUS:
+	//	display.print("Idle Status");
+	//	break;
+	//case WL_NO_SSID_AVAIL:
+	//	display.print("");
+	//	break;
+	//case WL_SCAN_COMPLETED:
+	//	display.print("Scan Completed");
+	//	break;
+	//case WL_CONNECTED:
+	//	display.print(WiFi.SSID());
+	//	break;
+	//case WL_CONNECT_FAILED:
+	//	display.print("Connect Failed");
+	//	break;
+	//case WL_CONNECTION_LOST:
+	//	display.print("Connection Lost");
+	//	break;
+	//case WL_DISCONNECTED:
+	//	display.print("Disconnected");
+	//	break;
+	//case WL_NO_SHIELD:
+	//	display.print("No Shield");
+	//	break;
+	//}
 
 	display.display();
 }

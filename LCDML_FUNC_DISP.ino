@@ -78,7 +78,8 @@ void LCDML_DISP_loop_end(LCDML_FUNC_sensor_min_max_reset)
 // ############################################################################
 void LCDML_DISP_setup(LCDML_FUNC_status_wlan)
 {
-	display.setBatteryVisible(false);
+	display.setBatteryVisible(true);
+	display.setBatteryIcon(true);
 	display.setConnectedVisible(true);
 	display.setRSSIVisible(true);
 	display.setRSSIIcon(true);
