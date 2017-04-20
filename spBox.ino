@@ -49,6 +49,7 @@ Adafruit_MQTT_Publish battery = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feed
 
 #define VBAT_ENABLED	1
 #define VBAT_PIN		A0
+int		g_vbatADC;
 
 #define ENCODER_PIN_A	12
 #define ENCODER_PIN_B	14
@@ -62,6 +63,7 @@ Adafruit_MQTT_Publish battery = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feed
 #define DELAY_MS_10HZ	100
 #define DELAY_MS_TWOSEC	2000
 #define DELAY_MS_TENSEC	10000
+#define DELAY_MS_1MIN	60000
 
 // update_temperature_pressure_step
 #define SENSOR_PAUSED					0
@@ -153,7 +155,7 @@ sGlobalSensors	sensors;
 volatile bool	do_update_accel_gyro_mag;
 volatile bool	do_update_temperature_pressure;
 volatile bool	do_update_temperature_pressure_step;
-
+volatile bool	do_update_mqtt;
 sGlobalDisplay	display_struct;
 volatile sGlobalRotEnc rotenc;
 volatile sGlobalButton button;
@@ -164,6 +166,7 @@ bool	WLAN_status_on;
 LOCAL os_timer_t timer_update_temperature_pressure;
 LOCAL os_timer_t timer_update_temperature_pressure_steps;
 LOCAL os_timer_t timer_update_accel_gyro_mag;
+LOCAL os_timer_t timer_update_mqtt;
 
 int32_t lastMicros;		// TODO
 
@@ -386,6 +389,10 @@ void update_accel_gyro_mag_cb(void *arg) {
 	do_update_accel_gyro_mag = true;
 }
 
+void update_mqtt_cb(void *arg) {
+	do_update_mqtt = true;
+}
+
 void setup_update_temperature_pressure_timer()
 {
 	os_timer_disarm(&timer_update_temperature_pressure);
@@ -398,6 +405,13 @@ void setup_update_accel_gyro_mag_timer()
 	os_timer_disarm(&timer_update_accel_gyro_mag);
 	os_timer_setfn(&timer_update_accel_gyro_mag, (os_timer_func_t *)update_accel_gyro_mag_cb, (void *)0);
 	os_timer_arm(&timer_update_accel_gyro_mag, DELAY_MS_10HZ, true);
+}
+
+void setup_update_mqtt_timer()
+{
+	os_timer_disarm(&timer_update_mqtt);
+	os_timer_setfn(&timer_update_mqtt, (os_timer_func_t *)update_mqtt_cb, (void *)0);
+	os_timer_arm(&timer_update_mqtt, DELAY_MS_1MIN, true);
 }
 
 void get_accelgyro()
@@ -558,17 +572,23 @@ void check_button() {
 	if (button.int_signal) {
 		if (!button.long_diff_change) {
 			// kurz LOW -> HIGH
+#ifdef SERIAL_STATUS_OUTPUT
 			Serial.println(" Button: kurz LOW jetzt HIGH");
+#endif
 		}
 		else {
 			// lange LOW -> HIGH
+#ifdef SERIAL_STATUS_OUTPUT
 			Serial.println(" Button: lange LOW jetzt HIGH");
+#endif
 		}
 	}
 	else {
 		if (!button.long_diff_change) {
 			// kurz HIGH -> LOW
+#ifdef SERIAL_STATUS_OUTPUT
 			Serial.println(" Button: kurz HIGH jetzt LOW");
+#endif
 			//if (rotenc.actualRotaryTicks == DISPLAY_SCR_MAXVALUES) {
 			//	reset_min_max_accelgyro();
 			//}
@@ -577,13 +597,17 @@ void check_button() {
 		else {
 			if (!button.very_long_diff_change) {
 				// lange HIGH ->  LOW
+#ifdef SERIAL_STATUS_OUTPUT
 				Serial.println(" Button: lange HIGH jetzt LOW");
+#endif
 
 				switch_WLAN((WLAN_status_on ? false : true));
 			}
 			else
 			{
+#ifdef SERIAL_STATUS_OUTPUT
 				Serial.println(" Button: very lange HIGH jetzt LOW");
+#endif
 			}
 		}
 	}
@@ -600,6 +624,27 @@ void check_rotary_encoder() {
 			rotenc.actualRotaryTicks = rotenc.rotaryHalfSteps / 2;
 			rotenc.LCDML_rotenc_value = rotenc.actualRotaryTicks;
 		}
+	}
+}
+
+void check_mqtt()
+{
+	if (!do_update_mqtt)
+		return;
+
+	do_update_mqtt = false;
+
+	updateVbat();
+
+	if (!battery.publish(g_vbatADC)) {
+#ifdef SERIAL_STATUS_OUTPUT
+		Serial.println(F("Update vbat Failed."));
+#endif
+	}
+	else {
+#ifdef SERIAL_STATUS_OUTPUT
+		Serial.println(F("Update vbat Success!"));
+#endif
 	}
 }
 
@@ -648,20 +693,17 @@ void update_print_buffer_scr2() {
 
 void updateVbat()
 {
-	int   vbatADC = 0;
 	float vbatFloat = 0.0F;
 	float vbatLSB = 0.97751F;		// 1000mV/1023 -> mV per LSB
 	float vbatVoltDiv = 0.21321F;	// 271K/1271K resistor voltage divider
 
-	vbatADC = analogRead(VBAT_PIN);
-	vbatFloat = ((float)vbatADC * vbatLSB) / vbatVoltDiv;
+	g_vbatADC = analogRead(VBAT_PIN);
+	vbatFloat = ((float)g_vbatADC * vbatLSB) / vbatVoltDiv;
 	display.setBattery(vbatFloat / 1000.);
 
-	Serial.println(vbatADC);
-	if (!battery.publish(vbatADC))
-		Serial.println(F("Failed."));
-	else
-		Serial.println(F("Success!"));
+#ifdef SERIAL_STATUS_OUTPUT
+	Serial.println(g_vbatADC);
+#endif
 }
 
 void update_display_scr3() {
@@ -733,7 +775,9 @@ void update_display_with_print_buffer() {
 }
 
 void initialize_WLAN() {
+#ifdef SERIAL_STATUS_OUTPUT
 	Serial.println("Initializing WLAN");
+#endif
 	WLAN_status_on = false;
 	WiFi.mode(WIFI_STA);
 	WiFi.begin(SSID, PASSWORD);
@@ -742,17 +786,20 @@ void initialize_WLAN() {
 	//	delay(5000);
 	//	ESP.restart();
 	//}
+#ifdef SERIAL_STATUS_OUTPUT
 	Serial.print("IP address: ");
 	Serial.println(WiFi.localIP());
 	Serial.print("WLAN status: ");
 	Serial.println(WiFi.status());
-
+#endif
 	WLAN_initialized = true;
 	WLAN_status_on = true;
 }
 
 void connect_adafruit_io() {
+#ifdef SERIAL_STATUS_OUTPUT
 	Serial.print(F("Connecting to Adafruit IO... "));
+#endif
 
 	int8_t ret;
 
@@ -770,11 +817,14 @@ void connect_adafruit_io() {
 		if (ret >= 0)
 			mqtt.disconnect();
 
+#ifdef SERIAL_STATUS_OUTPUT
 		Serial.println(F("Retrying connection..."));
+#endif
 		delay(5000);
 	}
-
+#ifdef SERIAL_STATUS_OUTPUT
 	Serial.println(F("Adafruit IO Connected!"));
+#endif
 }
 
 void switch_WLAN(bool turn_on) {
@@ -785,14 +835,18 @@ void switch_WLAN(bool turn_on) {
 		else {
 			WiFi.mode(WIFI_STA);			// WL_CONNECTED
 			WiFi.begin();
+#ifdef SERIAL_STATUS_OUTPUT
 			Serial.println("WLAN turned on");
+#endif
 			WLAN_status_on = true;
 		}
 	}
 	else
 	{
 		WiFi.mode(WIFI_OFF);
+#ifdef SERIAL_STATUS_OUTPUT
 		Serial.println("WLAN turned off");
+#endif
 		WLAN_status_on = false;
 	}
 }
@@ -832,7 +886,9 @@ void setup() {
 	while (!Serial) delay(1);
 #endif
 
+#ifdef SERIAL_STATUS_OUTPUT
 	Serial.begin(115200);
+#endif
 	Wire.begin();
 
 	initialize_WLAN();
@@ -855,6 +911,7 @@ void setup() {
 	LCDML_setup(_LCDML_BACK_cnt);
 
 	connect_adafruit_io();
+	setup_update_mqtt_timer();
 }
 
 void loop() {
@@ -882,6 +939,8 @@ void loop() {
 
 	check_button();
 	check_rotary_encoder();
+
+	check_mqtt();
 
 	LCDML_run(_LCDML_priority);
 
