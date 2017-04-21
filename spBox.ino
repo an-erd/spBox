@@ -411,7 +411,7 @@ void setup_update_mqtt_timer()
 {
 	os_timer_disarm(&timer_update_mqtt);
 	os_timer_setfn(&timer_update_mqtt, (os_timer_func_t *)update_mqtt_cb, (void *)0);
-	os_timer_arm(&timer_update_mqtt, DELAY_MS_1MIN, true);
+	os_timer_arm(&timer_update_mqtt, 5000, true);	// DELAY_MS_1MIN
 }
 
 void get_accelgyro()
