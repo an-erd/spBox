@@ -26,6 +26,8 @@
 #include <Adafruit_FeatherOLED_WiFi.h>
 #include <Adafruit_MQTT.h>
 #include <Adafruit_MQTT_Client.h>
+#include <TimeLib.h>
+#include <NtpClientLib.h>
 
 #define	SERIAL_STATUS_OUTPUT
 #undef MEASURE_PREFORMANCE
@@ -34,6 +36,7 @@
 // WLAN
 #define SSID			"W12"
 #define PASSWORD		"EYo6Hv4qRO7P1JSpAqZCH6vGVPHwznRWODIIIdhd1pBkeWCYie0knb1pOQ9t2cc"
+WiFiEventHandler onEventHandler, gotIpEventHandler, disconnectedEventHandler;
 
 // ADAFRUIT IO
 #define AIO_SERVER      "io.adafruit.com"
@@ -41,9 +44,8 @@
 #define AIO_USERNAME    "andreaserd"
 #define AIO_KEY			"ee3974dd87d3450490aa2840667e8162"
 
-WiFiClient client;		// WiFiClient class to connect to the MQTT server
-
-// MQTT Client and Feed
+// WiFiClient class to connect to the MQTT server, MQTT Client and Feed
+WiFiClient client;
 Adafruit_MQTT_Client mqtt(&client, AIO_SERVER, AIO_SERVERPORT, AIO_USERNAME, AIO_KEY);
 Adafruit_MQTT_Publish battery = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/battery");
 
@@ -89,6 +91,11 @@ int		g_vbatADC;
 #if (SSD1306_LCDHEIGHT != 32)
 #error("Height incorrect, please fix Adafruit_SSD1306.h!");
 #endif
+
+typedef struct {
+	bool	WLAN_initialized;
+	bool	WLAN_turned_on;
+} sGlobalComm;
 
 typedef struct
 {
@@ -151,6 +158,7 @@ HMC5883L	mag;
 BMP085		barometer;
 Adafruit_FeatherOLED_WiFi display = Adafruit_FeatherOLED_WiFi();
 
+volatile sGlobalComm com;
 sGlobalSensors	sensors;
 volatile bool	do_update_accel_gyro_mag;
 volatile bool	do_update_temperature_pressure;
@@ -159,9 +167,6 @@ volatile bool	do_update_mqtt;
 sGlobalDisplay	display_struct;
 volatile sGlobalRotEnc rotenc;
 volatile sGlobalButton button;
-
-bool	WLAN_initialized;
-bool	WLAN_status_on;
 
 LOCAL os_timer_t timer_update_temperature_pressure;
 LOCAL os_timer_t timer_update_temperature_pressure_steps;
@@ -411,7 +416,7 @@ void setup_update_mqtt_timer()
 {
 	os_timer_disarm(&timer_update_mqtt);
 	os_timer_setfn(&timer_update_mqtt, (os_timer_func_t *)update_mqtt_cb, (void *)0);
-	os_timer_arm(&timer_update_mqtt, 5000, true);	// DELAY_MS_1MIN
+	os_timer_arm(&timer_update_mqtt, 10000, true);	// DELAY_MS_1MIN
 }
 
 void get_accelgyro()
@@ -601,7 +606,7 @@ void check_button() {
 				Serial.println(" Button: lange HIGH jetzt LOW");
 #endif
 
-				switch_WLAN((WLAN_status_on ? false : true));
+				switch_WLAN((com.WLAN_turned_on ? false : true));
 			}
 			else
 			{
@@ -695,7 +700,8 @@ void updateVbat()
 {
 	float vbatFloat = 0.0F;
 	float vbatLSB = 0.97751F;		// 1000mV/1023 -> mV per LSB
-	float vbatVoltDiv = 0.21321F;	// 271K/1271K resistor voltage divider
+	//float vbatVoltDiv = 0.21321F;	// 271K/1271K resistor voltage divider
+	float vbatVoltDiv = 0.19969F;
 
 	g_vbatADC = analogRead(VBAT_PIN);
 	vbatFloat = ((float)g_vbatADC * vbatLSB) / vbatVoltDiv;
@@ -774,11 +780,42 @@ void update_display_with_print_buffer() {
 	display.display();
 }
 
+// Start NTP only after IP network is connected
+void onSTAGotIP(WiFiEventStationModeGotIP ipInfo) {
+	Serial.printf("Got IP: %s\r\n", ipInfo.ip.toString().c_str());
+	NTP.begin("pool.ntp.org", 1, true);
+	NTP.setInterval(63);
+}
+
+// Manage network disconnection
+void onSTADisconnected(WiFiEventStationModeDisconnected event_info) {
+	Serial.printf("Disconnected from SSID: %s\n", event_info.ssid.c_str());
+	Serial.printf("Reason: %d\n", event_info.reason);
+	NTP.stop(); // NTP sync can be disabled to avoid sync errors
+}
+
+void processSyncEvent(NTPSyncEvent_t ntpEvent) {
+	if (ntpEvent) {
+		Serial.print("Time Sync error: ");
+		if (ntpEvent == noResponse)
+			Serial.println("NTP server not reachable");
+		else if (ntpEvent == invalidAddress)
+			Serial.println("Invalid NTP server address");
+	}
+	else {
+		Serial.print("Got NTP time: ");
+		Serial.println(NTP.getTimeDateString(NTP.getLastNTPSync()));
+	}
+}
+
+boolean syncEventTriggered = false; // True if a time even has been triggered
+NTPSyncEvent_t ntpEvent; // Last triggered event
+
 void initialize_WLAN() {
 #ifdef SERIAL_STATUS_OUTPUT
 	Serial.println("Initializing WLAN");
 #endif
-	WLAN_status_on = false;
+	com.WLAN_turned_on = true;
 	WiFi.mode(WIFI_STA);
 	WiFi.begin(SSID, PASSWORD);
 	//while (WiFi.waitForConnectResult() != WL_CONNECTED) {
@@ -786,14 +823,25 @@ void initialize_WLAN() {
 	//	delay(5000);
 	//	ESP.restart();
 	//}
+
+	WiFi.onEvent([](WiFiEvent_t e) {
+		Serial.printf("Event wifi -----> %d\n", e);
+	});
+
+	gotIpEventHandler = WiFi.onStationModeGotIP(onSTAGotIP);
+	disconnectedEventHandler = WiFi.onStationModeDisconnected(onSTADisconnected);
+
+	//Serial.printf("Connecting to %s ...\n", ssid);
+	//WiFi.begin(ssid, password);
+
 #ifdef SERIAL_STATUS_OUTPUT
 	Serial.print("IP address: ");
 	Serial.println(WiFi.localIP());
 	Serial.print("WLAN status: ");
 	Serial.println(WiFi.status());
 #endif
-	WLAN_initialized = true;
-	WLAN_status_on = true;
+	com.WLAN_initialized = true;
+	com.WLAN_turned_on = true;
 }
 
 void connect_adafruit_io() {
@@ -829,7 +877,7 @@ void connect_adafruit_io() {
 
 void switch_WLAN(bool turn_on) {
 	if (turn_on) {
-		if (!WLAN_initialized) {
+		if (!com.WLAN_initialized) {
 			initialize_WLAN();
 		}
 		else {
@@ -838,7 +886,7 @@ void switch_WLAN(bool turn_on) {
 #ifdef SERIAL_STATUS_OUTPUT
 			Serial.println("WLAN turned on");
 #endif
-			WLAN_status_on = true;
+			com.WLAN_turned_on = true;
 		}
 	}
 	else
@@ -847,7 +895,7 @@ void switch_WLAN(bool turn_on) {
 #ifdef SERIAL_STATUS_OUTPUT
 		Serial.println("WLAN turned off");
 #endif
-		WLAN_status_on = false;
+		com.WLAN_turned_on = false;
 	}
 }
 
@@ -943,6 +991,29 @@ void loop() {
 	check_mqtt();
 
 	LCDML_run(_LCDML_priority);
+
+	static int i = 0;
+	static int last = 0;
+
+	if (syncEventTriggered) {
+		processSyncEvent(ntpEvent);
+		syncEventTriggered = false;
+	}
+
+	if ((millis() - last) > 5100) {
+		//Serial.println(millis() - last);
+		last = millis();
+		Serial.print(i); Serial.print(" ");
+		Serial.print(NTP.getTimeDateString()); Serial.print(" ");
+		Serial.print(NTP.isSummerTime() ? "Summer Time. " : "Winter Time. ");
+		Serial.print("WiFi is ");
+		Serial.print(WiFi.isConnected() ? "connected" : "not connected"); Serial.print(". ");
+		Serial.print("Uptime: ");
+		Serial.print(NTP.getUptimeString()); Serial.print(" since ");
+		Serial.println(NTP.getTimeDateString(NTP.getFirstSync()).c_str());
+
+		i++;
+	}
 
 #ifdef MEASURE_PREFORMANCE
 	Serial.print("performance us: ");
