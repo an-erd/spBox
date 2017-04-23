@@ -1,15 +1,4 @@
-// I2Cdevlib:
-// The code makes use of I2Cdevlib (http://www.i2cdevlib.com/). All the thanks to the team for providing that great work!
-//
-// Rotary Encoder:
-// The code for the rotary encoder has been copied from http://playground.arduino.cc/Main/RotaryEncoders,
-// Int0 & Int1 example using bitRead() with debounce handling and true Rotary Encoder pulse tracking, J.Carter(of Earth)
-//
-
 #include <arduino.h>
-#include "c_types.h"
-#include "user_interface.h"
-#include "osapi.h"
 #include <LCDMenuLib.h>
 #include <ESP8266WiFi.h>
 #include <ESP8266mDNS.h>
@@ -29,73 +18,40 @@
 #include <TimeLib.h>
 #include <NtpClientLib.h>
 
-#define	SERIAL_STATUS_OUTPUT
-#undef MEASURE_PREFORMANCE
-#define AIO_ENABLED               1
-
-// WLAN
-#define SSID			"W12"
-#define PASSWORD		"EYo6Hv4qRO7P1JSpAqZCH6vGVPHwznRWODIIIdhd1pBkeWCYie0knb1pOQ9t2cc"
-WiFiEventHandler onEventHandler, gotIpEventHandler, disconnectedEventHandler;
-
-// ADAFRUIT IO
-#define AIO_SERVER      "io.adafruit.com"
-#define AIO_SERVERPORT  1883
-#define AIO_USERNAME    "andreaserd"
-#define AIO_KEY			"ee3974dd87d3450490aa2840667e8162"
-
-// WiFiClient class to connect to the MQTT server, MQTT Client and Feed
-WiFiClient client;
-Adafruit_MQTT_Client mqtt(&client, AIO_SERVER, AIO_SERVERPORT, AIO_USERNAME, AIO_KEY);
-Adafruit_MQTT_Publish battery = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/battery");
-
-#define VBAT_ENABLED	1
-#define VBAT_PIN		A0
-int		g_vbatADC;
-
-#define ENCODER_PIN_A	12
-#define ENCODER_PIN_B	14
-#define ENCODER_SW		13
-#define LED_R			0		// rot enc led red (and huzzah led red)
-#define LED_G			2		// rot enc led green (and huzzah led blue)
-
-#define THRESHOLD		7		// debounce threshold in milliseconds
-#define DELAY_MS_1HZ	1000	// milliseconds delay ->  1 Hz
-#define DELAY_MS_2HZ	500
-#define DELAY_MS_10HZ	100
-#define DELAY_MS_TWOSEC	2000
-#define DELAY_MS_TENSEC	10000
-#define DELAY_MS_1MIN	60000
-
-// update_temperature_pressure_step
-#define SENSOR_PAUSED					0
-#define SENSOR_REQ_TEMP					1
-#define SENSOR_READ_TEMP_REQ_PRESSURE	2
-#define SENSOR_READ_PRESSURE			3
-#define SENSOR_DONE						4
-
-#define MPU6050_AXOFFSET	0
-#define MPU6050_AYOFFSET	0
-#define MPU6050_AZOFFSET	0
-#define MPU6050_A_GAIN		2048		// MPU6050_ACCEL_FS_16
-
-#define MPU6050_GXOFFSET	0
-#define MPU6050_GYOFFSET	0
-#define MPU6050_GZOFFSET	0
-#define MPU6050_G_GAIN		(16.4)		// MPU6050_GYRO_FS_2000
-#define MPU6050_DEG_RAD_CONV		0.01745329251994329576	// CONST
-#define MPU6050_GAIN_DEG_RAD_CONV	0.00106422515365507901	// MPU6050_DEG_RAD_CONV / MPU6050_G_GAIN
-
+#include "missing_str_util.h"
+#include "user_config.h"
 #include "LCDML_DEFS.h"
 
-#if (SSD1306_LCDHEIGHT != 32)
-#error("Height incorrect, please fix Adafruit_SSD1306.h!");
-#endif
+int		g_vbatADC;	// TODO global variable
+
+enum OTAModes { OTA_OFF = 0, OTA_IDE = 1, OTA_HTTP_SERVER = 2, };
 
 typedef struct {
-	bool	WLAN_initialized;
-	bool	WLAN_turned_on;
-} sGlobalComm;
+	// WLAN
+	bool		wlan_initialized;
+	bool		wlan_enabled;
+
+	// OTA
+	OTAModes	ota_mode;
+
+	// NTP time
+	bool		ntp_enabled;
+
+	// Adafruit IO and Home Automation (W12)
+	bool		aio_enabled;
+
+	// Accel/Gyro
+	uint8_t		accel_range_scale;
+	uint8_t		gyro_range_scale;
+	uint8_t		accel_gyro_orientation;
+
+	// Magnetometer
+	uint8_t		mag_orientation;
+
+	// Barometer/Altitude
+	bool		use_configured_sea_level;
+	float		sea_level_pressure;
+} sGlobalConfig;
 
 typedef struct
 {
@@ -153,110 +109,37 @@ typedef struct
 	bool update_display;
 } sGlobalDisplay;
 
-MPU6050		accelgyro;
-HMC5883L	mag;
-BMP085		barometer;
-Adafruit_FeatherOLED_WiFi display = Adafruit_FeatherOLED_WiFi();
-
-volatile sGlobalComm com;
+volatile sGlobalConfig g_config;
 sGlobalSensors	sensors;
-volatile bool	do_update_accel_gyro_mag;
-volatile bool	do_update_temperature_pressure;
-volatile bool	do_update_temperature_pressure_step;
-volatile bool	do_update_mqtt;
 sGlobalDisplay	display_struct;
 volatile sGlobalRotEnc rotenc;
 volatile sGlobalButton button;
 
+volatile bool	do_update_accel_gyro_mag;
+volatile bool	do_update_temperature_pressure;
+volatile bool	do_update_temperature_pressure_step;
+volatile bool	do_update_mqtt;
+
+// WiFiClient, MQTT Client and Feed, event handler
+WiFiClient				client;
+WiFiEventHandler		gotIpEventHandler;
+WiFiEventHandler		disconnectedEventHandler;
+Adafruit_MQTT_Client	mqtt(&client, AIO_SERVER, AIO_SERVERPORT, AIO_USERNAME, AIO_KEY);
+Adafruit_MQTT_Publish	battery = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/battery");
+
+// MPU6050 sensor board
+MPU6050					accelgyro;
+HMC5883L				mag;
+BMP085					barometer;
+
+// Adafruit FeatherWing OLED
+Adafruit_FeatherOLED_WiFi display = Adafruit_FeatherOLED_WiFi();
+
+// Timer
 LOCAL os_timer_t timer_update_temperature_pressure;
 LOCAL os_timer_t timer_update_temperature_pressure_steps;
 LOCAL os_timer_t timer_update_accel_gyro_mag;
 LOCAL os_timer_t timer_update_mqtt;
-
-int32_t lastMicros;		// TODO
-
-// = dtostre() function experimental ============================
-char * dtostrf_sign(double number, signed char width, unsigned char prec, char *s) {
-	bool negative = false;
-
-	if (isnan(number)) {
-		strcpy(s, "nan");
-		return s;
-	}
-	if (isinf(number)) {
-		strcpy(s, "inf");
-		return s;
-	}
-
-	char* out = s;
-
-	int fillme = width; // how many cells to fill for the integer part
-	if (prec > 0) {
-		fillme -= (prec + 1);
-	}
-
-	// Handle negative numbers
-	if (number < 0.0) {
-		negative = true;
-		fillme--;
-		number = -number;
-	}
-	else {
-		fillme--;
-	}
-
-	// Round correctly so that print(1.999, 2) prints as "2.00"
-	// I optimized out most of the divisions
-	double rounding = 2.0;
-	for (uint8_t i = 0; i < prec; ++i)
-		rounding *= 10.0;
-	rounding = 1.0 / rounding;
-
-	number += rounding;
-
-	// Figure out how big our number really is
-	double tenpow = 1.0;
-	int digitcount = 1;
-	while (number >= 10.0 * tenpow) {
-		tenpow *= 10.0;
-		digitcount++;
-	}
-
-	number /= tenpow;
-	fillme -= digitcount;
-
-	// Pad unused cells with spaces
-	while (fillme-- > 0) {
-		*out++ = ' ';
-	}
-
-	// Handle negative sign
-	if (negative) {
-		*out++ = '-';
-	}
-	else {
-		*out++ = ' ';
-	}
-
-	// Print the digits, and if necessary, the decimal point
-	digitcount += prec;
-	int8_t digit = 0;
-	while (digitcount-- > 0) {
-		digit = (int8_t)number;
-		if (digit > 9) digit = 9; // insurance
-		*out++ = (char)('0' | digit);
-		if ((digitcount == prec) && (prec > 0)) {
-			*out++ = '.';
-		}
-		number -= digit;
-		number *= 10.0;
-	}
-
-	// make sure the string is terminated
-	*out = 0;
-	return s;
-}
-// ====================================================================
 
 // rotary encoder and rotary encoder button interrupt routines
 void int0() {
@@ -330,9 +213,9 @@ void initialize_accelgyro() {
 	accelgyro.setI2CMasterModeEnabled(false);
 	accelgyro.setI2CBypassEnabled(true);
 	accelgyro.setSleepEnabled(false);
-	accelgyro.initialize();		// init w/gyro FS_250 -> div. by 131 and AFS_SEL=0, -> div. by 16,384
-	accelgyro.setFullScaleAccelRange(MPU6050_ACCEL_FS_16);		// scale factor 2048
-	accelgyro.setFullScaleGyroRange(MPU6050_GYRO_FS_2000);		// scale factor 16.4
+	accelgyro.initialize();
+	accelgyro.setFullScaleAccelRange(g_config.accel_range_scale);
+	accelgyro.setFullScaleGyroRange(g_config.gyro_range_scale);
 
 	do_update_accel_gyro_mag = false;
 	sensors.changed_accel_gyro_mag = false;
@@ -355,6 +238,32 @@ void initialize_barometer() {
 #ifdef SERIAL_STATUS_OUTPUT
 	Serial.println(barometer.testConnection() ? "BMP180 connection successful" : "BMP180 connection failed");
 #endif // SERIAL_STATUS_OUTPUT
+}
+
+void update_temperature_pressure_cb(void *arg) {		// LOCAL void ICACHE_FLASH_ATTR ...
+	do_update_temperature_pressure = true;
+}
+
+void update_temperature_pressure_step_cb(void *arg) {
+	do_update_temperature_pressure_step = true;
+}
+
+void update_accel_gyro_mag_cb(void *arg) {
+	do_update_accel_gyro_mag = true;
+}
+
+void setup_update_temperature_pressure_timer()
+{
+	os_timer_disarm(&timer_update_temperature_pressure);
+	os_timer_setfn(&timer_update_temperature_pressure, (os_timer_func_t *)update_temperature_pressure_cb, (void *)0);
+	os_timer_arm(&timer_update_temperature_pressure, DELAY_MS_1HZ, true);	// DELAY_MS_1HZ
+}
+
+void setup_update_accel_gyro_mag_timer()
+{
+	os_timer_disarm(&timer_update_accel_gyro_mag);
+	os_timer_setfn(&timer_update_accel_gyro_mag, (os_timer_func_t *)update_accel_gyro_mag_cb, (void *)0);
+	os_timer_arm(&timer_update_accel_gyro_mag, DELAY_MS_10HZ, true);
 }
 
 void initialize_rotary_encoder() {
@@ -382,34 +291,8 @@ void initialize_button() {
 	button.changed = false;
 }
 
-void update_temperature_pressure_cb(void *arg) {		// LOCAL void ICACHE_FLASH_ATTR ...
-	do_update_temperature_pressure = true;
-}
-
-void update_temperature_pressure_step_cb(void *arg) {
-	do_update_temperature_pressure_step = true;
-}
-
-void update_accel_gyro_mag_cb(void *arg) {
-	do_update_accel_gyro_mag = true;
-}
-
 void update_mqtt_cb(void *arg) {
 	do_update_mqtt = true;
-}
-
-void setup_update_temperature_pressure_timer()
-{
-	os_timer_disarm(&timer_update_temperature_pressure);
-	os_timer_setfn(&timer_update_temperature_pressure, (os_timer_func_t *)update_temperature_pressure_cb, (void *)0);
-	os_timer_arm(&timer_update_temperature_pressure, DELAY_MS_1HZ, true);	// DELAY_MS_1HZ
-}
-
-void setup_update_accel_gyro_mag_timer()
-{
-	os_timer_disarm(&timer_update_accel_gyro_mag);
-	os_timer_setfn(&timer_update_accel_gyro_mag, (os_timer_func_t *)update_accel_gyro_mag_cb, (void *)0);
-	os_timer_arm(&timer_update_accel_gyro_mag, DELAY_MS_10HZ, true);
 }
 
 void setup_update_mqtt_timer()
@@ -606,7 +489,7 @@ void check_button() {
 				Serial.println(" Button: lange HIGH jetzt LOW");
 #endif
 
-				switch_WLAN((com.WLAN_turned_on ? false : true));
+				switch_WLAN((g_config.wlan_enabled ? false : true));
 			}
 			else
 			{
@@ -700,8 +583,7 @@ void updateVbat()
 {
 	float vbatFloat = 0.0F;
 	float vbatLSB = 0.97751F;		// 1000mV/1023 -> mV per LSB
-	//float vbatVoltDiv = 0.21321F;	// 271K/1271K resistor voltage divider
-	float vbatVoltDiv = 0.19969F;
+	float vbatVoltDiv = 0.201321;	// 271K/1271K resistor voltage divider
 
 	g_vbatADC = analogRead(VBAT_PIN);
 	vbatFloat = ((float)g_vbatADC * vbatLSB) / vbatVoltDiv;
@@ -815,33 +697,27 @@ void initialize_WLAN() {
 #ifdef SERIAL_STATUS_OUTPUT
 	Serial.println("Initializing WLAN");
 #endif
-	com.WLAN_turned_on = true;
-	WiFi.mode(WIFI_STA);
-	WiFi.begin(SSID, PASSWORD);
-	//while (WiFi.waitForConnectResult() != WL_CONNECTED) {
-	//	Serial.println("Connection Failed! Rebooting...");
-	//	delay(5000);
-	//	ESP.restart();
-	//}
-
-	WiFi.onEvent([](WiFiEvent_t e) {
-		Serial.printf("Event wifi -----> %d\n", e);
-	});
-
-	gotIpEventHandler = WiFi.onStationModeGotIP(onSTAGotIP);
-	disconnectedEventHandler = WiFi.onStationModeDisconnected(onSTADisconnected);
-
-	//Serial.printf("Connecting to %s ...\n", ssid);
-	//WiFi.begin(ssid, password);
+	if (g_config.wlan_enabled) {
+		WiFi.mode(WIFI_STA);
+		WiFi.begin(WLAN_SSID, WLAN_PASSWORD);
 
 #ifdef SERIAL_STATUS_OUTPUT
-	Serial.print("IP address: ");
-	Serial.println(WiFi.localIP());
-	Serial.print("WLAN status: ");
-	Serial.println(WiFi.status());
+		WiFi.onEvent([](WiFiEvent_t e) {
+			Serial.printf("Event wifi -----> %d\n", e);
+		});
 #endif
-	com.WLAN_initialized = true;
-	com.WLAN_turned_on = true;
+
+		gotIpEventHandler = WiFi.onStationModeGotIP(onSTAGotIP);
+		disconnectedEventHandler = WiFi.onStationModeDisconnected(onSTADisconnected);
+
+#ifdef SERIAL_STATUS_OUTPUT
+		Serial.print("IP address: ");
+		Serial.println(WiFi.localIP());
+		Serial.print("WLAN status: ");
+		Serial.println(WiFi.status());
+#endif
+		g_config.wlan_initialized = true;
+	}
 }
 
 void connect_adafruit_io() {
@@ -877,7 +753,7 @@ void connect_adafruit_io() {
 
 void switch_WLAN(bool turn_on) {
 	if (turn_on) {
-		if (!com.WLAN_initialized) {
+		if (!g_config.wlan_initialized) {
 			initialize_WLAN();
 		}
 		else {
@@ -886,7 +762,7 @@ void switch_WLAN(bool turn_on) {
 #ifdef SERIAL_STATUS_OUTPUT
 			Serial.println("WLAN turned on");
 #endif
-			com.WLAN_turned_on = true;
+			g_config.wlan_enabled = true;
 		}
 	}
 	else
@@ -895,38 +771,50 @@ void switch_WLAN(bool turn_on) {
 #ifdef SERIAL_STATUS_OUTPUT
 		Serial.println("WLAN turned off");
 #endif
-		com.WLAN_turned_on = false;
+		g_config.wlan_enabled = false;
 	}
 }
 
 void initialize_OTA() {
-	// Port defaults to 8266
 	// ArduinoOTA.setPort(8266);
-
-	// Hostname defaults to esp8266-[ChipID]
 	// ArduinoOTA.setHostname("esp8266-XXX");
-
-	// No authentication by default
 	// ArduinoOTA.setPassword((const char *)"123");
 
 	ArduinoOTA.onStart([]() {
-		Serial.println("Start");
+		Serial.println("Arduino OTA Start");
 	});
+
 	ArduinoOTA.onEnd([]() {
-		Serial.println("\nEnd");
+		Serial.println("\nArduino OTA End");
 	});
+
 	ArduinoOTA.onProgress([](unsigned int progress, unsigned int total) {
 		Serial.printf("Progress: %u%%\r", (progress / (total / 100)));
 	});
+
 	ArduinoOTA.onError([](ota_error_t error) {
-		Serial.printf("Error[%u]: ", error);
+		Serial.printf("Arduino OTA Error[%u]: ", error);
 		if (error == OTA_AUTH_ERROR) Serial.println("Auth Failed");
 		else if (error == OTA_BEGIN_ERROR) Serial.println("Begin Failed");
 		else if (error == OTA_CONNECT_ERROR) Serial.println("Connect Failed");
 		else if (error == OTA_RECEIVE_ERROR) Serial.println("Receive Failed");
 		else if (error == OTA_END_ERROR) Serial.println("End Failed");
 	});
+
 	ArduinoOTA.begin();
+}
+
+void initialize_basic_config()
+{
+	g_config.wlan_initialized = false;
+	g_config.wlan_enabled = true;
+	g_config.ota_mode = OTA_IDE;
+	g_config.ntp_enabled = true;
+	g_config.aio_enabled = true;
+	g_config.accel_range_scale = MPU6050_ACCEL_FS_16;
+	g_config.gyro_range_scale = MPU6050_GYRO_FS_2000;
+	g_config.use_configured_sea_level = false;
+	g_config.sea_level_pressure = 101325;
 }
 
 void setup() {
@@ -939,9 +827,9 @@ void setup() {
 #endif
 	Wire.begin();
 
+	initialize_basic_config();
 	initialize_WLAN();
-	//WiFi.mode(WIFI_OFF);
-	//initialize_OTA();
+	initialize_OTA();
 	initialize_GPIO();
 	initialize_display();
 	initialize_accelgyro();
@@ -963,13 +851,6 @@ void setup() {
 }
 
 void loop() {
-	//// ping adafruit io a few times to make sure we remain connected
-	//if (!mqtt.ping(3)) {
-	//	// reconnect to adafruit io
-	//	if (!mqtt.connected())
-	//		connect();
-	//}
-
 #ifdef MEASURE_PREFORMANCE
 	int32_t perfStopWatch_getvalues;
 	int32_t perfStopWatch_output;
@@ -1022,5 +903,18 @@ void loop() {
 	Serial.println(-perfStopWatch_output);
 #endif
 
+	ArduinoOTA.handle();
+
 	yield();
+}
+
+void test_macros(void)
+{
+	static unsigned long i = 0;
+
+	i++;
+	iprintf(INFO, "Debug macro test run %lu\n\n", i);
+	iprintf(DEBUG, "This is a debug message.\n");
+	iprintf(WARNING, "This is a warning.\n");
+	iprintf(ERROR, "This is an error\n\n");
 }

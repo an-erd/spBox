@@ -107,84 +107,12 @@ https://courses.cs.washington.edu/courses/cse466/14au/labs/l4/MPU6050BasicExampl
 
 
 
-___________________________________________________________
-Old code segments:
+// I2Cdevlib:
+// The code makes use of I2Cdevlib (http://www.i2cdevlib.com/). All the thanks to the team for providing that great work!
+//
+// Rotary Encoder:
+// The code for the rotary encoder has been copied from http://playground.arduino.cc/Main/RotaryEncoders,
+// Int0 & Int1 example using bitRead() with debounce handling and true Rotary Encoder pulse tracking, J.Carter(of Earth)
+//
 
-
-	//// display tab-separated accel/gyro x/y/z values
-	//Serial.print("a/g:\t");
-	//Serial.print(sensors.ax_f); Serial.print("\t");
-	//Serial.print(sensors.ay_f); Serial.print("\t");
-	//Serial.print(sensors.az_f); Serial.print("\t");
-	//Serial.print(sensors.gx_f); Serial.print("\t");
-	//Serial.print(sensors.gy_f); Serial.print("\t");
-	//Serial.print(sensors.gz_f); Serial.print("\t");
-
-	//Serial.print("mag:\t");
-	//Serial.print(sensors.mx); Serial.print("\t");
-	//Serial.print(sensors.my); Serial.print("\t");
-	//Serial.print(sensors.mz); Serial.print("\t");
-
-	//Serial.print("heading:\t");
-	//Serial.print(sensors.heading); Serial.print("\t");
-
-	//Serial.print("T/P/A\t");
-	//Serial.print(sensors.temperature); Serial.print("\t");
-	//Serial.print(sensors.pressure); Serial.print("\t");
-	//Serial.print(sensors.altitude); Serial.print("\t");
-
-	//if (rotenc.changed_rotEnc || button.changed) {
-	//
-	//	Serial.print("Rot.enc:\t");
-	//	Serial.print(rotenc.actualRotaryTicks);
-	//	Serial.print(" Button: changed ");
-	//	Serial.print(button.changed);
-	//	Serial.print(", long ");
-	//	Serial.print(button.long_diff_change);
-	//	Serial.print(", int_signal ");
-	//	Serial.print(button.int_signal);
-	//	Serial.print(",  button signal ");
-	//	Serial.print(digitalRead(ENCODER_SW));
-	//	Serial.println("");
-
-	//	rotenc.changed_rotEnc = false;
-	//	button.changed = false;
-	//	button.long_diff_change = false;
-	//}
-
-
-		//testfillrect();
-	//delay(5000);
-
-	/*display.clearDisplay();
-	Serial.print(display.height());
-	Serial.print(" ");
-	Serial.print(display.width());
-	Serial.println(" ");
-	for (int16_t i = 0; i < 10; i++) {
-	display.clearDisplay();
-	display.fillRect(i, i, display.width(), display.height(), 1);
-	display.display();
-	Serial.println(i);
-	delay(5000);
-	}*/
-	//display.clearDisplay();
-	//display.drawPixel(0, 0, 1);
-	//display.drawPixel(1, 31, 1);
-	//display.drawPixel(2, 0, 1);
-	//display.drawPixel(3, 31, 1);
-	//display.drawPixel(display.width(), 0, 1);
-	//display.drawPixel(display.width(), display.height(), 1);
-	//display.display();
-	//delay(10000);
-
-	display.clearDisplay();
-	Serial.print(display.height());
-	Serial.print(" ");
-	Serial.print(display.width());
-	Serial.println(" ");
-	display.drawRect(0, 0, display.width() - 1, display.height() - 1, 1);
-	display.display();
-	delay(30000);
-	display.clearDisplay();
 

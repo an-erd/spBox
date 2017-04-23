@@ -20,6 +20,7 @@
     <None Include="LCDML_DISP.ino" />
     <None Include="LCDML_FUNC_BACKEND.ino" />
     <None Include="LCDML_FUNC_DISP.ino" />
+    <None Include="README.md" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="__vm\.spBox.vsarduino.h">
@@ -28,5 +29,22 @@
     <ClInclude Include="LCDML_DEFS.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="spBox.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="missing_dec.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="user_config.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="missing_str_util.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="missing_str_util.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
