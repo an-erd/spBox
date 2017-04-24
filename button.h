@@ -1,9 +1,8 @@
-// switch.h
+// button.h
 
-#ifndef _SWITCH_h
-#define _SWITCH_h
+#ifndef _BUTTON_h
+#define _BUTTON_h
 
-#ifdef ESP8266
 extern "C" {
 #include "user_interface.h"
 #include <os_type.h>
@@ -11,50 +10,41 @@ extern "C" {
 #include <functional>
 using namespace std;
 using namespace placeholders;
-#endif
+#include "arduino.h"
 
-#if defined(ARDUINO) && ARDUINO >= 100
-	#include "arduino.h"
-#else
-	#include "WProgram.h"
-#endif
-
+// for the description see table in button.cpp, before BUTTON::check()
 typedef enum {
-	NONE = 0, H_L_SHORT, H_L_LONG, H_L_VERYLONG, L_H_SHORT, L_H_LONG, L_H_VERYLONG
-} SWITCHChangeEvent_t;
+	H_L_SHORT = 0, H_L_LONG = 2, H_L_VERYLONG = 3, L_H_SHORT= 4, L_H_LONG = 6, L_H_VERYLONG = 7
+} buttonChangeEvent_t;
 
-#ifdef ARDUINO_ARCH_ESP8266
-#include <functional>
-typedef std::function<void(SWITCHChangeEvent_t)> onSwitchChangeEvent_t;
-#else
-typedef void(*onSwitchChangeEvent_t)(SWITCHChangeEvent_t);
-#endif
+typedef std::function<void(buttonChangeEvent_t)> onButtonChangeEvent_t;
+
 
 class BUTTON
 {
 public:
 	BUTTON();
-	void		initialize();
-	void		start();				// attach interrupt and variable initialization
-	void		stop();					// detach interrupt
+	void	initialize();
+	void	start();				// attach interrupt and variable initialization
+	void	stop();					// detach interrupt
 
-	void		check();				// call in loop() for events to create
-	void		onSWITCHChangeEvent(onSwitchChangeEvent_t handler);
+	void	check();				// call in loop() for events to create
+	void	onButtonChangeEvent(onButtonChangeEvent_t handler);
 
-	void		isrInt0();				// only for isr wrapper
+	void	isrInt0();				// only for isr wrapper
 private:
-	uint32_t	int_time_;				// store time for threshold and duration
-	uint8_t		int_signal_;				// store status between subsequent calls
-	uint8_t		int_history_;			// --"--
-	bool		changed_;
-	bool		time_long_diff_;		// long time between change (>2 sec)
-	bool		time_verylong_diff_;	// very long time between change (>10 sec)
+	volatile uint32_t	int_time_;				// store time for threshold and duration
+	volatile uint8_t	int_signal_;				// store status between subsequent calls
+	volatile uint8_t	int_history_;			// --"--
+
+	volatile bool		changed_;
+	volatile uint8_t	changed_signal_;
+	volatile uint32_t	changed_time_diff_;		// time diff between last button change
 	
 	bool		LCDML_button_pressed;	// TODO LCDML
 protected:
-	onSwitchChangeEvent_t onChangeEvent;
+	onButtonChangeEvent_t onChangeEvent;
 };
 
 extern BUTTON button;
-
 #endif
