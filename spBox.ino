@@ -1,3 +1,4 @@
+#include "rotenc.h"
 #include <arduino.h>
 #include <LCDMenuLib.h>
 #include <ESP8266WiFi.h>
@@ -9,7 +10,6 @@
 #include <I2Cdev.h>
 #include <MPU6050.h>
 #include <HMC5883L.h>
-#include <BMP085.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
 #include <Adafruit_FeatherOLED_WiFi.h>
@@ -21,6 +21,8 @@
 #include "missing_str_util.h"
 #include "user_config.h"
 #include "LCDML_DEFS.h"
+#include "BMP085_nb.h"
+#include "rotenc.h"
 
 int		g_vbatADC;	// TODO global variable
 
@@ -77,47 +79,16 @@ typedef struct
 
 typedef struct
 {
-	uint32_t	int0time;			// ISR threshold
-	uint32_t	int1time;			// ISR threshold
-	uint8_t		int0signal;
-	uint8_t		int0history;
-	uint8_t		int1signal;
-	uint8_t		int1history;
-	long		rotaryHalfSteps;
-	bool		changed_halfSteps;
-	long		actualRotaryTicks;
-	bool		changed_rotEnc;
-	long		LCDML_rotenc_value;
-	long		LCDML_rotenc_value_history;
-} sGlobalRotEnc;
-
-typedef struct
-{
-	uint32_t	int_time;
-	uint8_t		int_signal;
-	uint8_t		int_history;
-	bool		changed;
-	bool		long_diff_change;		// long time gone since change
-	bool		very_long_diff_change;	// very long time gone since change
-	bool		LCDML_button_pressed;
-} sGlobalButton;
-
-typedef struct
-{
 	char displaybuffer[4][21];  // 4 lines with 21 chars each
 	char tempbuffer[3][15];     // temp for float to str conversion
 	bool update_display;
 } sGlobalDisplay;
 
-volatile sGlobalConfig g_config;
+volatile sGlobalConfig gConfig;
 sGlobalSensors	sensors;
 sGlobalDisplay	display_struct;
-volatile sGlobalRotEnc rotenc;
-volatile sGlobalButton button;
 
 volatile bool	do_update_accel_gyro_mag;
-volatile bool	do_update_temperature_pressure;
-volatile bool	do_update_temperature_pressure_step;
 volatile bool	do_update_mqtt;
 
 // WiFiClient, MQTT Client and Feed, event handler
@@ -130,133 +101,17 @@ Adafruit_MQTT_Publish	battery = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feed
 // MPU6050 sensor board
 MPU6050					accelgyro;
 HMC5883L				mag;
-BMP085					barometer;
 
 // Adafruit FeatherWing OLED
 Adafruit_FeatherOLED_WiFi display = Adafruit_FeatherOLED_WiFi();
 
 // Timer
-LOCAL os_timer_t timer_update_temperature_pressure;
-LOCAL os_timer_t timer_update_temperature_pressure_steps;
+
 LOCAL os_timer_t timer_update_accel_gyro_mag;
 LOCAL os_timer_t timer_update_mqtt;
 
-// rotary encoder and rotary encoder button interrupt routines
-void int0() {
-	if (millis() - rotenc.int0time < THRESHOLD)
-		return;
-	rotenc.int0history = rotenc.int0signal;
-	rotenc.int0signal = digitalRead(ENCODER_PIN_A);
-	if (rotenc.int0history == rotenc.int0signal)
-		return;
-	rotenc.int0time = millis();
-	if (rotenc.int0signal == rotenc.int1signal) {
-		rotenc.rotaryHalfSteps--;
-	}
-	else {
-		rotenc.rotaryHalfSteps++;
-	}
-
-	rotenc.changed_halfSteps = true;
-}
-
-void int1() {
-	if (millis() - rotenc.int1time < THRESHOLD)
-		return;
-	rotenc.int1history = rotenc.int1signal;
-	rotenc.int1signal = digitalRead(ENCODER_PIN_B);
-	if (rotenc.int1history == rotenc.int1signal)
-		return;
-	rotenc.int1time = millis();
-}
-
-void int2() {
-	uint32_t time_diff;
-	time_diff = millis() - button.int_time;
-	if (time_diff < THRESHOLD)
-		return;
-	button.int_history = button.int_signal;
-	button.int_signal = digitalRead(ENCODER_SW);
-	if (button.int_history == button.int_signal)
-		return;
-	button.long_diff_change = (time_diff > DELAY_MS_TWOSEC) ? true : false;
-	button.very_long_diff_change = (time_diff > DELAY_MS_TENSEC) ? true : false;
-	button.int_time = millis();
-	button.changed = true;
-}
-
-void initialize_GPIO() {
-	pinMode(ENCODER_PIN_A, INPUT_PULLUP);
-	pinMode(ENCODER_PIN_B, INPUT_PULLUP);
-	pinMode(LED_R, OUTPUT);
-	pinMode(LED_G, OUTPUT);
-	digitalWrite(LED_R, HIGH);
-	digitalWrite(LED_G, HIGH);
-
-	pinMode(ENCODER_SW, OUTPUT);
-	digitalWrite(ENCODER_SW, 0);
-	pinMode(ENCODER_SW, INPUT_PULLUP);
-
-	pinMode(VBAT_PIN, INPUT);
-}
-
-void initialize_display() {
-	display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
-	display.clearDisplay();
-	display.setTextSize(1);
-	display.setTextColor(WHITE);
-	display.display();
-	display_struct.update_display = true;
-}
-
-void initialize_accelgyro() {
-	accelgyro.setI2CMasterModeEnabled(false);
-	accelgyro.setI2CBypassEnabled(true);
-	accelgyro.setSleepEnabled(false);
-	accelgyro.initialize();
-	accelgyro.setFullScaleAccelRange(g_config.accel_range_scale);
-	accelgyro.setFullScaleGyroRange(g_config.gyro_range_scale);
-
-	do_update_accel_gyro_mag = false;
-	sensors.changed_accel_gyro_mag = false;
-#ifdef SERIAL_STATUS_OUTPUT
-	Serial.println(accelgyro.testConnection() ? "MPU6050 connection successful" : "MPU6050 connection failed");
-#endif // SERIAL_STATUS_OUTPUT
-}
-
-void initialize_mag() {
-	mag.initialize();
-#ifdef SERIAL_STATUS_OUTPUT
-	Serial.println(mag.testConnection() ? "HMC5883L connection successful" : "HMC5883L connection failed");
-#endif // SERIAL_STATUS_OUTPUT
-}
-
-void initialize_barometer() {
-	barometer.initialize();
-	do_update_temperature_pressure = false;
-	sensors.changed_temperatur_pressure = false;
-#ifdef SERIAL_STATUS_OUTPUT
-	Serial.println(barometer.testConnection() ? "BMP180 connection successful" : "BMP180 connection failed");
-#endif // SERIAL_STATUS_OUTPUT
-}
-
-void update_temperature_pressure_cb(void *arg) {		// LOCAL void ICACHE_FLASH_ATTR ...
-	do_update_temperature_pressure = true;
-}
-
-void update_temperature_pressure_step_cb(void *arg) {
-	do_update_temperature_pressure_step = true;
-}
-
 void update_accel_gyro_mag_cb(void *arg) {
 	do_update_accel_gyro_mag = true;
-}
-
-void setup_update_temperature_pressure_timer()
-{
-	os_timer_disarm(&timer_update_temperature_pressure);
-	os_timer_setfn(&timer_update_temperature_pressure, (os_timer_func_t *)update_temperature_pressure_cb, (void *)0);
-	os_timer_arm(&timer_update_temperature_pressure, DELAY_MS_1HZ, true);	// DELAY_MS_1HZ
 }
 
 void setup_update_accel_gyro_mag_timer()
@@ -264,31 +119,6 @@ void setup_update_accel_gyro_mag_timer()
 	os_timer_disarm(&timer_update_accel_gyro_mag);
 	os_timer_setfn(&timer_update_accel_gyro_mag, (os_timer_func_t *)update_accel_gyro_mag_cb, (void *)0);
 	os_timer_arm(&timer_update_accel_gyro_mag, DELAY_MS_10HZ, true);
-}
-
-void initialize_rotary_encoder() {
-	attachInterrupt(digitalPinToInterrupt(ENCODER_PIN_A), int0, CHANGE);
-	attachInterrupt(digitalPinToInterrupt(ENCODER_PIN_B), int1, CHANGE);
-
-	rotenc.int0signal = digitalRead(ENCODER_PIN_A);
-	rotenc.int0history = rotenc.int0signal;
-	rotenc.int1signal = digitalRead(ENCODER_PIN_B);
-	rotenc.int1history = rotenc.int1signal;
-	rotenc.rotaryHalfSteps = 0;
-	rotenc.actualRotaryTicks = 0;
-	rotenc.changed_rotEnc = false;
-	rotenc.changed_halfSteps = false;
-
-	rotenc.LCDML_rotenc_value = 0;
-	rotenc.LCDML_rotenc_value_history = 0;
-}
-
-void initialize_button() {
-	attachInterrupt(digitalPinToInterrupt(ENCODER_SW), int2, CHANGE);
-
-	button.int_signal = digitalRead(ENCODER_SW);
-	button.int_history = button.int_signal;
-	button.changed = false;
 }
 
 void update_mqtt_cb(void *arg) {
@@ -310,38 +140,6 @@ void get_accelgyro()
 void get_mag()
 {
 	mag.getHeading(&sensors.mx, &sensors.my, &sensors.mz);
-}
-
-void get_temperature_pressure()
-{
-	switch (sensors.update_temperature_pressure_step) {
-	case SENSOR_REQ_TEMP:
-		//Serial.println("SENSOR_REQ_TEMP");
-		barometer.setControl(BMP085_MODE_TEMPERATURE);
-		os_timer_disarm(&timer_update_temperature_pressure_steps);
-		os_timer_setfn(&timer_update_temperature_pressure_steps, (os_timer_func_t *)update_temperature_pressure_step_cb, (void *)0);
-		os_timer_arm(&timer_update_temperature_pressure_steps, barometer.getMeasureDelayMilliseconds(), false);
-		break;
-
-	case SENSOR_READ_TEMP_REQ_PRESSURE:
-		//Serial.println("SENSOR_READ_TEMP_REQ_PRESSURE");
-		sensors.temperature = barometer.getTemperatureC();
-		barometer.setControl(BMP085_MODE_PRESSURE_3);
-		os_timer_disarm(&timer_update_temperature_pressure_steps);
-		os_timer_setfn(&timer_update_temperature_pressure_steps, (os_timer_func_t *)update_temperature_pressure_step_cb, (void *)0);
-		os_timer_arm(&timer_update_temperature_pressure_steps, barometer.getMeasureDelayMilliseconds(), false);
-		break;
-
-	case SENSOR_READ_PRESSURE:
-		//Serial.println("SENSOR_READ_PRESSURE");
-		sensors.pressure = barometer.getPressure();
-		os_timer_disarm(&timer_update_temperature_pressure_steps);
-		sensors.update_temperature_pressure_step = SENSOR_DONE;
-		break;
-
-	default:
-		break;
-	}
 }
 
 void calc_accelgyro()
@@ -419,21 +217,6 @@ void check_sensor_updates()
 		get_mag();
 		sensors.changed_accel_gyro_mag = true;
 	}
-
-	if (do_update_temperature_pressure) {
-		do_update_temperature_pressure = false;
-		sensors.update_temperature_pressure_step = SENSOR_REQ_TEMP;	// first step
-		get_temperature_pressure();
-	}
-	else if (do_update_temperature_pressure_step) {
-		do_update_temperature_pressure_step = false;
-		sensors.update_temperature_pressure_step++;
-		get_temperature_pressure();
-	}
-	if (sensors.update_temperature_pressure_step == SENSOR_DONE) {
-		sensors.update_temperature_pressure_step = SENSOR_PAUSED;
-		sensors.changed_temperatur_pressure = true;
-	}
 }
 
 void check_sensor_calc()
@@ -448,70 +231,6 @@ void check_sensor_calc()
 	if (sensors.changed_temperatur_pressure) {
 		sensors.changed_temperatur_pressure = false;
 		calc_altitude();
-	}
-}
-
-void check_button() {
-	//	ArduinoOTA.handle();		// TODO
-
-	if (!button.changed)
-		return;
-
-	if (button.int_signal) {
-		if (!button.long_diff_change) {
-			// kurz LOW -> HIGH
-#ifdef SERIAL_STATUS_OUTPUT
-			Serial.println(" Button: kurz LOW jetzt HIGH");
-#endif
-		}
-		else {
-			// lange LOW -> HIGH
-#ifdef SERIAL_STATUS_OUTPUT
-			Serial.println(" Button: lange LOW jetzt HIGH");
-#endif
-		}
-	}
-	else {
-		if (!button.long_diff_change) {
-			// kurz HIGH -> LOW
-#ifdef SERIAL_STATUS_OUTPUT
-			Serial.println(" Button: kurz HIGH jetzt LOW");
-#endif
-			//if (rotenc.actualRotaryTicks == DISPLAY_SCR_MAXVALUES) {
-			//	reset_min_max_accelgyro();
-			//}
-			button.LCDML_button_pressed = true;
-		}
-		else {
-			if (!button.very_long_diff_change) {
-				// lange HIGH ->  LOW
-#ifdef SERIAL_STATUS_OUTPUT
-				Serial.println(" Button: lange HIGH jetzt LOW");
-#endif
-
-				switch_WLAN((g_config.wlan_enabled ? false : true));
-			}
-			else
-			{
-#ifdef SERIAL_STATUS_OUTPUT
-				Serial.println(" Button: very lange HIGH jetzt LOW");
-#endif
-			}
-		}
-	}
-	button.changed = false;
-	button.long_diff_change = false;
-	button.very_long_diff_change = false;
-}
-
-void check_rotary_encoder() {
-	if (rotenc.changed_halfSteps) {
-		rotenc.changed_halfSteps = false;
-
-		if (rotenc.rotaryHalfSteps % 2 == 0) {
-			rotenc.actualRotaryTicks = rotenc.rotaryHalfSteps / 2;
-			rotenc.LCDML_rotenc_value = rotenc.actualRotaryTicks;
-		}
 	}
 }
 
@@ -693,33 +412,6 @@ void processSyncEvent(NTPSyncEvent_t ntpEvent) {
 boolean syncEventTriggered = false; // True if a time even has been triggered
 NTPSyncEvent_t ntpEvent; // Last triggered event
 
-void initialize_WLAN() {
-#ifdef SERIAL_STATUS_OUTPUT
-	Serial.println("Initializing WLAN");
-#endif
-	if (g_config.wlan_enabled) {
-		WiFi.mode(WIFI_STA);
-		WiFi.begin(WLAN_SSID, WLAN_PASSWORD);
-
-#ifdef SERIAL_STATUS_OUTPUT
-		WiFi.onEvent([](WiFiEvent_t e) {
-			Serial.printf("Event wifi -----> %d\n", e);
-		});
-#endif
-
-		gotIpEventHandler = WiFi.onStationModeGotIP(onSTAGotIP);
-		disconnectedEventHandler = WiFi.onStationModeDisconnected(onSTADisconnected);
-
-#ifdef SERIAL_STATUS_OUTPUT
-		Serial.print("IP address: ");
-		Serial.println(WiFi.localIP());
-		Serial.print("WLAN status: ");
-		Serial.println(WiFi.status());
-#endif
-		g_config.wlan_initialized = true;
-	}
-}
-
 void connect_adafruit_io() {
 #ifdef SERIAL_STATUS_OUTPUT
 	Serial.print(F("Connecting to Adafruit IO... "));
@@ -753,7 +445,7 @@ void connect_adafruit_io() {
 
 void switch_WLAN(bool turn_on) {
 	if (turn_on) {
-		if (!g_config.wlan_initialized) {
+		if (!gConfig.wlan_initialized) {
 			initialize_WLAN();
 		}
 		else {
@@ -762,7 +454,7 @@ void switch_WLAN(bool turn_on) {
 #ifdef SERIAL_STATUS_OUTPUT
 			Serial.println("WLAN turned on");
 #endif
-			g_config.wlan_enabled = true;
+			gConfig.wlan_enabled = true;
 		}
 	}
 	else
@@ -771,57 +463,140 @@ void switch_WLAN(bool turn_on) {
 #ifdef SERIAL_STATUS_OUTPUT
 		Serial.println("WLAN turned off");
 #endif
-		g_config.wlan_enabled = false;
+		gConfig.wlan_enabled = false;
 	}
-}
-
-void initialize_OTA() {
-	// ArduinoOTA.setPort(8266);
-	// ArduinoOTA.setHostname("esp8266-XXX");
-	// ArduinoOTA.setPassword((const char *)"123");
-
-	ArduinoOTA.onStart([]() {
-		Serial.println("Arduino OTA Start");
-	});
-
-	ArduinoOTA.onEnd([]() {
-		Serial.println("\nArduino OTA End");
-	});
-
-	ArduinoOTA.onProgress([](unsigned int progress, unsigned int total) {
-		Serial.printf("Progress: %u%%\r", (progress / (total / 100)));
-	});
-
-	ArduinoOTA.onError([](ota_error_t error) {
-		Serial.printf("Arduino OTA Error[%u]: ", error);
-		if (error == OTA_AUTH_ERROR) Serial.println("Auth Failed");
-		else if (error == OTA_BEGIN_ERROR) Serial.println("Begin Failed");
-		else if (error == OTA_CONNECT_ERROR) Serial.println("Connect Failed");
-		else if (error == OTA_RECEIVE_ERROR) Serial.println("Receive Failed");
-		else if (error == OTA_END_ERROR) Serial.println("End Failed");
-	});
-
-	ArduinoOTA.begin();
 }
 
 void initialize_basic_config()
 {
-	g_config.wlan_initialized = false;
-	g_config.wlan_enabled = true;
-	g_config.ota_mode = OTA_IDE;
-	g_config.ntp_enabled = true;
-	g_config.aio_enabled = true;
-	g_config.accel_range_scale = MPU6050_ACCEL_FS_16;
-	g_config.gyro_range_scale = MPU6050_GYRO_FS_2000;
-	g_config.use_configured_sea_level = false;
-	g_config.sea_level_pressure = 101325;
+	gConfig.wlan_initialized = false;
+	gConfig.wlan_enabled = true;
+	gConfig.ota_mode = OTA_IDE;
+	gConfig.ntp_enabled = true;
+	gConfig.aio_enabled = true;
+	gConfig.accel_range_scale = MPU6050_ACCEL_FS_16;
+	gConfig.gyro_range_scale = MPU6050_GYRO_FS_2000;
+	gConfig.use_configured_sea_level = false;
+	gConfig.sea_level_pressure = 101325;
+}
+
+void initialize_WLAN() {
+#ifdef SERIAL_STATUS_OUTPUT
+	Serial.println("Initializing WLAN");
+#endif
+	if (gConfig.wlan_initialized) {
+#ifdef SERIAL_STATUS_OUTPUT
+		Serial.println("WLAN already initialized");
+#endif
+		return;
+	}
+
+	if (gConfig.wlan_enabled) {
+		WiFi.mode(WIFI_STA);
+		WiFi.begin(WLAN_SSID, WLAN_PASSWORD);
+#ifdef SERIAL_STATUS_OUTPUT
+		WiFi.onEvent([](WiFiEvent_t e) {
+			Serial.printf("Event wifi -----> %d\n", e);
+		});
+#endif
+
+		gotIpEventHandler = WiFi.onStationModeGotIP(onSTAGotIP);
+		disconnectedEventHandler = WiFi.onStationModeDisconnected(onSTADisconnected);
+
+#ifdef SERIAL_STATUS_OUTPUT
+		Serial.print("IP address: ");
+		Serial.println(WiFi.localIP());
+		Serial.print("WLAN status: ");
+		Serial.println(WiFi.status());
+#endif
+		gConfig.wlan_initialized = true;
+	}
+}
+
+void initialize_OTA() {
+	if (gConfig.ota_mode == OTA_OFF)
+		return;
+
+	if (gConfig.ota_mode | OTA_IDE) {
+		// ArduinoOTA.setPort(8266);
+		// ArduinoOTA.setHostname("esp8266-XXX");
+		// ArduinoOTA.setPassword((const char *)"123");
+
+		ArduinoOTA.onStart([]() {
+			Serial.println("Arduino OTA Start");
+		});
+
+		ArduinoOTA.onEnd([]() {
+			Serial.println("\nArduino OTA End");
+		});
+
+		ArduinoOTA.onProgress([](unsigned int progress, unsigned int total) {
+			Serial.printf("Progress: %u%%\r", (progress / (total / 100)));
+		});
+
+		ArduinoOTA.onError([](ota_error_t error) {
+			Serial.printf("Arduino OTA Error[%u]: ", error);
+			if (error == OTA_AUTH_ERROR) Serial.println("Auth Failed");
+			else if (error == OTA_BEGIN_ERROR) Serial.println("Begin Failed");
+			else if (error == OTA_CONNECT_ERROR) Serial.println("Connect Failed");
+			else if (error == OTA_RECEIVE_ERROR) Serial.println("Receive Failed");
+			else if (error == OTA_END_ERROR) Serial.println("End Failed");
+		});
+		ArduinoOTA.begin();
+	}
+}
+
+void initialize_GPIO() {
+	// knob leds
+	pinMode(LED_R, OUTPUT);
+	pinMode(LED_G, OUTPUT);
+	digitalWrite(LED_R, HIGH);
+	digitalWrite(LED_G, HIGH);
+
+	// ADC for battery measurement
+	pinMode(VBAT_PIN, INPUT);
+}
+
+void initialize_display() {
+	display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
+	display.clearDisplay();
+	display.setTextSize(1);
+	display.setTextColor(WHITE);
+	display.display();
+	display_struct.update_display = true;	// TODO
+}
+
+void initialize_accelgyro() {
+	accelgyro.setI2CMasterModeEnabled(false);
+	accelgyro.setI2CBypassEnabled(true);
+	accelgyro.setSleepEnabled(false);
+	accelgyro.initialize();
+	accelgyro.setFullScaleAccelRange(gConfig.accel_range_scale);
+	accelgyro.setFullScaleGyroRange(gConfig.gyro_range_scale);
+
+	do_update_accel_gyro_mag = false;		//TODO
+	sensors.changed_accel_gyro_mag = false;
+#ifdef SERIAL_STATUS_OUTPUT
+	Serial.println(accelgyro.testConnection() ? "MPU6050 connection successful" : "MPU6050 connection failed");
+#endif // SERIAL_STATUS_OUTPUT
+}
+
+void initialize_mag() {
+	mag.initialize();
+#ifdef SERIAL_STATUS_OUTPUT
+	Serial.println(mag.testConnection() ? "HMC5883L connection successful" : "HMC5883L connection failed");
+#endif // SERIAL_STATUS_OUTPUT
+}
+
+void initialize_barometer() {
+	barometer.initialize();
+	sensors.changed_temperatur_pressure = false;
+#ifdef SERIAL_STATUS_OUTPUT
+	Serial.println(barometer.testConnection() ? "BMP180 connection successful" : "BMP180 connection failed");
+#endif // SERIAL_STATUS_OUTPUT
 }
 
 void setup() {
-#if !defined(ESP8266)
-	while (!Serial) delay(1);
-#endif
-
 #ifdef SERIAL_STATUS_OUTPUT
 	Serial.begin(115200);
 #endif
@@ -835,12 +610,8 @@ void setup() {
 	initialize_accelgyro();
 	initialize_mag();
 	initialize_barometer();
-	initialize_rotary_encoder();
-	initialize_button();
+	rotenc.initialize();
 
-	sensors.update_temperature_pressure_step = SENSOR_PAUSED;
-	do_update_temperature_pressure_step = false;
-	setup_update_temperature_pressure_timer();
 	setup_update_accel_gyro_mag_timer();
 
 	LCDML_DISP_groupEnable(_LCDML_G1);
@@ -851,23 +622,10 @@ void setup() {
 }
 
 void loop() {
-#ifdef MEASURE_PREFORMANCE
-	int32_t perfStopWatch_getvalues;
-	int32_t perfStopWatch_output;
-	perfStopWatch_getvalues = micros();
-#endif
-
 	check_sensor_updates();
 	check_sensor_calc();
-
-#ifdef MEASURE_PREFORMANCE
-	perfStopWatch_getvalues -= micros();
-	perfStopWatch_output = micros();
-	perfStopWatch_output -= micros();
-#endif
-
-	check_button();
-	check_rotary_encoder();
+	rotenc.checkButton();
+	rotenc.checkRotaryEncoder();
 
 	check_mqtt();
 
@@ -896,25 +654,8 @@ void loop() {
 		i++;
 	}
 
-#ifdef MEASURE_PREFORMANCE
-	Serial.print("performance us: ");
-	Serial.print(-perfStopWatch_getvalues);
-	Serial.print(" ");
-	Serial.println(-perfStopWatch_output);
-#endif
-
 	ArduinoOTA.handle();
-
-	yield();
 }
 
-void test_macros(void)
-{
-	static unsigned long i = 0;
-
-	i++;
-	iprintf(INFO, "Debug macro test run %lu\n\n", i);
-	iprintf(DEBUG, "This is a debug message.\n");
-	iprintf(WARNING, "This is a warning.\n");
-	iprintf(ERROR, "This is an error\n\n");
+yield();
 }

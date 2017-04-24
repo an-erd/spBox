@@ -41,9 +41,21 @@
     <ClInclude Include="missing_str_util.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="BMP085_nb.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="rotenc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="missing_str_util.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="BMP085_nb.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="rotenc.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

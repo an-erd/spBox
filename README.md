@@ -116,3 +116,13 @@ https://courses.cs.washington.edu/courses/cse466/14au/labs/l4/MPU6050BasicExampl
 //
 
 
+void test_macros(void)
+{
+	static unsigned long i = 0;
+
+	i++;
+	iprintf(INFO, "Debug macro test run %lu\n\n", i);
+	iprintf(DEBUG, "This is a debug message.\n");
+	iprintf(WARNING, "This is a warning.\n");
+	iprintf(ERROR, "This is an error\n\n");
+}

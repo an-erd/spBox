@@ -40,13 +40,6 @@
 #define DELAY_MS_TENSEC	10000
 #define DELAY_MS_1MIN	60000
 
-// workflow steps to update temperature and pressure from sensor, used in update_temperature_pressure_step
-#define SENSOR_PAUSED					0
-#define SENSOR_REQ_TEMP					1
-#define SENSOR_READ_TEMP_REQ_PRESSURE	2
-#define SENSOR_READ_PRESSURE			3
-#define SENSOR_DONE						4
-
 // MPU6050 accel offsets
 #define MPU6050_AXOFFSET	0
 #define MPU6050_AYOFFSET	0
