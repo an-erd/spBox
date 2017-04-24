@@ -1,3 +1,5 @@
+#include "switch.h"
+#include <Adafruit_FeatherOLED.h>
 #include "rotenc.h"
 #include <arduino.h>
 #include <LCDMenuLib.h>
@@ -655,7 +657,6 @@ void loop() {
 	}
 
 	ArduinoOTA.handle();
-}
 
-yield();
+	yield();
 }
