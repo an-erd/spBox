@@ -1,3 +1,4 @@
+#include <Adafruit_FeatherOLED.h>
 #include "rotenc.h"
 #include <arduino.h>
 #include <LCDMenuLib.h>
@@ -23,6 +24,7 @@
 #include "LCDML_DEFS.h"
 #include "BMP085_nb.h"
 #include "rotenc.h"
+#include "button.h"
 
 int		g_vbatADC;	// TODO global variable
 
@@ -624,7 +626,7 @@ void setup() {
 void loop() {
 	check_sensor_updates();
 	check_sensor_calc();
-	rotenc.checkButton();
+	button.check();
 	rotenc.checkRotaryEncoder();
 
 	check_mqtt();
@@ -655,7 +657,6 @@ void loop() {
 	}
 
 	ArduinoOTA.handle();
-}
 
-yield();
+	yield();
 }

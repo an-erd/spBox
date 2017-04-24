@@ -126,3 +126,56 @@ void test_macros(void)
 	iprintf(WARNING, "This is a warning.\n");
 	iprintf(ERROR, "This is an error\n\n");
 }
+
+void BUTTON::check() {
+	//	ArduinoOTA.handle();		// TODO
+
+	if (!changed_)
+		return;
+
+	if (int_signal_) {
+		if (!button.time_long_diff_) {
+			// kurz LOW -> HIGH
+#ifdef SERIAL_STATUS_OUTPUT
+			Serial.println(" Button: kurz LOW jetzt HIGH");
+#endif
+		}
+		else {
+			// lange LOW -> HIGH
+#ifdef SERIAL_STATUS_OUTPUT
+			Serial.println(" Button: lange LOW jetzt HIGH");
+#endif
+		}
+	}
+	else {
+		if (!time_long_diff_) {
+			// kurz HIGH -> LOW
+#ifdef SERIAL_STATUS_OUTPUT
+			Serial.println(" Button: kurz HIGH jetzt LOW");
+#endif
+			//if (rotenc.actualRotaryTicks == DISPLAY_SCR_MAXVALUES) {
+			//	reset_min_max_accelgyro();
+			//}
+			LCDML_button_pressed = true;
+		}
+		else {
+			if (!time_verylong_diff_) {
+				// lange HIGH ->  LOW
+#ifdef SERIAL_STATUS_OUTPUT
+				Serial.println(" Button: lange HIGH jetzt LOW");
+#endif
+
+				switch_WLAN((gConfig.wlan_enabled ? false : true));
+			}
+			else
+			{
+#ifdef SERIAL_STATUS_OUTPUT
+				Serial.println(" Button: very lange HIGH jetzt LOW");
+#endif
+			}
+		}
+	}
+	changed_ = false;
+	time_long_diff_ = false;
+	time_verylong_diff_ = false;
+}
