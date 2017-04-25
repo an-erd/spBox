@@ -28,7 +28,7 @@ public:
 	void	start();				// attach interrupt and variable initialization
 	void	stop();					// detach interrupt
 
-	void	check();				// call in loop() for events to create
+	bool	check();				// call in loop() for events to create
 	void	onButtonChangeEvent(onButtonChangeEvent_t handler);
 
 	void	isrInt0();				// only for isr wrapper
