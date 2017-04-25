@@ -9,12 +9,13 @@
 #endif
 
 #include <arduino.h>
+#include <EEPROM.h>
 #include <Wire.h>
 #include <LCDMenuLib.h>
+#include "LCDML_DEFS.h"
 #include "missing_str_util.h"
 #include "user_config.h"
 #include "spbox_conf.h"
-#include "LCDML_DEFS.h"
 #include "rotenc.h"
 #include "button.h"
 #include "spbox_display.h"
@@ -90,6 +91,7 @@ void setup() {
 	Serial.begin(115200);
 #endif
 	Wire.begin();
+	EEPROM.begin(512);
 
 	initialize_basic_config();
 	initialize_WLAN();
