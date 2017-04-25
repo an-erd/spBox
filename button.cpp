@@ -1,6 +1,6 @@
-// 
-// 
-// 
+//
+//
+//
 
 #include "button.h"
 
@@ -47,9 +47,9 @@ void BUTTON::isrInt0() {
 		return;
 	int_time_ = millis();
 
-	changed_			= true;
-	changed_time_diff_	= time_diff;
-	changed_signal_		= int_signal_;
+	changed_ = true;
+	changed_time_diff_ = time_diff;
+	changed_signal_ = int_signal_;
 }
 
 // status is determined w/the following matrix:
@@ -64,19 +64,20 @@ void BUTTON::isrInt0() {
 //	1		0		1			5						(invalid)
 //	1		1		0			6		L_H_LONG		long LOW, now HIGH
 //	1		1		1			7		L_H_VERYLONG	verylong LOW, now HIGH
-// ----------------------------------	
+// ----------------------------------
 //	(4)		(2)		(1)			-> gives value of the BUTTONChangeEvent_t
 //
 bool BUTTON::check() {
 	if (!changed_)
 		return false;
-
-	bool long_diff_		= (changed_time_diff_ > DELAY_MS_TWOSEC) ? true : false;
-	bool verylong_diff_ = (changed_time_diff_ > DELAY_MS_TENSEC) ? true : false;
-	buttonChangeEvent_t	temp_event = (buttonChangeEvent_t) 
-		( (changed_signal_ << 3) | (long_diff_ << 2) | (verylong_diff_ << 1) );
-	
 	changed_ = false;
+
+	bool long_diff_ = (changed_time_diff_ > DELAY_MS_TWOSEC) ? true : false;
+	bool verylong_diff_ = (changed_time_diff_ > DELAY_MS_TENSEC) ? true : false;
+
+	buttonChangeEvent_t	temp_event = (buttonChangeEvent_t)
+		((changed_signal_ << 2) | (long_diff_ << 1) | (verylong_diff_ << 0));
+
 	if (onChangeEvent != NULL)
 		onChangeEvent(temp_event);     // call the handler
 

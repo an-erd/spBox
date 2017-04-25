@@ -13,10 +13,18 @@ using namespace placeholders;
 #include "arduino.h"
 
 typedef enum {
-	ticksChanged
+	CCW = -1,
+	CW = 1
 } rotencChangeEvent_t;
 
+typedef struct {
+	rotencChangeEvent_t event;
+	int diff;
+	long pos;
+} rotencPosEvent_t;
+
 typedef std::function<void(rotencChangeEvent_t)> onRotencChangeEvent_t;
+typedef std::function<void(rotencPosEvent_t)>    onRotencPosEvent_t;
 
 class ROTENC
 {
@@ -26,9 +34,10 @@ public:
 	void		start();			// attach interrupt and variable initialization
 	void		stop();				// detach interrupt
 
-	void		check();			// call in loop() for events to create
+	bool		check();			// call in loop() for events to create
 
 	void		onRotencChangeEvent(onRotencChangeEvent_t handler);
+	void		onRotencPosEvent(onRotencPosEvent_t    handler);
 
 	void		isrInt0();				// only for isr wrapper
 	void		isrInt1();
@@ -41,14 +50,18 @@ private:
 	volatile uint8_t	int1_history_;
 	volatile long		rotary_half_steps_;
 
-	volatile bool		changed_halfSteps;
+	volatile bool		changed_halfSteps_;
 	volatile long		actualRotaryTicks;
-	bool		changed_rotEnc;
+
+	bool		changed_;
+
 	long		LCDML_rotenc_value;
 	long		LCDML_rotenc_value_history;
-	volatile bool		changed_;
+
+	volatile bool		changed__;
 protected:
 	onRotencChangeEvent_t onChangeEvent;
+	onRotencPosEvent_t    onPosEvent;
 };
 
 extern ROTENC rotenc;

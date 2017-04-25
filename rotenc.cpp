@@ -18,8 +18,6 @@ void ROTENC::initialize()
 	pinMode(ENCODER_PIN_B, INPUT_PULLUP);
 	rotary_half_steps_ = 0;
 	actualRotaryTicks = 0;
-	changed_rotEnc = false;
-	changed_halfSteps = false;
 
 	//LCDML_rotenc_value = 0;
 	//LCDML_rotenc_value_history = 0;
@@ -33,6 +31,9 @@ void ROTENC::start()
 	int0_history_ = int0_signal_;
 	int1_signal_ = digitalRead(ENCODER_PIN_B);
 	int1_history_ = int1_signal_;
+
+	changed_ = false;
+	changed_halfSteps_ = false;
 }
 
 void ROTENC::stop()
@@ -46,44 +47,67 @@ void ROTENC::onRotencChangeEvent(onRotencChangeEvent_t handler)
 	onChangeEvent = handler;
 }
 
-// rotary encoder and rotary encoder button interrupt routines
+void ROTENC::onRotencPosEvent(onRotencPosEvent_t handler)
+{
+	onPosEvent = handler;
+}
+
 void ROTENC::isrInt0() {
-	if (millis() - rotenc.int0_time_ < THRESHOLD)
+	if (millis() - int0_time_ < THRESHOLD)
 		return;
-	rotenc.int0_history_ = rotenc.int0_signal_;
-	rotenc.int0_signal_ = digitalRead(ENCODER_PIN_A);
-	if (rotenc.int0_history_ == rotenc.int0_signal_)
+	int0_history_ = int0_signal_;
+	int0_signal_ = digitalRead(ENCODER_PIN_A);
+	if (int0_history_ == int0_signal_)
 		return;
-	rotenc.int0_time_ = millis();
-	if (rotenc.int0_signal_ == rotenc.int1_signal_) {
-		rotenc.rotary_half_steps_--;
+	int0_time_ = millis();
+	if (int0_signal_ == int1_signal_) {
+		rotary_half_steps_--;
 	}
 	else {
-		rotenc.rotary_half_steps_++;
+		rotary_half_steps_++;
 	}
 
-	rotenc.changed_halfSteps = true;
+	changed_halfSteps_ = true;
 }
 
 void ROTENC::isrInt1() {
-	if (millis() - rotenc.int1_time_ < THRESHOLD)
+	if (millis() - int1_time_ < THRESHOLD)
 		return;
-	rotenc.int1_history_ = rotenc.int1_signal_;
-	rotenc.int1_signal_ = digitalRead(ENCODER_PIN_B);
-	if (rotenc.int1_history_ == rotenc.int1_signal_)
+	int1_history_ = int1_signal_;
+	int1_signal_ = digitalRead(ENCODER_PIN_B);
+	if (int1_history_ == int1_signal_)
 		return;
-	rotenc.int1_time_ = millis();
+	int1_time_ = millis();
 }
 
-void ROTENC::check() {
-	if (rotenc.changed_halfSteps) {
-		rotenc.changed_halfSteps = false;
+bool ROTENC::check() {
+	if (!changed_halfSteps_)
+		return false;
+	changed_halfSteps_ = false;
 
-		if (rotenc.rotary_half_steps_ % 2 == 0) {
-			rotenc.actualRotaryTicks = rotenc.rotary_half_steps_ / 2;
-			rotenc.LCDML_rotenc_value = rotenc.actualRotaryTicks;
-		}
-	}
+	if (rotary_half_steps_ % 2)
+		return false;	// no new full rot enc pos
+
+	long historyTicks = actualRotaryTicks;
+	long tempTicks = rotary_half_steps_ / 2;
+	int	diff = historyTicks - tempTicks;
+
+	if (!diff)
+		return false;
+
+	actualRotaryTicks = tempTicks;
+	//LCDML_rotenc_value = actualRotaryTicks;
+
+	rotencPosEvent_t temp_event;
+	temp_event.event = (diff > 0 ? CW : CCW);
+	temp_event.diff = diff;
+	temp_event.pos = actualRotaryTicks;
+
+	// call the handler
+	if (onChangeEvent != NULL)
+		onChangeEvent(temp_event.event);
+	if (onPosEvent != NULL)
+		onPosEvent(temp_event);
 }
 
 ROTENC rotenc;
