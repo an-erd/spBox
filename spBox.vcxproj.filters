@@ -50,6 +50,18 @@
     <ClInclude Include="__vm\.spBox.vsarduino.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="spbox_display.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="spbox_sensors.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="spbox_com.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="spbox_conf.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="missing_str_util.cpp">
@@ -62,6 +74,18 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="button.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="spbox_display.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="spbox_sensors.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="spbox_com.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="spbox_conf.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

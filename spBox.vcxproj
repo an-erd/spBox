@@ -96,6 +96,10 @@
     <ClInclude Include="rotenc.h" />
     <ClInclude Include="spBox.h" />
     <ClInclude Include="button.h" />
+    <ClInclude Include="spbox_com.h" />
+    <ClInclude Include="spbox_conf.h" />
+    <ClInclude Include="spbox_display.h" />
+    <ClInclude Include="spbox_sensors.h" />
     <ClInclude Include="user_config.h" />
     <ClInclude Include="__vm\.spBox.vsarduino.h" />
   </ItemGroup>
@@ -104,6 +108,10 @@
     <ClCompile Include="missing_str_util.cpp" />
     <ClCompile Include="rotenc.cpp" />
     <ClCompile Include="button.cpp" />
+    <ClCompile Include="spbox_com.cpp" />
+    <ClCompile Include="spbox_conf.cpp" />
+    <ClCompile Include="spbox_display.cpp" />
+    <ClCompile Include="spbox_sensors.cpp" />
   </ItemGroup>
   <PropertyGroup>
     <DebuggerFlavor>VisualMicroDebugger</DebuggerFlavor>

@@ -4,6 +4,14 @@
 
 #include "button.h"
 
+#define DBG_PORT Serial
+
+#ifdef DEBUG_BUTTON
+#define DEBUGLOG(...) DBG_PORT.printf(__VA_ARGS__)
+#else
+#define DEBUGLOG(...)
+#endif
+
 // ISR wrapper functions
 void buttonInt0() { button.isrInt0(); }
 
@@ -77,6 +85,8 @@ bool BUTTON::check() {
 
 	buttonChangeEvent_t	temp_event = (buttonChangeEvent_t)
 		((changed_signal_ << 2) | (long_diff_ << 1) | (verylong_diff_ << 0));
+
+	DEBUGLOG("button, event %d\r\n", ind temp_event);
 
 	if (onChangeEvent != NULL)
 		onChangeEvent(temp_event);     // call the handler

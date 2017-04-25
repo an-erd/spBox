@@ -3,6 +3,8 @@
 #ifndef _BUTTON_h
 #define _BUTTON_h
 
+//#define DEBUG_BUTTON //Uncomment this to enable debug messages over serial port
+
 extern "C" {
 #include "user_interface.h"
 #include <os_type.h>
@@ -14,11 +16,10 @@ using namespace placeholders;
 
 // for the description see table in button.cpp, before BUTTON::check()
 typedef enum {
-	H_L_SHORT = 0, H_L_LONG = 2, H_L_VERYLONG = 3, L_H_SHORT= 4, L_H_LONG = 6, L_H_VERYLONG = 7
+	H_L_SHORT = 0, H_L_LONG = 2, H_L_VERYLONG = 3, L_H_SHORT = 4, L_H_LONG = 6, L_H_VERYLONG = 7
 } buttonChangeEvent_t;
 
 typedef std::function<void(buttonChangeEvent_t)> onButtonChangeEvent_t;
-
 
 class BUTTON
 {
@@ -40,7 +41,7 @@ private:
 	volatile bool		changed_;
 	volatile uint8_t	changed_signal_;
 	volatile uint32_t	changed_time_diff_;		// time diff between last button change
-	
+
 	bool		LCDML_button_pressed;	// TODO LCDML
 protected:
 	onButtonChangeEvent_t onChangeEvent;
