@@ -3,7 +3,6 @@
 #ifndef _ROTENC_h
 #define _ROTENC_h
 
-#ifdef ESP8266
 extern "C" {
 #include "user_interface.h"
 #include <os_type.h>
@@ -11,52 +10,43 @@ extern "C" {
 #include <functional>
 using namespace std;
 using namespace placeholders;
-#endif
-
-#if defined(ARDUINO) && ARDUINO >= 100
 #include "arduino.h"
-#else
-#include "WProgram.h"
-#endif
 
 typedef enum {
 	ticksChanged
-} ROTENCChangeEvent_t;
+} rotencChangeEvent_t;
 
-#ifdef ARDUINO_ARCH_ESP8266
-#include <functional>
-typedef std::function<void(ROTENCChangeEvent_t)> onRotencChangeEvent_t;
-#else
-typedef void(*onRotEncChangeEvent_t)(ROTENCChangeEvent_t);
-#endif
+typedef std::function<void(rotencChangeEvent_t)> onRotencChangeEvent_t;
 
 class ROTENC
 {
 public:
 	ROTENC();
 	void		initialize();
-	void		checkRotaryEncoder();
+	void		start();			// attach interrupt and variable initialization
+	void		stop();				// detach interrupt
 
-	void		onROTENCChangeEvent(onRotencChangeEvent_t handler);
-	void		isrInt0();
+	void		check();			// call in loop() for events to create
+
+	void		onRotencChangeEvent(onRotencChangeEvent_t handler);
+
+	void		isrInt0();				// only for isr wrapper
 	void		isrInt1();
 private:
-	volatile uint32_t	int0time;			// ISR threshold
-	uint32_t	int1time;
-	uint8_t		int0signal;
-	uint8_t		int0history;
-	uint8_t		int1signal;
-	uint8_t		int1history;
-	long		rotaryHalfSteps;
-	bool		changed_halfSteps;
-	long		actualRotaryTicks;
+	volatile uint32_t	int0_time_;			// ISR threshold
+	volatile uint32_t	int1_time_;
+	volatile uint8_t	int0_signal_;
+	volatile uint8_t	int0_history_;
+	volatile uint8_t	int1_signal_;
+	volatile uint8_t	int1_history_;
+	volatile long		rotary_half_steps_;
+
+	volatile bool		changed_halfSteps;
+	volatile long		actualRotaryTicks;
 	bool		changed_rotEnc;
 	long		LCDML_rotenc_value;
 	long		LCDML_rotenc_value_history;
-	bool		changed;
-	bool		long_diff_change;		// long time gone since change
-	bool		very_long_diff_change;	// very long time gone since change
-	bool		LCDML_button_pressed;
+	volatile bool		changed_;
 protected:
 	onRotencChangeEvent_t onChangeEvent;
 };
