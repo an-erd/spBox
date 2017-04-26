@@ -11,6 +11,7 @@ extern "C" {
 using namespace std;
 using namespace placeholders;
 #include "arduino.h"
+#include "user_config.h"
 
 typedef enum {
 	CCW = -1,

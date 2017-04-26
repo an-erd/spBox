@@ -8,6 +8,8 @@
 void rotencInt0() { rotenc.isrInt0(); }
 void rotencInt1() { rotenc.isrInt1(); }
 
+ROTENC rotenc;
+
 ROTENC::ROTENC()
 {
 }
@@ -109,5 +111,3 @@ bool ROTENC::check() {
 	if (onPosEvent != NULL)
 		onPosEvent(temp_event);
 }
-
-ROTENC rotenc;

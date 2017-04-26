@@ -3,51 +3,54 @@
 //
 
 #include "spbox_display.h"
+#include <ESP8266WiFi.h>
 
-void SPBOX_DISPLAY::update_print_buffer_scr1() {
-	dtostrf_sign(sensors.ax_f, 4, 2, tempbuffer_[0]);
-	dtostrf_sign(sensors.ay_f, 4, 2, tempbuffer_[1]);
-	dtostrf_sign(sensors.az_f, 4, 2, tempbuffer_[2]);
-	snprintf(displaybuffer_[0], 21, "A %s %s %s", tempbuffer_[0], tempbuffer_[1], tempbuffer_[2]);
+SPBOX_DISPLAY display;
 
-	dtostrf_sign(sensors.gx_f, 4, 2, tempbuffer_[0]);
-	dtostrf_sign(sensors.gy_f, 4, 2, tempbuffer_[1]);
-	dtostrf_sign(sensors.gz_f, 4, 2, tempbuffer_[2]);
-	snprintf(displaybuffer_[1], 21, "G %s %s %s", tempbuffer_[0], tempbuffer_[1], tempbuffer_[2]);
+void SPBOX_DISPLAY::updatePrintBufferScr1() {
+	dtostrf_sign(sensors.ax_f_, 4, 2, tempbuffer_[0]);
+	//dtostrf_sign(sensors.ay_f, 4, 2, tempbuffer_[1]);
+	//dtostrf_sign(sensors.az_f, 4, 2, tempbuffer_[2]);
+	//snprintf(displaybuffer_[0], 21, "A %s %s %s", tempbuffer_[0], tempbuffer_[1], tempbuffer_[2]);
 
-	dtostrf(sensors.heading, 3, 0, tempbuffer_[0]);
-	dtostrf(sensors.temperature, 5, 2, tempbuffer_[1]);
-	snprintf(displaybuffer_[2], 21, "H %s T %s", tempbuffer_[0], tempbuffer_[1]);
+	//dtostrf_sign(sensors.gx_f, 4, 2, tempbuffer_[0]);
+	//dtostrf_sign(sensors.gy_f, 4, 2, tempbuffer_[1]);
+	//dtostrf_sign(sensors.gz_f, 4, 2, tempbuffer_[2]);
+	//snprintf(displaybuffer_[1], 21, "G %s %s %s", tempbuffer_[0], tempbuffer_[1], tempbuffer_[2]);
 
-	dtostrf(sensors.altitude, 4, 0, tempbuffer_[0]);
-	dtostrf(sensors.pressure / 100.0, 4, 0, tempbuffer_[1]);
-	dtostrf(WiFi.status(), 1, 0, tempbuffer_[2]);
-	snprintf(displaybuffer_[3], 21, "Alt %s P %s   W%s", tempbuffer_[0], tempbuffer_[1], tempbuffer_[2]);
+	//dtostrf(sensors.heading, 3, 0, tempbuffer_[0]);
+	//dtostrf(sensors.temperature, 5, 2, tempbuffer_[1]);
+	//snprintf(displaybuffer_[2], 21, "H %s T %s", tempbuffer_[0], tempbuffer_[1]);
+
+	//dtostrf(sensors.altitude, 4, 0, tempbuffer_[0]);
+	//dtostrf(sensors.pressure / 100.0, 4, 0, tempbuffer_[1]);
+	//dtostrf(WiFi.status(), 1, 0, tempbuffer_[2]);
+	//snprintf(displaybuffer_[3], 21, "Alt %s P %s   W%s", tempbuffer_[0], tempbuffer_[1], tempbuffer_[2]);
 }
 
-void SPBOX_DISPLAY::update_print_buffer_scr2() {
-	dtostrf_sign(sensors.max_ax_f, 5, 1, tempbuffer_[0]);
-	dtostrf_sign(sensors.max_ay_f, 5, 1, tempbuffer_[1]);
-	dtostrf_sign(sensors.max_az_f, 5, 1, tempbuffer_[2]);
-	snprintf(displaybuffer_[0], 21, "A/ %s %s %s", tempbuffer_[0], tempbuffer_[1], tempbuffer_[2]);
+void SPBOX_DISPLAY::updatePrintBufferScr2() {
+	//dtostrf_sign(sensors.max_ax_f, 5, 1, tempbuffer_[0]);
+	//dtostrf_sign(sensors.max_ay_f, 5, 1, tempbuffer_[1]);
+	//dtostrf_sign(sensors.max_az_f, 5, 1, tempbuffer_[2]);
+	//snprintf(displaybuffer_[0], 21, "A/ %s %s %s", tempbuffer_[0], tempbuffer_[1], tempbuffer_[2]);
 
-	dtostrf_sign(sensors.min_ax_f, 5, 1, tempbuffer_[0]);
-	dtostrf_sign(sensors.min_ay_f, 5, 1, tempbuffer_[1]);
-	dtostrf_sign(sensors.min_az_f, 5, 1, tempbuffer_[2]);
-	snprintf(displaybuffer_[1], 21, "A\\ %s %s %s", tempbuffer_[0], tempbuffer_[1], tempbuffer_[2]);
+	//dtostrf_sign(sensors.min_ax_f, 5, 1, tempbuffer_[0]);
+	//dtostrf_sign(sensors.min_ay_f, 5, 1, tempbuffer_[1]);
+	//dtostrf_sign(sensors.min_az_f, 5, 1, tempbuffer_[2]);
+	//snprintf(displaybuffer_[1], 21, "A\\ %s %s %s", tempbuffer_[0], tempbuffer_[1], tempbuffer_[2]);
 
-	dtostrf_sign(sensors.max_gx_f, 5, 1, tempbuffer_[0]);
-	dtostrf_sign(sensors.max_gy_f, 5, 1, tempbuffer_[1]);
-	dtostrf_sign(sensors.max_gz_f, 5, 1, tempbuffer_[2]);
-	snprintf(displaybuffer_[2], 21, "G/ %s %s %s", tempbuffer_[0], tempbuffer_[1], tempbuffer_[2]);
+	//dtostrf_sign(sensors.max_gx_f, 5, 1, tempbuffer_[0]);
+	//dtostrf_sign(sensors.max_gy_f, 5, 1, tempbuffer_[1]);
+	//dtostrf_sign(sensors.max_gz_f, 5, 1, tempbuffer_[2]);
+	//snprintf(displaybuffer_[2], 21, "G/ %s %s %s", tempbuffer_[0], tempbuffer_[1], tempbuffer_[2]);
 
-	dtostrf_sign(sensors.min_gx_f, 5, 1, tempbuffer_[0]);
-	dtostrf_sign(sensors.min_gy_f, 5, 1, tempbuffer_[1]);
-	dtostrf_sign(sensors.min_gz_f, 5, 1, tempbuffer_[2]);
-	snprintf(displaybuffer_[3], 21, "G\\ %s %s %s", tempbuffer_[0], tempbuffer_[1], tempbuffer_[2]);
+	//dtostrf_sign(sensors.min_gx_f, 5, 1, tempbuffer_[0]);
+	//dtostrf_sign(sensors.min_gy_f, 5, 1, tempbuffer_[1]);
+	//dtostrf_sign(sensors.min_gz_f, 5, 1, tempbuffer_[2]);
+	//snprintf(displaybuffer_[3], 21, "G\\ %s %s %s", tempbuffer_[0], tempbuffer_[1], tempbuffer_[2]);
 }
 
-void SPBOX_DISPLAY::update_display_scr3() {
+void SPBOX_DISPLAY::updateDisplayScr3() {
 	int8_t rssi = WiFi.RSSI();
 	uint32_t ipAddress = WiFi.localIP();
 
@@ -64,16 +67,18 @@ void SPBOX_DISPLAY::update_display_scr3() {
 	//Serial.println(level);
 	//Adafruit_IO_Feed battery = aio.getFeed("battery");
 	//battery.send(level);
-	updateVbat();
-	bool is_connected;
-	is_connected = WiFi.status() == WL_CONNECTED;
-	setConnected(is_connected);
-	if (is_connected) {
-		setRSSI(rssi);
-		setIPAddress(ipAddress);
-	}
-	refreshIcons();
-	clearMsgArea();
+
+	//updateVbat();
+	//bool is_connected;
+	//is_connected = WiFi.status() == WL_CONNECTED;
+	//setConnected(is_connected);
+	//if (is_connected) {
+	//	setRSSI(rssi);
+	//	setIPAddress(ipAddress);
+	//}
+	//refreshIcons();
+
+	//clearMsgArea();
 	//print(level);
 	//switch (WiFi.status()) {
 	//case WL_IDLE_STATUS:
@@ -105,7 +110,7 @@ void SPBOX_DISPLAY::update_display_scr3() {
 	display();
 }
 
-void SPBOX_DISPLAY::update_display_with_print_buffer() {
+void SPBOX_DISPLAY::updateDisplayWithPrintBuffer() {
 	clearDisplay();
 	setCursor(0, 0);
 	println(displaybuffer_[0]);
@@ -121,7 +126,5 @@ void initialize_display() {
 	display.setTextSize(1);
 	display.setTextColor(WHITE);
 	display.display();
-	display_struct.update_display = true;	// TODO
+	//display_struct.update_display = true;	// TODO
 }
-
-SPBOX_DISPLAY display;

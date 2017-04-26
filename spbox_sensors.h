@@ -9,38 +9,66 @@
 #include <HMC5883L.h>
 #include "BMP085_nb.h"
 
-#endif
-
-typedef struct
-{
-	int16_t		ax, ay, az;			// accel values (sensor)
-	float		ax_f, ay_f, az_f;	// accel float values (calculated)
-	float		max_ax_f, max_ay_f, max_az_f, min_ax_f, min_ay_f, min_az_f;
-
-	int16_t		gx, gy, gz;			// gyro values (sensor)
-	float		gx_f, gy_f, gz_f;	// gyro float values (calculated)
-	float		max_gx_f, max_gy_f, max_gz_f, min_gx_f, min_gy_f, min_gz_f;
-
-	int16_t		mx, my, mz;			// magnetometer values (sensor)
-	float		heading;			// calculated heading (calculated)
-
-	float		temperature;		// temperature (sensor)
-	float		pressure;			// pressure (sensor)
-	float		altitude;			// altitude (sensor)
-
-	int8_t		update_temperature_pressure_step;
-	bool		changed_accel_gyro_mag;			// -> re-calculate
-	bool		changed_temperatur_pressure;	// -> re-calculate
-} sGlobalSensors;
-
-int		g_vbatADC;	// TODO global variable
-volatile bool	do_update_accel_gyro_mag;
-// MPU6050 sensor board
-MPU6050					accelgyro;
-HMC5883L				mag;
-
 // Timer
-LOCAL os_timer_t timer_update_accel_gyro_mag;
-LOCAL os_timer_t timer_update_mqtt;
+LOCAL os_timer_t timerUpdateAccelGyroMag;
+
+class SPBOX_SENSORS
+{
+public:
+	SPBOX_SENSORS();
+
+	bool initializeAccelGyro();
+	bool initializeMag();
+	bool initializeBarometer();
+
+	void fetchAccelGyro();
+	void calcAccelGyro();
+	void resetMinMaxAccelGyro();
+	void updateMinMaxAccelGyro();
+	void fetchMag();
+	void calcMag();
+	void calcAltitude();
+
+	void getAccel();
+
+	//void updatePrintBufferScr1();
+	//void updatePrintBufferScr2();
+	//void updateDisplayScr3();
+	//void updateDisplayWithPrintBuffer();
+
+private:
+	MPU6050		accelgyro_;
+	HMC5883L	mag_;
+	BMP085_NB	barometer_;
+
+	int16_t		ax_, ay_, az_;			// accel values (sensor)
+	float		ax_f_, ay_f_, az_f_;	// accel float values (calculated)
+	float		max_ax_f_, max_ay_f_, max_az_f_, min_ax_f_, min_ay_f_, min_az_f_;
+
+	int16_t		gx_, gy_, gz_;			// gyro values (sensor)
+	float		gx_f_, gy_f_, gz_f_;	// gyro float values (calculated)
+	float		max_gx_f_, max_gy_f_, max_gz_f_, min_gx_f_, min_gy_f_, min_gz_f_;
+
+	int16_t		mx_, my_, mz_;			// magnetometer values (sensor)
+	float		heading_;			// calculated heading (calculated)
+
+	float		temperature_;		// temperature (sensor)
+	float		pressure_;			// pressure (sensor)
+	float		altitude_;			// altitude (sensor)
+
+	int8_t		update_temperature_pressure_step_;
+	bool		changed_accel_gyro_mag_;			// -> re-calculate
+	bool		changed_temperatur_pressure_;	// -> re-calculate
+
+	int			vbatADC_;
+
+	volatile bool	do_update_accel_gyro_mag_;
+protected:
+	void timerUpdateAccelGyroMagCB();
+	void timerUpdateTempPressCB();
+	void timerUpdateStepsCB();
+};
 
 extern SPBOX_SENSORS sensors;
+
+#endif

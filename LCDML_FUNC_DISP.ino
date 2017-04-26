@@ -17,15 +17,15 @@ void LCDML_DISP_loop_end(LCDML_FUNC_back)
 // ############################################################################
 void LCDML_DISP_setup(LCDML_FUNC_sensor_overview)
 {
-	update_print_buffer_scr1();
-	update_display_with_print_buffer();
+	display.updatePrintBufferScr1();
+	display.updateDisplayWithPrintBuffer();
 	LCDML_DISP_triggerMenu(DELAY_MS_10HZ);
 }
 
 void LCDML_DISP_loop(LCDML_FUNC_sensor_overview)
 {
-	update_print_buffer_scr1();
-	update_display_with_print_buffer();
+	display.updatePrintBufferScr1();
+	display.updateDisplayWithPrintBuffer();
 	if (LCDML_BUTTON_checkAny()) {
 		LCDML_DISP_resetIsTimer();
 		LCDML_DISP_funcend();
@@ -39,15 +39,15 @@ void LCDML_DISP_loop_end(LCDML_FUNC_sensor_overview)
 // ############################################################################
 void LCDML_DISP_setup(LCDML_FUNC_sensor_min_max)
 {
-	update_print_buffer_scr2();
-	update_display_with_print_buffer();
+	display.updatePrintBufferScr2();
+	display.updateDisplayWithPrintBuffer();
 	LCDML_DISP_triggerMenu(DELAY_MS_2HZ);
 }
 
 void LCDML_DISP_loop(LCDML_FUNC_sensor_min_max)
 {
-	update_print_buffer_scr2();
-	update_display_with_print_buffer();
+	display.updatePrintBufferScr2();
+	display.updateDisplayWithPrintBuffer();
 	if (LCDML_BUTTON_checkAny()) {
 		LCDML_DISP_resetIsTimer();
 		LCDML_DISP_funcend();
@@ -65,7 +65,7 @@ void LCDML_DISP_setup(LCDML_FUNC_sensor_min_max_reset)
 
 void LCDML_DISP_loop(LCDML_FUNC_sensor_min_max_reset)
 {
-	reset_min_max_accelgyro();
+	//reset_min_max_accelgyro();
 
 	LCDML_DISP_resetIsTimer();
 	LCDML_DISP_funcend();
@@ -84,14 +84,14 @@ void LCDML_DISP_setup(LCDML_FUNC_status_wlan)
 	display.setRSSIVisible(true);
 	display.setRSSIIcon(true);
 
-	update_display_scr3();
+	display.updateDisplayScr3();
 
 	LCDML_DISP_triggerMenu(DELAY_MS_2HZ);
 }
 
 void LCDML_DISP_loop(LCDML_FUNC_status_wlan)
 {
-	update_display_scr3();
+	display.updateDisplayScr3();
 
 	if (LCDML_BUTTON_checkAny()) {
 		LCDML_DISP_resetIsTimer();
@@ -111,8 +111,8 @@ int32_t	gConfigAltitudeRotEncHist;
 
 void LCDML_DISP_setup(LCDML_FUNC_config_altitude)
 {
-	gConfigAltitude = sensors.altitude;
-	gConfigAltitudeRotEncHist = rotenc.LCDML_rotenc_value;
+	//gConfigAltitude = sensors.altitude;
+	//gConfigAltitudeRotEncHist = rotenc.LCDML_rotenc_value;
 
 	display.clearDisplay();
 	display.setCursor(0, 0);
@@ -131,7 +131,7 @@ void LCDML_DISP_setup(LCDML_FUNC_config_altitude)
 void LCDML_DISP_loop(LCDML_FUNC_config_altitude)
 {
 	if (LCDML_BUTTON_checkUp() || LCDML_BUTTON_checkDown()) {
-		int aDiff = abs(gConfigAltitudeRotEncHist - rotenc.LCDML_rotenc_value);
+		int aDiff = 0; // abs(gConfigAltitudeRotEncHist - rotenc.LCDML_rotenc_value);
 
 		if (aDiff > 7) {
 			gConfigAltitude += 1000 * (LCDML_BUTTON_checkUp() ? -1 : 1);
@@ -147,7 +147,7 @@ void LCDML_DISP_loop(LCDML_FUNC_config_altitude)
 		}
 
 		//Serial.print(gConfigAltitudeCursorX); Serial.print(" "); Serial.println(gConfigAltitudeCursorY);
-		gConfigAltitudeRotEncHist = rotenc.LCDML_rotenc_value;
+		//gConfigAltitudeRotEncHist = rotenc.LCDML_rotenc_value;
 
 		//display.clearDisplay();
 		display.setCursor(0, 0);

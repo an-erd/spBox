@@ -428,19 +428,19 @@ void LCDML_CONTROL_setup()
 // loop
 void LCDML_CONTROL_loop()
 {
-	if (rotenc.LCDML_rotenc_value < rotenc.LCDML_rotenc_value_history) {
-		LCDML_BUTTON_down();
-		rotenc.LCDML_rotenc_value_history = rotenc.LCDML_rotenc_value;
-	}
-	else if (rotenc.LCDML_rotenc_value > rotenc.LCDML_rotenc_value_history) {
-		LCDML_BUTTON_up();
-		rotenc.LCDML_rotenc_value_history = rotenc.LCDML_rotenc_value;
-	}
+	//if (rotenc.LCDML_rotenc_value < rotenc.LCDML_rotenc_value_history) {
+	//	LCDML_BUTTON_down();
+	//	rotenc.LCDML_rotenc_value_history = rotenc.LCDML_rotenc_value;
+	//}
+	//else if (rotenc.LCDML_rotenc_value > rotenc.LCDML_rotenc_value_history) {
+	//	LCDML_BUTTON_up();
+	//	rotenc.LCDML_rotenc_value_history = rotenc.LCDML_rotenc_value;
+	//}
 
-	if (button.LCDML_button_pressed) {
-		LCDML_BUTTON_enter();
-		button.LCDML_button_pressed = false;
-	}
+	//if (button.LCDML_button_pressed) {
+	//	LCDML_BUTTON_enter();
+	//	button.LCDML_button_pressed = false;
+	//}
 }
 
 #else

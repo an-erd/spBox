@@ -11,6 +11,8 @@ typedef union
 	char bytes[4];
 } float_char_conversion;
 
+SPBOX_CONF conf;
+
 SPBOX_CONF::SPBOX_CONF()
 {
 }
@@ -22,7 +24,7 @@ void SPBOX_CONF::initialize(bool from_eeprom)
 		return;
 	}
 
-	wlan_initialized_ = false;
+	//wlan_initialized_ = false;
 	wlan_enabled_ = true;
 	ota_mode_ = OTA_IDE;
 	ntp_enabled_ = true;
@@ -35,15 +37,15 @@ void SPBOX_CONF::initialize(bool from_eeprom)
 	//sea_level_pressure_ = 101325;
 }
 
-void SPBOX_CONF::setWlanInitialized(bool wlan_initialized)
-{
-	wlan_initialized_ = wlan_initialized;
-}
+//void SPBOX_CONF::setWlanInitialized(bool wlan_initialized)
+//{
+//	wlan_initialized_ = wlan_initialized;
+//}
 
-bool SPBOX_CONF::getWlanInitialized()
-{
-	return wlan_initialized_;
-}
+//bool SPBOX_CONF::getWlanInitialized()
+//{
+//	return wlan_initialized_;
+//}
 
 void SPBOX_CONF::setWlanEnabled(bool wlan_enabled)
 {
@@ -55,12 +57,12 @@ bool SPBOX_CONF::getWlanEnabled()
 	return wlan_enabled_;
 }
 
-void SPBOX_CONF::setOtaMode(OTAModes ota_mode_)
+void SPBOX_CONF::setOtaMode(OTAModes_t ota_mode)
 {
 	ota_mode_ = ota_mode;
 }
 
-OTAModes SPBOX_CONF::getOtaMode()
+OTAModes_t SPBOX_CONF::getOtaMode()
 {
 	return ota_mode_;
 }
@@ -95,7 +97,7 @@ void SPBOX_CONF::setGyroRangeScale(float gyro_range_scale)
 	gyro_range_scale_ = gyro_range_scale;
 }
 
-int SPBOX_CONF::writeConfToEEPROM()
+bool SPBOX_CONF::writeConfToEEPROM()
 {
 	int i = 0;
 	char seq;
@@ -104,7 +106,6 @@ int SPBOX_CONF::writeConfToEEPROM()
 	seq = EEPROM.read(i) + 1;
 	EEPROM.write(i, seq); i++;
 
-	EEPROM.write(i, wlan_initialized_); i++;
 	EEPROM.write(i, wlan_enabled_); i++;
 	EEPROM.write(i, ota_mode_); i++;
 	EEPROM.write(i, ntp_enabled_); i++;
@@ -127,9 +128,8 @@ void SPBOX_CONF::readConfFromEEPROM()
 	float_char_conversion temp;
 
 	seq = EEPROM.read(i++);
-	wlan_initialized_ = EEPROM.read(i++);
 	wlan_enabled_ = EEPROM.read(i++);
-	ota_mode_ = EEPROM.read(i++);
+	ota_mode_ = (OTAModes_t)EEPROM.read(i++);
 	ntp_enabled_ = EEPROM.read(i++);
 	aio_enabled_ = EEPROM.read(i++);
 	accel_range_scale_ = EEPROM.read(i++);
@@ -148,5 +148,3 @@ bool SPBOX_CONF::clearEEPROM(char seq)
 	}
 	return EEPROM.commit();
 }
-
-extern SPBOX_CONF conf;

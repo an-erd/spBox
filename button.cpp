@@ -3,6 +3,7 @@
 //
 
 #include "button.h"
+#include "user_config.h"
 
 #define DBG_PORT Serial
 
@@ -14,6 +15,8 @@
 
 // ISR wrapper functions
 void buttonInt0() { button.isrInt0(); }
+
+BUTTON button;
 
 BUTTON::BUTTON()
 {
@@ -93,5 +96,3 @@ bool BUTTON::check() {
 
 	return true;
 }
-
-BUTTON button;

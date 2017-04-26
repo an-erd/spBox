@@ -1,7 +1,7 @@
 #ifndef USER_CONFIG_H
 #define USER_CONFIG_H
 
-#include "missing_dec.h"
+//#include "missing_dec.h"
 
 #define STRING_VERSION "0.0.1"
 
@@ -56,6 +56,8 @@
 #define MPU6050_DEG_RAD_CONV		0.01745329251994329576	// CONST
 #define MPU6050_GAIN_DEG_RAD_CONV	0.00106422515365507901	// MPU6050_DEG_RAD_CONV / MPU6050_G_GAIN
 
+typedef enum { OTA_OFF = 0, OTA_IDE = 1, OTA_HTTP_SERVER = 2, } OTAModes_t;
+
 // Output and debug
 #define	SERIAL_STATUS_OUTPUT
 #undef	MEASURE_PREFORMANCE
@@ -69,10 +71,10 @@ enum debug_level
 	ERROR
 };
 
-#define iprintf(dlevel, ...) if (dlevel >= IPRINT_LEVEL) ets_printf(__VA_ARGS__)
-
-#if (SSD1306_LCDHEIGHT != 32)
-#error("Height incorrect, please fix Adafruit_SSD1306.h!");
-#endif
+//#define iprintf(dlevel, ...) if (dlevel >= IPRINT_LEVEL) ets_printf(__VA_ARGS__)
+//
+//#if (SSD1306_LCDHEIGHT != 32)
+//#error("Height incorrect, please fix Adafruit_SSD1306.h!");
+//#endif
 
 #endif //USER_CONFIG_H

@@ -4,7 +4,6 @@
 #ifndef _BMP085_NB_h
 #define _BMP085_NB_h
 
-#ifdef ESP8266
 extern "C" {
 #include "user_interface.h"
 #include <os_type.h>
@@ -12,14 +11,7 @@ extern "C" {
 #include <functional>
 using namespace std;
 using namespace placeholders;
-#endif
-
-#if defined(ARDUINO) && ARDUINO >= 100
 #include "arduino.h"
-#else
-#include "WProgram.h"
-#endif
-
 #include <BMP085.h>
 
 typedef enum {
@@ -34,17 +26,12 @@ typedef enum {
 	sensorDone
 } BMP085UpdateSteps_t;
 
-#ifdef ARDUINO_ARCH_ESP8266
-#include <functional>
 typedef std::function<void(BMP085PrepDoneEvent_t)> onPrepDoneEvent_t;
-#else
-typedef void(*onPrepDoneEvent_t)(BMP085PrepDoneEvent_t);
-#endif
 
 class BMP085_NB : public BMP085
 {
 public:
-	//BMP085_NB();
+	BMP085_NB();
 	void	initialize();
 
 	void	setUpdateInterval(int interval = 1000);
@@ -64,7 +51,5 @@ protected:
 	float	_pressure;
 private:
 };
-
-extern BMP085_NB barometer;
 
 #endif

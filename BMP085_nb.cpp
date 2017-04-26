@@ -4,19 +4,16 @@
 
 #include "BMP085_nb.h"
 
-BMP085_NB barometer;
-
 LOCAL os_timer_t timerUpdateTempPress;	// prepare temperature and pressure regularly
 LOCAL os_timer_t timerUpdateSteps;		// handle different BMP085 preparation duration for temperature and pressure
 
 void updateTempPressCB(void *arg) {
-	barometer.prepTempPressure();
+	//barometer.prepTempPressure();
 }
 
-//BMP085_NB::BMP085_NB()
-//{
-//	BMP085::BMP085();
-//}
+BMP085_NB::BMP085_NB()
+{
+}
 
 void BMP085_NB::initialize()
 {
