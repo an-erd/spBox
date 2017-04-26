@@ -29,12 +29,21 @@ public:
 	void calcMag();
 	void calcAltitude();
 
-	void getAccel();
-
-	//void updatePrintBufferScr1();
-	//void updatePrintBufferScr2();
-	//void updateDisplayScr3();
-	//void updateDisplayWithPrintBuffer();
+	void getAccel(int16_t *ax, int16_t *ay, int16_t *az);
+	void getAccel(float *ax_f, float *ay_f, float *az_f);
+	void getMaxAccel(float *max_ax, float *max_ay, float *max_az);
+	void getMinAccel(float *max_ax, float *max_ay, float *max_az);
+	void getGyro(int16_t *ax, int16_t *ay, int16_t *az);
+	void getGyro(float *ax_f, float *ay_f, float *az_f);
+	void getMaxGyro(float *max_gx, float *max_gy, float *max_gz);
+	void getMinGyro(float *min_gx, float *min_gy, float *min_gz);
+	void getMag(int16_t *mx_, int16_t *my, int16_t *mz);
+	void getHeading(float *heading);
+	void getTemperature(float *temperature);
+	void getPressure(float *pressure);
+	void getAltitude(float *altitude);
+	void updateVBat();
+	float getVBat();
 
 private:
 	MPU6050		accelgyro_;
@@ -56,17 +65,17 @@ private:
 	float		pressure_;			// pressure (sensor)
 	float		altitude_;			// altitude (sensor)
 
+	float		vbatFloat_;
+
 	int8_t		update_temperature_pressure_step_;
 	bool		changed_accel_gyro_mag_;			// -> re-calculate
 	bool		changed_temperatur_pressure_;	// -> re-calculate
 
-	int			vbatADC_;
-
-	volatile bool	do_update_accel_gyro_mag_;
+	//volatile bool	do_update_accel_gyro_mag_;
 protected:
-	void timerUpdateAccelGyroMagCB();
-	void timerUpdateTempPressCB();
-	void timerUpdateStepsCB();
+	//void timerUpdateAccelGyroMagCB();
+	//void timerUpdateTempPressCB();
+	//void timerUpdateStepsCB();
 };
 
 extern SPBOX_SENSORS sensors;

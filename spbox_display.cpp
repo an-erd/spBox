@@ -8,46 +8,56 @@
 SPBOX_DISPLAY display;
 
 void SPBOX_DISPLAY::updatePrintBufferScr1() {
-	dtostrf_sign(sensors.ax_f_, 4, 2, tempbuffer_[0]);
-	//dtostrf_sign(sensors.ay_f, 4, 2, tempbuffer_[1]);
-	//dtostrf_sign(sensors.az_f, 4, 2, tempbuffer_[2]);
-	//snprintf(displaybuffer_[0], 21, "A %s %s %s", tempbuffer_[0], tempbuffer_[1], tempbuffer_[2]);
+	float temp_x, temp_y, temp_z, temp_f;
 
-	//dtostrf_sign(sensors.gx_f, 4, 2, tempbuffer_[0]);
-	//dtostrf_sign(sensors.gy_f, 4, 2, tempbuffer_[1]);
-	//dtostrf_sign(sensors.gz_f, 4, 2, tempbuffer_[2]);
-	//snprintf(displaybuffer_[1], 21, "G %s %s %s", tempbuffer_[0], tempbuffer_[1], tempbuffer_[2]);
+	sensors.getAccel(&temp_x, &temp_y, &temp_z);
+	dtostrf_sign(temp_x, 4, 2, tempbuffer_[0]);
+	dtostrf_sign(temp_y, 4, 2, tempbuffer_[1]);
+	dtostrf_sign(temp_z, 4, 2, tempbuffer_[2]);
+	snprintf(displaybuffer_[0], 21, "A %s %s %s", tempbuffer_[0], tempbuffer_[1], tempbuffer_[2]);
 
-	//dtostrf(sensors.heading, 3, 0, tempbuffer_[0]);
-	//dtostrf(sensors.temperature, 5, 2, tempbuffer_[1]);
-	//snprintf(displaybuffer_[2], 21, "H %s T %s", tempbuffer_[0], tempbuffer_[1]);
+	sensors.getGyro(&temp_x, &temp_y, &temp_z);
+	dtostrf_sign(temp_x, 4, 2, tempbuffer_[0]);
+	dtostrf_sign(temp_y, 4, 2, tempbuffer_[1]);
+	dtostrf_sign(temp_z, 4, 2, tempbuffer_[2]);
+	snprintf(displaybuffer_[1], 21, "G %s %s %s", tempbuffer_[0], tempbuffer_[1], tempbuffer_[2]);
 
-	//dtostrf(sensors.altitude, 4, 0, tempbuffer_[0]);
-	//dtostrf(sensors.pressure / 100.0, 4, 0, tempbuffer_[1]);
-	//dtostrf(WiFi.status(), 1, 0, tempbuffer_[2]);
-	//snprintf(displaybuffer_[3], 21, "Alt %s P %s   W%s", tempbuffer_[0], tempbuffer_[1], tempbuffer_[2]);
+	sensors.getHeading(&temp_f); dtostrf(temp_f, 3, 0, tempbuffer_[0]);
+	sensors.getTemperature(&temp_f); dtostrf(temp_f, 5, 2, tempbuffer_[1]);
+	snprintf(displaybuffer_[2], 21, "H %s T %s", tempbuffer_[0], tempbuffer_[1]);
+
+	sensors.getAltitude(&temp_f); dtostrf(temp_f, 4, 0, tempbuffer_[0]);
+	sensors.getPressure(&temp_f); dtostrf(temp_f / 100.0, 4, 0, tempbuffer_[1]);
+	dtostrf(WiFi.status(), 1, 0, tempbuffer_[2]);
+	snprintf(displaybuffer_[3], 21, "Alt %s P %s   W%s", tempbuffer_[0], tempbuffer_[1], tempbuffer_[2]);
 }
 
 void SPBOX_DISPLAY::updatePrintBufferScr2() {
-	//dtostrf_sign(sensors.max_ax_f, 5, 1, tempbuffer_[0]);
-	//dtostrf_sign(sensors.max_ay_f, 5, 1, tempbuffer_[1]);
-	//dtostrf_sign(sensors.max_az_f, 5, 1, tempbuffer_[2]);
-	//snprintf(displaybuffer_[0], 21, "A/ %s %s %s", tempbuffer_[0], tempbuffer_[1], tempbuffer_[2]);
+	float temp_x, temp_y, temp_z, temp_f;
 
-	//dtostrf_sign(sensors.min_ax_f, 5, 1, tempbuffer_[0]);
-	//dtostrf_sign(sensors.min_ay_f, 5, 1, tempbuffer_[1]);
-	//dtostrf_sign(sensors.min_az_f, 5, 1, tempbuffer_[2]);
-	//snprintf(displaybuffer_[1], 21, "A\\ %s %s %s", tempbuffer_[0], tempbuffer_[1], tempbuffer_[2]);
+	sensors.getMaxAccel(&temp_x, &temp_y, &temp_z);
+	dtostrf_sign(temp_x, 5, 1, tempbuffer_[0]);
+	dtostrf_sign(temp_y, 5, 1, tempbuffer_[1]);
+	dtostrf_sign(temp_z, 5, 1, tempbuffer_[2]);
+	snprintf(displaybuffer_[0], 21, "A/ %s %s %s", tempbuffer_[0], tempbuffer_[1], tempbuffer_[2]);
 
-	//dtostrf_sign(sensors.max_gx_f, 5, 1, tempbuffer_[0]);
-	//dtostrf_sign(sensors.max_gy_f, 5, 1, tempbuffer_[1]);
-	//dtostrf_sign(sensors.max_gz_f, 5, 1, tempbuffer_[2]);
-	//snprintf(displaybuffer_[2], 21, "G/ %s %s %s", tempbuffer_[0], tempbuffer_[1], tempbuffer_[2]);
+	sensors.getMinAccel(&temp_x, &temp_y, &temp_z);
+	dtostrf_sign(temp_x, 5, 1, tempbuffer_[0]);
+	dtostrf_sign(temp_y, 5, 1, tempbuffer_[1]);
+	dtostrf_sign(temp_z, 5, 1, tempbuffer_[2]);
+	snprintf(displaybuffer_[1], 21, "A\\ %s %s %s", tempbuffer_[0], tempbuffer_[1], tempbuffer_[2]);
 
-	//dtostrf_sign(sensors.min_gx_f, 5, 1, tempbuffer_[0]);
-	//dtostrf_sign(sensors.min_gy_f, 5, 1, tempbuffer_[1]);
-	//dtostrf_sign(sensors.min_gz_f, 5, 1, tempbuffer_[2]);
-	//snprintf(displaybuffer_[3], 21, "G\\ %s %s %s", tempbuffer_[0], tempbuffer_[1], tempbuffer_[2]);
+	sensors.getMaxGyro(&temp_x, &temp_y, &temp_z);
+	dtostrf_sign(temp_x, 5, 1, tempbuffer_[0]);
+	dtostrf_sign(temp_y, 5, 1, tempbuffer_[1]);
+	dtostrf_sign(temp_z, 5, 1, tempbuffer_[2]);
+	snprintf(displaybuffer_[2], 21, "G/ %s %s %s", tempbuffer_[0], tempbuffer_[1], tempbuffer_[2]);
+
+	sensors.getMinGyro(&temp_x, &temp_y, &temp_z);
+	dtostrf_sign(temp_x, 5, 1, tempbuffer_[0]);
+	dtostrf_sign(temp_y, 5, 1, tempbuffer_[1]);
+	dtostrf_sign(temp_z, 5, 1, tempbuffer_[2]);
+	snprintf(displaybuffer_[3], 21, "G\\ %s %s %s", tempbuffer_[0], tempbuffer_[1], tempbuffer_[2]);
 }
 
 void SPBOX_DISPLAY::updateDisplayScr3() {
