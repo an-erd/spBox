@@ -16,16 +16,13 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="spBox.ino" />
+    <None Include="README.md" />
     <None Include="LCDML_CONTROL.ino" />
     <None Include="LCDML_DISP.ino" />
     <None Include="LCDML_FUNC_BACKEND.ino" />
     <None Include="LCDML_FUNC_DISP.ino" />
-    <None Include="README.md" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="LCDML_DEFS.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="spBox.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -60,6 +57,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="spbox_conf.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LCDML_DEFS.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

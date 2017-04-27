@@ -2,8 +2,10 @@
 //
 //
 
-#include "spbox_display.h"
 #include <ESP8266WiFi.h>
+#include "missing_str_util.h"
+#include "spbox_display.h"
+#include "spbox_sensors.h"
 
 SPBOX_DISPLAY display;
 
