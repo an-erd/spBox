@@ -30,3 +30,9 @@
 /.vs/Supercharger/adafruitio_00_publish
 /.vs/Supercharger
 *.suo
+/examples/rotenc/Release
+/examples/rotenc/__vm
+/examples/rotenc/Release
+/.vs
+/examples/button_rotenc_example/Release
+/examples/button_rotenc_example/__vm

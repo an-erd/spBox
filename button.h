@@ -3,7 +3,7 @@
 #ifndef _BUTTON_h
 #define _BUTTON_h
 
-//#define DEBUG_BUTTON //Uncomment this to enable debug messages over serial port
+#define DEBUG_BUTTON //Uncomment this to enable debug messages over serial port
 
 extern "C" {
 #include "user_interface.h"
