@@ -95,6 +95,8 @@ TODO:
 	* at least minimize GY-87 power consumption, desolder voltage regulator, LED
 	* maybe use a switch and do a EN->GND for the voltage regulator on the HUZZAH FEATHER
 
+Use interrupts/C++ methods:
+https://github.com/esp8266/Arduino/pull/2745
 ___________________________________________________________
 Power saving
 * https://www.i2cdevlib.com/docs/html/class_m_p_u6050.html, e.g. void MPU6050::setSleepEnabled, ...

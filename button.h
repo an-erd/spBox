@@ -15,7 +15,7 @@ using namespace placeholders;
 #include "arduino.h"
 
 // for the description see table in button.cpp, before BUTTON::check()
-typedef enum {
+typedef enum ButtonEvent {
 	H_L_SHORT = 0, H_L_LONG = 2, H_L_VERYLONG = 3, L_H_SHORT = 4, L_H_LONG = 6, L_H_VERYLONG = 7
 } buttonChangeEvent_t;
 
@@ -41,8 +41,6 @@ private:
 	volatile bool		changed_;
 	volatile uint8_t	changed_signal_;
 	volatile uint32_t	changed_time_diff_;		// time diff between last button change
-
-	bool		LCDML_button_pressed;	// TODO LCDML
 protected:
 	onButtonChangeEvent_t onChangeEvent;
 };

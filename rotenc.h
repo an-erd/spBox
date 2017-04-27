@@ -13,12 +13,12 @@ using namespace placeholders;
 #include "arduino.h"
 #include "user_config.h"
 
-typedef enum {
+typedef enum RotEncEvent {
 	CCW = -1,
 	CW = 1
 } rotencChangeEvent_t;
 
-typedef struct {
+typedef struct RotEncPosEvent {
 	rotencChangeEvent_t event;
 	int diff;
 	long pos;
