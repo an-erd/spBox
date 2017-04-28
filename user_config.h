@@ -62,7 +62,10 @@ typedef enum OTAMode { OTA_OFF = 0, OTA_IDE = 1, OTA_HTTP_SERVER = 2, } OTAModes
 #define DBG_PORT Serial
 #define DEBUG_ROTENC
 #define DEBUG_BUTTON
+#define DEBUG_SENSORS
+#define DEBUG_DISPLAY
 #define	SERIAL_STATUS_OUTPUT
+
 #undef	MEASURE_PREFORMANCE
 
 #define IPRINT_LEVEL INFO

@@ -1,5 +1,4 @@
 #include <wire.h>
-#include <FunctionalInterrupt.h>
 #include "button.h"
 #include "rotenc.h"
 
@@ -13,6 +12,15 @@ void setup() {
 	rotenc.start();
 	button.initialize();
 	button.start();
+	button.onButtonChangeEvent([](buttonChangeEvent_t e) {
+		Serial.printf("onButtonChangeEvent; %d\n", e);
+	});
+	rotenc.onRotencChangeEvent([](rotencChangeEvent_t e) {
+		Serial.printf("onRotEncChangeEvent: %d\n", e);
+	});
+	rotenc.onRotencPosEvent([](rotencPosEvent_t e) {
+		Serial.printf("onRotEncChangeEvent event: %d, diff: %d, pos: %d\n", e.event, e.diff, e.pos);
+	});
 }
 
 void loop() {

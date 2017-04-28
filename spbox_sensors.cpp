@@ -5,9 +5,6 @@
 #include "user_config.h"
 #include "spbox_sensors.h"
 
-#define DEBUG_SENSORS //Uncomment this to enable debug messages over serial port
-#define DBG_PORT Serial
-
 #ifdef DEBUG_SENSORS
 #define DEBUGLOG(...) DBG_PORT.printf(__VA_ARGS__)
 #else

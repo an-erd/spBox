@@ -15,24 +15,42 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <None Include="button_rotenc_example.ino" />
+    <None Include="sensor_display_example.ino" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\button.h">
+    <ClInclude Include="..\..\BMP085_nb.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\rotenc.h">
+    <ClInclude Include="..\..\missing_dec.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\missing_str_util.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\spbox_display.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\spbox_sensors.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\user_config.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="__vm\.sensor_display_example.vsarduino.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\button.cpp">
+    <ClCompile Include="..\..\missing_str_util.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\rotenc.cpp">
+    <ClCompile Include="..\..\spbox_display.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\spbox_sensors.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\BMP085_nb.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

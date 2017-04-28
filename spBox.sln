@@ -7,6 +7,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "spBox", "spBox.vcxproj", "{
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "button_rotenc_example", "examples\button_rotenc_example\button_rotenc_example.vcxproj", "{17E69842-2C0A-46A5-B242-0AB9034C487D}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sensor_display_example", "examples\sensor_display_example\sensor_display_example.vcxproj", "{5D86CFEB-6E18-4DAC-941E-C604DDB0A58F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -21,6 +23,10 @@ Global
 		{17E69842-2C0A-46A5-B242-0AB9034C487D}.Debug|x86.Build.0 = Debug|Win32
 		{17E69842-2C0A-46A5-B242-0AB9034C487D}.Release|x86.ActiveCfg = Release|Win32
 		{17E69842-2C0A-46A5-B242-0AB9034C487D}.Release|x86.Build.0 = Release|Win32
+		{5D86CFEB-6E18-4DAC-941E-C604DDB0A58F}.Debug|x86.ActiveCfg = Debug|Win32
+		{5D86CFEB-6E18-4DAC-941E-C604DDB0A58F}.Debug|x86.Build.0 = Debug|Win32
+		{5D86CFEB-6E18-4DAC-941E-C604DDB0A58F}.Release|x86.ActiveCfg = Release|Win32
+		{5D86CFEB-6E18-4DAC-941E-C604DDB0A58F}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
