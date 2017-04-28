@@ -12,14 +12,16 @@ class SPBOX_DISPLAY : public Adafruit_FeatherOLED_WiFi
 {
 public:
 	SPBOX_DISPLAY(int reset = -1) : Adafruit_FeatherOLED_WiFi(reset) { };
+	void initializeDisplay();
 
 	void updatePrintBufferScr1();
 	void updatePrintBufferScr2();
 	void updateDisplayScr3();
+	void updatePrintBufferScrTest();
 
 	void updateDisplayWithPrintBuffer();
 private:
-	char displaybuffer_[4][21];  // 4 lines with 21 chars each
+	char displaybuffer_[4][22];  // 4 lines with 22 chars each
 	char tempbuffer_[3][15];     // temp for float to str conversion
 	bool update_display_;
 protected:

@@ -4,13 +4,21 @@
 #define _SPBOX_SENSORS_h
 
 #include "arduino.h"
+extern "C" {
+#include "user_interface.h"
+#include <os_type.h>
+}
 #include <I2Cdev.h>
 #include <MPU6050.h>
 #include <HMC5883L.h>
-#include "BMP085_nb.h"
+#include <BMP085.h>
 
-// Timer
-LOCAL os_timer_t timerUpdateAccelGyroMag;
+typedef enum {
+	sensorPaused = 0,
+	sensorReqTemp,
+	sensorReadTempReqPress,
+	sensorDone
+} BMP085UpdateSteps_t;
 
 class SPBOX_SENSORS
 {
@@ -21,6 +29,11 @@ public:
 	bool initializeMag();
 	bool initializeBarometer();
 
+	void setupUpdateAccelGyroMag();
+	void startUpdateAccelGyroMag();
+	void stopUpdateAccelGyroMag();
+	void updateAccelGyroMagCB();
+	bool checkAccelGyroMag();
 	void fetchAccelGyro();
 	void calcAccelGyro();
 	void resetMinMaxAccelGyro();
@@ -28,6 +41,13 @@ public:
 	void fetchMag();
 	void calcMag();
 	void calcAltitude();
+
+	void setupUpdateTempPress();
+	void startUpdateTempPress();
+	void stopUpdateTempPress();
+	void updateTempPressCB();
+	void prepTempPressure();
+	bool checkTempPress();
 
 	void getAccel(int16_t *ax, int16_t *ay, int16_t *az);
 	void getAccel(float *ax_f, float *ay_f, float *az_f);
@@ -48,7 +68,7 @@ public:
 private:
 	MPU6050		accelgyro_;
 	HMC5883L	mag_;
-	BMP085_NB	barometer_;
+	BMP085		barometer_;
 
 	int16_t		ax_, ay_, az_;			// accel values (sensor)
 	float		ax_f_, ay_f_, az_f_;	// accel float values (calculated)
@@ -67,11 +87,12 @@ private:
 
 	float		vbatFloat_;
 
-	int8_t		update_temperature_pressure_step_;
+	BMP085UpdateSteps_t _updateStep;
+
 	bool		changed_accel_gyro_mag_;			// -> re-calculate
 	bool		changed_temperatur_pressure_;	// -> re-calculate
 
-	//volatile bool	do_update_accel_gyro_mag_;
+	volatile bool	do_update_accel_gyro_mag_;
 protected:
 	//void timerUpdateAccelGyroMagCB();
 	//void timerUpdateTempPressCB();

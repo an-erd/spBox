@@ -86,8 +86,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\BMP085_nb.h" />
-    <ClInclude Include="..\..\missing_dec.h" />
     <ClInclude Include="..\..\missing_str_util.h" />
     <ClInclude Include="..\..\spbox_display.h" />
     <ClInclude Include="..\..\spbox_sensors.h" />
@@ -95,7 +93,6 @@
     <ClInclude Include="__vm\.sensor_display_example.vsarduino.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\BMP085_nb.cpp" />
     <ClCompile Include="..\..\missing_str_util.cpp" />
     <ClCompile Include="..\..\spbox_display.cpp" />
     <ClCompile Include="..\..\spbox_sensors.cpp" />

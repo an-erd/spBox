@@ -64,22 +64,6 @@ Temperature issue
 =================
 if the sensor module (gy-87) is turned on for some time, it's getting warm on the PCB and inside the box (~30°C). Find way to deactivate the modle if not necessary.
 
-Serial Output
-=============
-
-a/g:	0.40	0.52	0.79	-233	141	6	mag:	149	-347	-532	heading:	0.00	T/P/A	23.00	95865.00	464.83Rot.enc	0
-performance: 29829 2651
-(first performance value: get sensor data
-second value: output)
-
-Sample (debug) output line
-==========================
-display.println("abcdefghijklmnopqrstu");
-display.println("123456789012345678901");
-display.println("a:  +0.70 +0.46 +0.59");
-display.println("H: 215 T: 21.3");
-
-
 ___________________________________________________________
 Crash:
 

@@ -13,6 +13,13 @@
 
 SPBOX_SENSORS sensors;
 
+// Timer
+LOCAL os_timer_t timerUpdateAccelGyroMag;	// read Accel, Gyro and Mag regularly
+LOCAL os_timer_t timerUpdateTempPress;		// prepare temperature and pressure regularly
+LOCAL os_timer_t timerUpdateSteps;			// handle different BMP085 preparation duration for temperature and pressure
+void updateAccelGyroMag_CB(void *arg) { sensors.updateAccelGyroMagCB(); }
+void updateTempPress_CB(void *arg) { sensors.updateTempPressCB(); }
+
 SPBOX_SENSORS::SPBOX_SENSORS()
 {
 }
@@ -30,27 +37,116 @@ bool SPBOX_SENSORS::initializeAccelGyro() {
 
 	DEBUGLOG("MPU6050: connection %s\r\n", (accelgyro_.testConnection() ? "successful" : "failed"));
 }
-
 bool SPBOX_SENSORS::initializeMag() {
 	mag_.initialize();
 	DEBUGLOG("HMC5883L: connection %s\r\n", (mag_.testConnection() ? "successful" : "failed"));
 }
-
 bool SPBOX_SENSORS::initializeBarometer() {
 	barometer_.initialize();
 	//sensors.changed_temperatur_pressure = false;	// TODO
 	DEBUGLOG("BMP180: connection %s\r\n", (barometer_.testConnection() ? "successful" : "failed"));
 }
 
-//void update_accel_gyro_mag_cb(void *arg) {
-//	do_update_accel_gyro_mag = true;
-//}
-//void setup_update_accel_gyro_mag_timer()
-//{
-//	os_timer_disarm(&timer_update_accel_gyro_mag);
-//	os_timer_setfn(&timer_update_accel_gyro_mag, (os_timer_func_t *)update_accel_gyro_mag_cb, (void *)0);
-//	os_timer_arm(&timer_update_accel_gyro_mag, DELAY_MS_10HZ, true);
-//}
+void SPBOX_SENSORS::setupUpdateAccelGyroMag()
+{
+	os_timer_disarm(&timerUpdateAccelGyroMag);
+	os_timer_setfn(&timerUpdateAccelGyroMag, (os_timer_func_t *)updateAccelGyroMag_CB, (void *)0);
+}
+
+void SPBOX_SENSORS::startUpdateAccelGyroMag()
+{
+	os_timer_arm(&timerUpdateAccelGyroMag, DELAY_MS_10HZ, true);
+}
+
+void SPBOX_SENSORS::stopUpdateAccelGyroMag()
+{
+	os_timer_disarm(&timerUpdateAccelGyroMag);
+}
+
+void SPBOX_SENSORS::setupUpdateTempPress()
+{
+	os_timer_disarm(&timerUpdateTempPress);
+	os_timer_setfn(&timerUpdateTempPress, (os_timer_func_t *)updateAccelGyroMag_CB, (void *)0);
+}
+void SPBOX_SENSORS::startUpdateTempPress()
+{
+	os_timer_disarm(&timerUpdateTempPress);
+	os_timer_setfn(&timerUpdateTempPress, (os_timer_func_t *)updateTempPress_CB, (void *)0);
+}
+void SPBOX_SENSORS::stopUpdateTempPress()
+{
+	os_timer_disarm(&timerUpdateTempPress);
+	os_timer_disarm(&timerUpdateSteps);
+	_updateStep = sensorPaused;
+}
+
+void SPBOX_SENSORS::updateAccelGyroMagCB()
+{
+	do_update_accel_gyro_mag_ = true;
+}
+
+bool SPBOX_SENSORS::checkAccelGyroMag()
+{
+	if (!do_update_accel_gyro_mag_)
+		return false;
+
+	fetchAccelGyro();
+	calcAccelGyro();
+	updateMinMaxAccelGyro();
+
+	fetchMag();
+	calcMag();
+	calcAltitude();
+
+	// clear update flag
+}
+
+void SPBOX_SENSORS::updateTempPressCB()
+{
+	prepTempPressure();
+}
+
+void SPBOX_SENSORS::prepTempPressure()
+{
+	switch (_updateStep) {
+	case sensorPaused:
+		_updateStep = sensorReqTemp;
+		barometer_.setControl(BMP085_MODE_TEMPERATURE);
+		os_timer_disarm(&timerUpdateSteps);
+		os_timer_setfn(&timerUpdateSteps, (os_timer_func_t *)updateTempPress_CB, (void *)0);
+		os_timer_arm(&timerUpdateSteps, barometer_.getMeasureDelayMilliseconds(), false);
+		break;
+	case sensorReqTemp:
+		_updateStep = sensorReadTempReqPress;
+		temperature_ = barometer_.getTemperatureC();
+		barometer_.setControl(BMP085_MODE_PRESSURE_3);
+		os_timer_disarm(&timerUpdateSteps);
+		os_timer_setfn(&timerUpdateSteps, (os_timer_func_t *)updateTempPress_CB, (void *)0);
+		os_timer_arm(&timerUpdateSteps, barometer_.getMeasureDelayMilliseconds(), false);
+		break;
+	case sensorReadTempReqPress:
+		_updateStep = sensorDone;
+		pressure_ = barometer_.getPressure();
+		os_timer_disarm(&timerUpdateSteps);
+		break;
+	default:
+		break;
+	};
+}
+
+bool SPBOX_SENSORS::checkTempPress()
+{
+	if (_updateStep != sensorDone)
+		return false;
+	_updateStep = sensorPaused;
+	calcAltitude();
+
+	//if (onPrepDoneEvent != NULL)
+	//	onPrepDoneEvent(prepOk);     // call the handler
+	// read: temperature_, pressure_, altitude_
+
+	return true;
+}
 
 void SPBOX_SENSORS::fetchAccelGyro()
 {
@@ -147,29 +243,4 @@ void SPBOX_SENSORS::updateVBat() {
 float SPBOX_SENSORS::getVBat()
 {
 	return vbatFloat_;
-}
-
-void check_sensor_updates()
-{
-	//if (do_update_accel_gyro_mag) {
-	//	do_update_accel_gyro_mag = false;
-	//	get_accelgyro();
-	//	get_mag();
-	//	changed_accel_gyro_mag = true;
-	//}
-}
-
-void check_sensor_calc()
-{
-	//if (changed_accel_gyro_mag) {
-	//	changed_accel_gyro_mag = false;
-	//	calc_accelgyro();
-	//	if (true)		// AAARGH TODO
-	//		update_min_max_accelgyro();
-	//	calc_mag();
-	//}
-	//if (changed_temperatur_pressure) {
-	//	changed_temperatur_pressure = false;
-	//	calc_altitude();
-	//}
 }

@@ -9,6 +9,15 @@
 
 SPBOX_DISPLAY display;
 
+void SPBOX_DISPLAY::initializeDisplay() {
+	begin(SSD1306_SWITCHCAPVCC, 0x3C);
+	clearDisplay();
+	setTextSize(1);
+	setTextColor(WHITE);
+	display();
+	//display_struct.update_display = true;	// TODO
+}
+
 void SPBOX_DISPLAY::updatePrintBufferScr1() {
 	float temp_x, temp_y, temp_z, temp_f;
 
@@ -122,6 +131,14 @@ void SPBOX_DISPLAY::updateDisplayScr3() {
 	display();
 }
 
+void SPBOX_DISPLAY::updatePrintBufferScrTest()
+{
+	snprintf(displaybuffer_[0], 21, "123456789012345678901");
+	snprintf(displaybuffer_[1], 21, "abcdefghijklmnopqrstu");
+	snprintf(displaybuffer_[2], 21, "ABCDEFGHIJKLMNOPQRSTU");
+	snprintf(displaybuffer_[3], 21, "צהü()[]/\?");
+}
+
 void SPBOX_DISPLAY::updateDisplayWithPrintBuffer() {
 	clearDisplay();
 	setCursor(0, 0);
@@ -130,13 +147,4 @@ void SPBOX_DISPLAY::updateDisplayWithPrintBuffer() {
 	println(displaybuffer_[2]);
 	println(displaybuffer_[3]);
 	display();
-}
-
-void initialize_display() {
-	display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
-	display.clearDisplay();
-	display.setTextSize(1);
-	display.setTextColor(WHITE);
-	display.display();
-	//display_struct.update_display = true;	// TODO
 }

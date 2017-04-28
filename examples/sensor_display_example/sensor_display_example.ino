@@ -8,11 +8,17 @@ void setup() {
 #endif
 	Wire.begin();
 
+	display.initializeDisplay();
+
 	sensors.initializeAccelGyro();
 	sensors.initializeMag();
 	sensors.initializeBarometer();
 }
 
 void loop() {
+	display.updatePrintBufferScrTest();
+	display.updateDisplayWithPrintBuffer();
+	display.display();
+
 	delay(0);
 }
