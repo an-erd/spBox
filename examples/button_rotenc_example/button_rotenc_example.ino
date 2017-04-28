@@ -1,7 +1,7 @@
 #include <wire.h>
+#include <FunctionalInterrupt.h>
 #include "button.h"
-
-//#include "rotenc.h"
+#include "rotenc.h"
 
 void setup() {
 #ifdef SERIAL_STATUS_OUTPUT
@@ -9,14 +9,14 @@ void setup() {
 #endif
 	Wire.begin();
 
-	//rotenc.initialize();
-	//rotenc.start();
+	rotenc.initialize();
+	rotenc.start();
 	button.initialize();
 	button.start();
 }
 
 void loop() {
-	//rotenc.check();
+	rotenc.check();
 	button.check();
 
 	delay(0);

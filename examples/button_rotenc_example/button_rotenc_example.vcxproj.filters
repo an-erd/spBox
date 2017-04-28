@@ -19,9 +19,6 @@
     <None Include="ClassDiagram.cd" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="__vm\.button_rotenc_example.vsarduino.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\button.h">
       <Filter>Header Files</Filter>
     </ClInclude>

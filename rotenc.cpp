@@ -4,6 +4,12 @@
 
 #include "rotenc.h"
 
+#ifdef DEBUG_ROTENC
+#define DEBUGLOG(...) DBG_PORT.printf(__VA_ARGS__)
+#else
+#define DEBUGLOG(...)
+#endif
+
 // ISR wrapper functions
 void rotencInt0() { rotenc.isrInt0(); }
 void rotencInt1() { rotenc.isrInt1(); }
@@ -92,7 +98,7 @@ bool ROTENC::check() {
 
 	long historyTicks = actualRotaryTicks;
 	long tempTicks = rotary_half_steps_ / 2;
-	int	diff = historyTicks - tempTicks;
+	int	diff = tempTicks - historyTicks;
 
 	if (!diff)
 		return false;
@@ -104,6 +110,8 @@ bool ROTENC::check() {
 	temp_event.event = (diff > 0 ? CW : CCW);
 	temp_event.diff = diff;
 	temp_event.pos = actualRotaryTicks;
+
+	DEBUGLOG("rotary encoder, event: %d, diff: %d, pos: %d\r\n", temp_event.event, temp_event.diff, temp_event.pos);
 
 	// call the handler
 	if (onChangeEvent != NULL)

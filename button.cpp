@@ -5,8 +5,6 @@
 #include "button.h"
 #include "user_config.h"
 
-#define DBG_PORT Serial
-
 #ifdef DEBUG_BUTTON
 #define DEBUGLOG(...) DBG_PORT.printf(__VA_ARGS__)
 #else
