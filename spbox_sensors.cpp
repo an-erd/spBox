@@ -87,18 +87,32 @@ void SPBOX_SENSORS::updateAccelGyroMagCB()
 
 bool SPBOX_SENSORS::checkAccelGyroMag()
 {
+	bool change_minmax;
 	if (!do_update_accel_gyro_mag_)
 		return false;
 
 	fetchAccelGyro();
 	calcAccelGyro();
-	updateMinMaxAccelGyro();
+	change_minmax = updateMinMaxAccelGyro();
 
 	fetchMag();
 	calcMag();
 	calcAltitude();
 
-	// clear update flag
+	accelGyroMagEvent_t temp_event;
+	getAccelGyroMag(temp_event);
+
+	if (onChangeAccelGyroMagEvent != NULL)
+		onChangeAccelGyroMagEvent(temp_event);     // call the handler
+
+	if (onChangeMinMaxAccelGyroEvent != NULL)
+		if (change_minmax) {
+			minMaxAccelGyroEvent_t temp_minmaxevent;
+			getMinMaxAccelGyro(temp_minmaxevent);
+			onChangeMinMaxAccelGyroEvent(temp_minmaxevent);     // call the handler
+		}
+
+	return true;
 }
 
 void SPBOX_SENSORS::updateTempPressCB()
@@ -141,9 +155,13 @@ bool SPBOX_SENSORS::checkTempPress()
 	_updateStep = sensorPaused;
 	calcAltitude();
 
-	//if (onPrepDoneEvent != NULL)
-	//	onPrepDoneEvent(prepOk);     // call the handler
-	// read: temperature_, pressure_, altitude_
+	tempPressAltiEvent_t temp_event;
+	temp_event.altitude = altitude_;
+	temp_event.pressure = pressure_;
+	temp_event.temperature = temperature_;
+
+	if (onChangeTempPressAltiEvent != NULL)
+		onChangeTempPressAltiEvent(temp_event);     // call the handler
 
 	return true;
 }
@@ -172,19 +190,23 @@ void SPBOX_SENSORS::resetMinMaxAccelGyro() {
 	max_gz_f_ = min_gz_f_ = gz_f_;
 }
 
-void SPBOX_SENSORS::updateMinMaxAccelGyro() {
-	if (ax_f_ > max_ax_f_) max_ax_f_ = ax_f_;
-	if (ay_f_ > max_ay_f_) max_ay_f_ = ay_f_;
-	if (az_f_ > max_az_f_) max_az_f_ = az_f_;
-	if (ax_f_ < min_ax_f_) min_ax_f_ = ax_f_;
-	if (ay_f_ < min_ay_f_) min_ay_f_ = ay_f_;
-	if (az_f_ < min_az_f_) min_az_f_ = az_f_;
-	if (gx_f_ > max_gx_f_) max_gx_f_ = gx_f_;
-	if (gy_f_ > max_gy_f_) max_gy_f_ = gy_f_;
-	if (gz_f_ > max_gz_f_) max_gz_f_ = gz_f_;
-	if (gx_f_ < min_gx_f_) min_gx_f_ = gx_f_;
-	if (gy_f_ < min_gy_f_) min_gy_f_ = gy_f_;
-	if (gz_f_ < min_gz_f_) min_gz_f_ = gz_f_;
+bool SPBOX_SENSORS::updateMinMaxAccelGyro() {
+	bool chg = false;
+
+	if (ax_f_ > max_ax_f_) { max_ax_f_ = ax_f_; chg = true; }
+	if (ay_f_ > max_ay_f_) { max_ay_f_ = ay_f_; chg = true; }
+	if (az_f_ > max_az_f_) { max_az_f_ = az_f_; chg = true; }
+	if (ax_f_ < min_ax_f_) { min_ax_f_ = ax_f_; chg = true; }
+	if (ay_f_ < min_ay_f_) { min_ay_f_ = ay_f_; chg = true; }
+	if (az_f_ < min_az_f_) { min_az_f_ = az_f_; chg = true; }
+	if (gx_f_ > max_gx_f_) { max_gx_f_ = gx_f_; chg = true; }
+	if (gy_f_ > max_gy_f_) { max_gy_f_ = gy_f_; chg = true; }
+	if (gz_f_ > max_gz_f_) { max_gz_f_ = gz_f_; chg = true; }
+	if (gx_f_ < min_gx_f_) { min_gx_f_ = gx_f_; chg = true; }
+	if (gy_f_ < min_gy_f_) { min_gy_f_ = gy_f_; chg = true; }
+	if (gz_f_ < min_gz_f_) { min_gz_f_ = gz_f_; chg = true; }
+
+	return chg;
 }
 
 void SPBOX_SENSORS::fetchMag()
@@ -223,6 +245,21 @@ void SPBOX_SENSORS::getMinGyro(float * min_gx, float * min_gy, float * min_gz) {
 void SPBOX_SENSORS::getMag(int16_t * mx, int16_t * my, int16_t * mz) { *mx = mx_; *my = my_; *mz = mz_; }
 void SPBOX_SENSORS::getHeading(float * heading) { *heading = heading_; }
 
+void SPBOX_SENSORS::getAccelGyroMag(accelGyroMagEvent_t e)
+{
+	getAccel(&(e.ax_f), &(e.ay_f), &(e.az_f));
+	getAccel(&(e.gx_f), &(e.gy_f), &(e.gz_f));
+	getHeading(&(e.heading));
+}
+
+void SPBOX_SENSORS::getMinMaxAccelGyro(minMaxAccelGyroEvent_t e)
+{
+	getMinAccel(&(e.min_ax_f), &(e.min_ay_f), &(e.min_az_f));
+	getMaxAccel(&(e.max_ax_f), &(e.max_ay_f), &(e.max_az_f));
+	getMinGyro(&(e.min_gx_f), &(e.min_gy_f), &(e.min_gz_f));
+	getMaxGyro(&(e.max_gx_f), &(e.max_gy_f), &(e.max_gz_f));
+}
+
 void SPBOX_SENSORS::getTemperature(float * temperature) { *temperature = temperature_; }
 void SPBOX_SENSORS::getPressure(float * pressure) { *pressure = pressure_; }
 void SPBOX_SENSORS::getAltitude(float * altitude) { *altitude = altitude_; }
@@ -243,4 +280,19 @@ void SPBOX_SENSORS::updateVBat() {
 float SPBOX_SENSORS::getVBat()
 {
 	return vbatFloat_;
+}
+
+void SPBOX_SENSORS::onAccelGyroMagEvent(onAccelGyroMagEvent_t handler)
+{
+	onChangeAccelGyroMagEvent = handler;
+}
+
+void SPBOX_SENSORS::onMinMaxAccelGyroEvent(onMinMaxAccelGyroEvent_t handler)
+{
+	onChangeMinMaxAccelGyroEvent = handler;
+}
+
+void SPBOX_SENSORS::onTempPressAltiEvent(onTempPressAltiEvent_t handler)
+{
+	onChangeTempPressAltiEvent = handler;
 }

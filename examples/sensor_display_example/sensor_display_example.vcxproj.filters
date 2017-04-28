@@ -30,9 +30,6 @@
     <ClInclude Include="..\..\user_config.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="__vm\.sensor_display_example.vsarduino.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\missing_str_util.cpp">

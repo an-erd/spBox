@@ -13,6 +13,12 @@ void setup() {
 	sensors.initializeAccelGyro();
 	sensors.initializeMag();
 	sensors.initializeBarometer();
+
+	sensors.setupUpdateAccelGyroMag();
+	sensors.startUpdateAccelGyroMag();
+
+	sensors.setupUpdateTempPress();
+	sensors.startUpdateTempPress();
 }
 
 void loop() {
