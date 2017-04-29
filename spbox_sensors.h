@@ -85,8 +85,8 @@ public:
 	void getMinGyro(float *min_gx, float *min_gy, float *min_gz);
 	void getMag(int16_t *mx_, int16_t *my, int16_t *mz);
 	void getHeading(float *heading);
-	void getAccelGyroMag(accelGyroMagEvent_t e);
-	void getMinMaxAccelGyro(minMaxAccelGyroEvent_t e);
+	void getAccelGyroMag(accelGyroMagEvent_t *e);
+	void getMinMaxAccelGyro(minMaxAccelGyroEvent_t *e);
 	void getTemperature(float *temperature);
 	void getPressure(float *pressure);
 	void getAltitude(float *altitude);
@@ -119,12 +119,8 @@ private:
 
 	float		vbatFloat_;
 
-	BMP085UpdateSteps_t _updateStep;
-
-	bool		changed_accel_gyro_mag_;			// -> re-calculate
-	bool		changed_temperatur_pressure_;	// -> re-calculate
-
-	volatile bool	do_update_accel_gyro_mag_;
+	volatile	BMP085UpdateSteps_t _updateStep;
+	volatile	bool do_update_accel_gyro_mag_;
 protected:
 	onAccelGyroMagEvent_t	onChangeAccelGyroMagEvent;
 	onTempPressAltiEvent_t	onChangeTempPressAltiEvent;

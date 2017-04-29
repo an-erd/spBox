@@ -89,6 +89,7 @@
     <ClInclude Include="..\..\button.h" />
     <ClInclude Include="..\..\rotenc.h" />
     <ClInclude Include="..\..\user_config.h" />
+    <ClInclude Include="__vm\.button_rotenc_example.vsarduino.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\button.cpp" />
