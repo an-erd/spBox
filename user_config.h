@@ -6,14 +6,14 @@
 #define STRING_VERSION "0.0.1"
 
 // WLAN
-#define WLAN_SSID		"W12"
-#define WLAN_PASSWORD	"EYo6Hv4qRO7P1JSpAqZCH6vGVPHwznRWODIIIdhd1pBkeWCYie0knb1pOQ9t2cc"
+//#define WLAN_SSID		"..."
+//#define WLAN_PASSWORD	"..."
 
 // ADAFRUIT IO
 #define AIO_SERVER      "io.adafruit.com"
 #define AIO_SERVERPORT  1883
-#define AIO_USERNAME    "andreaserd"
-#define AIO_KEY			"ee3974dd87d3450490aa2840667e8162"
+//#define AIO_USERNAME  "..."
+//#define AIO_KEY		"..."
 #define AIO_ENABLED		1
 
 // Measure battery
@@ -35,6 +35,7 @@
 // Timer delay constants in milliseconds(MS)
 #define DELAY_MS_1HZ	1000
 #define DELAY_MS_2HZ	500
+#define DELAY_MS_5HZ	200
 #define DELAY_MS_10HZ	100
 #define DELAY_MS_TWOSEC	2000
 #define DELAY_MS_TENSEC	10000

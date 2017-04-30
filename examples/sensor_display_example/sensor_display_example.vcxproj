@@ -81,6 +81,7 @@
     <DebuggerFlavor>VisualMicroDebugger</DebuggerFlavor>
   </PropertyGroup>
   <ItemGroup>
+    <None Include="..\..\credentials.inc" />
     <None Include="sensor_display_example.ino">
       <FileType>CppCode</FileType>
     </None>
@@ -90,6 +91,7 @@
     <ClInclude Include="..\..\spbox_display.h" />
     <ClInclude Include="..\..\spbox_sensors.h" />
     <ClInclude Include="..\..\user_config.h" />
+    <ClInclude Include="__vm\.sensor_display_example.vsarduino.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\missing_str_util.cpp" />

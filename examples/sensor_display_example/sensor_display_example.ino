@@ -13,18 +13,23 @@ void setup() {
 	display.initializeDisplay();
 	sensors.initializeAccelGyro();
 	sensors.initializeMag();
-	//sensors.initializeBarometer();
+	sensors.initializeBarometer();
 
 	sensors.setupUpdateAccelGyroMag();
 	sensors.startUpdateAccelGyroMag();
-
-	//sensors.setupUpdateTempPress();
-	//sensors.startUpdateTempPress();
+	sensors.setupUpdateTempPress();
+	sensors.startUpdateTempPress();
 
 	sensors.onAccelGyroMagEvent([](accelGyroMagEvent_t e) {
 		Serial.printf("onAccelGyroMagEvent event: heading: ");
 		Serial.println(e.heading);
 		//e.ax_f, e.ay_f, e.az_f, e.gx_f, e.gy_f, e.gz_f);
+	});
+
+	sensors.onTempPressAltiEvent([](tempPressAltiEvent_t e) {
+		Serial.printf("onTempPressAltiEvent event: temp: "); Serial.print(e.temperature);
+		Serial.print(", press: "); Serial.print(e.pressure);
+		Serial.print(", alti: "); Serial.println(e.altitude);
 	});
 }
 
@@ -34,7 +39,7 @@ void loop() {
 	display.display();
 
 	sensors.checkAccelGyroMag();
-	//sensors.checkTempPress();
+	sensors.checkTempPress();
 
 	delay(0);
 }

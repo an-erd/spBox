@@ -29,12 +29,6 @@ bool SPBOX_SENSORS::initializeAccelGyro() {
 	accelgyro_.setI2CBypassEnabled(true);
 	accelgyro_.setSleepEnabled(false);
 	accelgyro_.initialize();
-	//accelgyro_.setFullScaleAccelRange(gConfig.accel_range_scale);
-	//accelgyro_.setFullScaleGyroRange(gConfig.gyro_range_scale);
-
-	//do_update_accel_gyro_mag = false;		//TODO
-	//sensors.changed_accel_gyro_mag = false;	// TODO
-
 	DEBUGLOG("MPU6050: connection %s\r\n", (accelgyro_.testConnection() ? "successful" : "failed"));
 }
 bool SPBOX_SENSORS::initializeMag() {
@@ -43,8 +37,17 @@ bool SPBOX_SENSORS::initializeMag() {
 }
 bool SPBOX_SENSORS::initializeBarometer() {
 	barometer_.initialize();
-	//sensors.changed_temperatur_pressure = false;	// TODO
 	DEBUGLOG("BMP180: connection %s\r\n", (barometer_.testConnection() ? "successful" : "failed"));
+}
+
+void SPBOX_SENSORS::setFullScaleAccelRange(uint8_t range)
+{
+	accelgyro_.setFullScaleAccelRange(range);
+}
+
+void SPBOX_SENSORS::setFullScaleGyroRange(uint8_t range)
+{
+	accelgyro_.setFullScaleGyroRange(range);
 }
 
 void SPBOX_SENSORS::setupUpdateAccelGyroMag()
@@ -55,7 +58,7 @@ void SPBOX_SENSORS::setupUpdateAccelGyroMag()
 
 void SPBOX_SENSORS::startUpdateAccelGyroMag()
 {
-	os_timer_arm(&timerUpdateAccelGyroMag, DELAY_MS_10HZ, true);
+	os_timer_arm(&timerUpdateAccelGyroMag, DELAY_MS_5HZ, true);
 }
 
 void SPBOX_SENSORS::stopUpdateAccelGyroMag()

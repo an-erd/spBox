@@ -55,6 +55,9 @@ public:
 	bool initializeMag();
 	bool initializeBarometer();
 
+	void setFullScaleAccelRange(uint8_t range);
+	void setFullScaleGyroRange(uint8_t range);
+
 	void setupUpdateAccelGyroMag();
 	void startUpdateAccelGyroMag();
 	void stopUpdateAccelGyroMag();
