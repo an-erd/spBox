@@ -117,9 +117,9 @@ void LCDML_DISP_setup(LCDML_FUNC_config_altitude)
 	display.clearDisplay();
 	display.setCursor(0, 0);
 	display.println("Durch Drehen eingeben");
-	display.println("und Knopf drücken.");
+	display.println("und Knopf drÃ¼cken.");
 	display.println(" ");
-	display.print("Neue Höhe:");
+	display.print("Neue HÃ¶he:");
 	gConfigAltitudeCursorX = display.getCursorX();
 	gConfigAltitudeCursorY = display.getCursorY();
 	display.print(gConfigAltitude);
@@ -152,9 +152,9 @@ void LCDML_DISP_loop(LCDML_FUNC_config_altitude)
 		//display.clearDisplay();
 		display.setCursor(0, 0);
 		display.println("Durch Drehen eingeben");
-		display.println("und Knopf drücken.");
+		display.println("und Knopf drÃ¼cken.");
 		display.println();
-		display.print("Neue Höhe:");
+		display.print("Neue HÃ¶he:");
 		display.print(gConfigAltitude);
 		display.display();
 		//display.fillRect(gConfigAltitudeCursorX, gConfigAltitudeCursorY, _LCDML_FONT_W * 5, _LCDML_FONT_H, BLACK);
