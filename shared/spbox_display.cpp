@@ -136,7 +136,7 @@ void SPBOX_DISPLAY::updatePrintBufferScrTest()
 	snprintf(displaybuffer_[0], 21, "123456789012345678901");
 	snprintf(displaybuffer_[1], 21, "abcdefghijklmnopqrstu");
 	snprintf(displaybuffer_[2], 21, "ABCDEFGHIJKLMNOPQRSTU");
-	snprintf(displaybuffer_[3], 21, "öäü()[]/\?");
+	snprintf(displaybuffer_[3], 21, "Ã¶Ã¤Ã¼()[]/\?");
 }
 
 void SPBOX_DISPLAY::updateDisplayWithPrintBuffer() {
