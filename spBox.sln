@@ -9,9 +9,9 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "button", "shared\button\but
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "rotenc", "shared\rotenc\rotenc.vcxitems", "{EFDD221D-A43E-41B2-8BEA-B75DE91B7F04}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "com", "shared\COM\COM.vcxitems", "{860E1F80-49D5-43A1-9698-2012AA5C553D}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "com", "shared\com\COM.vcxitems", "{860E1F80-49D5-43A1-9698-2012AA5C553D}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "conf", "shared\CONF\CONF.vcxitems", "{31AE58AD-479B-4A42-8F6F-7C62EA59533E}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "conf", "shared\conf\CONF.vcxitems", "{31AE58AD-479B-4A42-8F6F-7C62EA59533E}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "display", "shared\display\display.vcxitems", "{D0FD1C54-BB4C-48D4-B82A-989B2FC9D6A9}"
 EndProject
@@ -19,12 +19,16 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sensors", "shared\sensors\s
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "missing_str_util", "shared\missing_str_util\missing_str_util.vcxitems", "{A6FADE13-1361-4DAF-9991-81B20D66926E}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sensor_display", "examples\sensor_display\sensor_display.vcxproj", "{9598F65F-08BA-4D58-9F54-26E313730C6D}"
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		shared\CONF\CONF.vcxitems*{31ae58ad-479b-4a42-8f6f-7c62ea59533e}*SharedItemsImports = 9
 		shared\sensors\sensors.vcxitems*{4892ac08-ea89-47d6-a8ae-9d812a5c1465}*SharedItemsImports = 9
 		shared\button\button.vcxitems*{78a1302c-138c-4060-8742-c884fe81c628}*SharedItemsImports = 9
 		shared\COM\COM.vcxitems*{860e1f80-49d5-43a1-9698-2012aa5c553d}*SharedItemsImports = 9
+		shared\display\display.vcxitems*{9598f65f-08ba-4d58-9f54-26e313730c6d}*SharedItemsImports = 4
+		shared\sensors\sensors.vcxitems*{9598f65f-08ba-4d58-9f54-26e313730c6d}*SharedItemsImports = 4
 		shared\missing_str_util\missing_str_util.vcxitems*{a6fade13-1361-4daf-9991-81b20d66926e}*SharedItemsImports = 9
 		shared\button\button.vcxitems*{c5f80730-f44f-4478-bdae-6634efc2ca88}*SharedItemsImports = 4
 		shared\rotenc\rotenc.vcxitems*{c5f80730-f44f-4478-bdae-6634efc2ca88}*SharedItemsImports = 4
@@ -40,6 +44,10 @@ Global
 		{C5F80730-F44F-4478-BDAE-6634EFC2CA88}.Debug|x86.Build.0 = Debug|Win32
 		{C5F80730-F44F-4478-BDAE-6634EFC2CA88}.Release|x86.ActiveCfg = Release|Win32
 		{C5F80730-F44F-4478-BDAE-6634EFC2CA88}.Release|x86.Build.0 = Release|Win32
+		{9598F65F-08BA-4D58-9F54-26E313730C6D}.Debug|x86.ActiveCfg = Debug|Win32
+		{9598F65F-08BA-4D58-9F54-26E313730C6D}.Debug|x86.Build.0 = Debug|Win32
+		{9598F65F-08BA-4D58-9F54-26E313730C6D}.Release|x86.ActiveCfg = Release|Win32
+		{9598F65F-08BA-4D58-9F54-26E313730C6D}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

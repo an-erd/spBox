@@ -1,7 +1,7 @@
 #include <wire.h>
 #include "spbox_sensors.h"
 #include "spbox_display.h"
-#include "user_config.h"
+#include "myconfig.h"
 
 void setup() {
 #ifdef SERIAL_STATUS_OUTPUT

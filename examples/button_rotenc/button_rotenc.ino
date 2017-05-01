@@ -1,5 +1,5 @@
 #include <wire.h>
-#include "user_config.h"
+#include "myconfig.h"
 #include "button.h"
 #include "rotenc.h"
 
