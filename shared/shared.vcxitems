@@ -1,0 +1,35 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup Label="Globals">
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <ItemsProjectGuid>{1c33d5d1-bc8e-4c42-97ec-16d89d6294f0}</ItemsProjectGuid>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(MSBuildThisFileDirectory)</AdditionalIncludeDirectories>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ProjectCapability Include="SourceItemsFromImports" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="$(MSBuildThisFileDirectory)button.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)missing_str_util.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)rotenc.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)spbox_com.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)spbox_conf.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)spbox_display.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)spbox_sensors.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="$(MSBuildThisFileDirectory)button.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)missing_dec.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)missing_str_util.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)rotenc.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)spbox_com.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)spbox_conf.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)spbox_display.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)spbox_sensors.h" />
+  </ItemGroup>
+</Project>
