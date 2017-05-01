@@ -11,7 +11,7 @@ extern "C" {
 using namespace std;
 using namespace placeholders;
 #include "arduino.h"
-#include "user_config.h"
+#include "myconfig.h"
 
 typedef enum RotEncEvent {
 	CCW = -1,

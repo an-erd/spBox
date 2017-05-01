@@ -15,6 +15,7 @@ using namespace placeholders;
 #include <MPU6050.h>
 #include <HMC5883L.h>
 #include <BMP085.h>
+#include "myconfig.h"
 
 typedef enum BMP085Steps {
 	sensorPaused = 0,

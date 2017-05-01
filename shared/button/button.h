@@ -11,6 +11,7 @@ extern "C" {
 using namespace std;
 using namespace placeholders;
 #include "arduino.h"
+#include "myconfig.h"
 
 // for the description see table in button.cpp, before BUTTON::check()
 typedef enum ButtonEvent {

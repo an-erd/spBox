@@ -21,7 +21,7 @@
     <ClInclude Include="__vm\.button_rotenc.vsarduino.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="user_config.h">
+    <ClInclude Include="myconfig.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
