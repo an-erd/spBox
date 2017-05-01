@@ -3,43 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.26403.7
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "spBox", "spBox.vcxproj", "{C5F80730-F44F-4478-BDAE-6634EFC2CA88}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "button_rotenc_example", "examples\button_rotenc_example\button_rotenc_example.vcxproj", "{17E69842-2C0A-46A5-B242-0AB9034C487D}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sensor_display_example", "examples\sensor_display_example\sensor_display_example.vcxproj", "{5D86CFEB-6E18-4DAC-941E-C604DDB0A58F}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "com_conf_example", "examples\com_conf_example\com_conf_example.vcxproj", "{D974B1D0-80AB-4DEB-939E-2A92220F1CDC}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ntpclientlib_example", "examples\ntpclientlib_example\ntpclientlib_example.vcxproj", "{C1018511-02C1-4EE9-AC66-68B984260A7A}"
-EndProject
 Global
-	GlobalSection(SolutionConfigurationPlatforms) = preSolution
-		Debug|x86 = Debug|x86
-		Release|x86 = Release|x86
-	EndGlobalSection
-	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{C5F80730-F44F-4478-BDAE-6634EFC2CA88}.Debug|x86.ActiveCfg = Debug|Win32
-		{C5F80730-F44F-4478-BDAE-6634EFC2CA88}.Debug|x86.Build.0 = Debug|Win32
-		{C5F80730-F44F-4478-BDAE-6634EFC2CA88}.Release|x86.ActiveCfg = Release|Win32
-		{C5F80730-F44F-4478-BDAE-6634EFC2CA88}.Release|x86.Build.0 = Release|Win32
-		{17E69842-2C0A-46A5-B242-0AB9034C487D}.Debug|x86.ActiveCfg = Debug|Win32
-		{17E69842-2C0A-46A5-B242-0AB9034C487D}.Debug|x86.Build.0 = Debug|Win32
-		{17E69842-2C0A-46A5-B242-0AB9034C487D}.Release|x86.ActiveCfg = Release|Win32
-		{17E69842-2C0A-46A5-B242-0AB9034C487D}.Release|x86.Build.0 = Release|Win32
-		{5D86CFEB-6E18-4DAC-941E-C604DDB0A58F}.Debug|x86.ActiveCfg = Debug|Win32
-		{5D86CFEB-6E18-4DAC-941E-C604DDB0A58F}.Debug|x86.Build.0 = Debug|Win32
-		{5D86CFEB-6E18-4DAC-941E-C604DDB0A58F}.Release|x86.ActiveCfg = Release|Win32
-		{5D86CFEB-6E18-4DAC-941E-C604DDB0A58F}.Release|x86.Build.0 = Release|Win32
-		{D974B1D0-80AB-4DEB-939E-2A92220F1CDC}.Debug|x86.ActiveCfg = Debug|Win32
-		{D974B1D0-80AB-4DEB-939E-2A92220F1CDC}.Debug|x86.Build.0 = Debug|Win32
-		{D974B1D0-80AB-4DEB-939E-2A92220F1CDC}.Release|x86.ActiveCfg = Release|Win32
-		{D974B1D0-80AB-4DEB-939E-2A92220F1CDC}.Release|x86.Build.0 = Release|Win32
-		{C1018511-02C1-4EE9-AC66-68B984260A7A}.Debug|x86.ActiveCfg = Debug|Win32
-		{C1018511-02C1-4EE9-AC66-68B984260A7A}.Debug|x86.Build.0 = Debug|Win32
-		{C1018511-02C1-4EE9-AC66-68B984260A7A}.Release|x86.ActiveCfg = Release|Win32
-		{C1018511-02C1-4EE9-AC66-68B984260A7A}.Release|x86.Build.0 = Release|Win32
-	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
