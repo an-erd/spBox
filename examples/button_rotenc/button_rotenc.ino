@@ -15,12 +15,15 @@ void setup() {
 	rotenc.start();
 	button.initialize();
 	button.start();
+
 	button.onButtonChangeEvent([](buttonChangeEvent_t e) {
-		Serial.printf("onButtonChangeEvent; %d\n", e);
+		Serial.printf("onButtonChangeEvent: %d\n", e);
 	});
-	rotenc.onRotencChangeEvent([](rotencChangeEvent_t e) {
-		Serial.printf("onRotEncChangeEvent: %d\n", e);
-	});
+
+	//rotenc.onRotencChangeEvent([](rotencChangeEvent_t e) {
+	//	Serial.printf("onRotEncChangeEvent: %d\n", e);
+	//});
+
 	rotenc.onRotencPosEvent([](rotencPosEvent_t e) {
 		Serial.printf("onRotEncChangeEvent event: %d, diff: %d, pos: %d\n", e.event, e.diff, e.pos);
 	});

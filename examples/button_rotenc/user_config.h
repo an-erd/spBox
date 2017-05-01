@@ -19,5 +19,5 @@
 
 #define SERIAL_STATUS_OUTPUT
 #define DBG_PORT Serial
-#define DEBUG_ROTENC
-#define DEBUG_BUTTON
+//#define DEBUG_ROTENC
+//#define DEBUG_BUTTON
