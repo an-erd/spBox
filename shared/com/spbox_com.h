@@ -14,8 +14,8 @@
 #include <TimeLib.h>
 #include <NtpClientLib.h>
 #include "spbox_conf.h"
-#include "user_config.h""
-#include "credentials.inc"
+#include "myconfig.h""
+#include "credentials.h"
 
 class SPBOX_CONF; // forward decl
 

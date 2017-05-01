@@ -1,6 +1,6 @@
 #include <EEPROM.h>
-#include "user_config.h"
-#include "credentials.inc"
+#include "myconfig.h"
+#include "credentials.h"
 #include "spbox_conf.h"
 #include "spbox_com.h"
 

@@ -4,8 +4,7 @@
 #define _SPBOX_CONF_h
 
 #include "arduino.h"
-#include "user_config.h"
-#include "spbox_conf.h"
+#include "myconfig.h"
 #include "spbox_com.h"
 #include "MPU6050.h"
 

@@ -51,3 +51,6 @@
 /examples/button_rotenc/Release
 /examples/sensor_display/__vm
 /examples/sensor_display/Release
+/examples/com_conf/__vm
+/examples/com_conf/credentials.h
+/examples/com_conf/Release
