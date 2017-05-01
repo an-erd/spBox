@@ -1,9 +1,10 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup Label="Globals">
     <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
     <HasSharedItems>true</HasSharedItems>
     <ItemsProjectGuid>{78a1302c-138c-4060-8742-c884fe81c628}</ItemsProjectGuid>
+    <ItemsProjectName>button</ItemsProjectName>
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
@@ -14,6 +15,9 @@
     <ProjectCapability Include="SourceItemsFromImports" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="$(MSBuildThisFileDirectory)readme.txt" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)button.cpp" />
   </ItemGroup>
-  </Project>
+  <ItemGroup>
+    <ClInclude Include="$(MSBuildThisFileDirectory)button.h" />
+  </ItemGroup>
+</Project>

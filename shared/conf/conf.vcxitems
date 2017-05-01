@@ -1,9 +1,10 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup Label="Globals">
     <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
     <HasSharedItems>true</HasSharedItems>
-    <ItemsProjectGuid>{2b47f6e1-ba0e-4784-b0c6-885af303b1c2}</ItemsProjectGuid>
+    <ItemsProjectGuid>{31ae58ad-479b-4a42-8f6f-7c62ea59533e}</ItemsProjectGuid>
+    <ItemsProjectName>conf</ItemsProjectName>
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
@@ -14,6 +15,9 @@
     <ProjectCapability Include="SourceItemsFromImports" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="$(MSBuildThisFileDirectory)readme.txt" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)spbox_conf.cpp" />
   </ItemGroup>
-  </Project>
+  <ItemGroup>
+    <ClInclude Include="$(MSBuildThisFileDirectory)spbox_conf.h" />
+  </ItemGroup>
+</Project>

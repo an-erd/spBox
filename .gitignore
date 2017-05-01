@@ -47,3 +47,5 @@
 /examples/com_conf_example/Debug
 /examples/ntpclientlib_example/__vm
 /examples/button_rotenc/__vm
+/examples/button_rotenc/Debug
+/examples/button_rotenc/Release

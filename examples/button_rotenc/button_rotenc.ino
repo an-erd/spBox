@@ -1,4 +1,5 @@
 #include <wire.h>
+#include "user_config.h"
 #include "button.h"
 #include "rotenc.h"
 
@@ -7,6 +8,8 @@ void setup() {
 	Serial.begin(115200);
 #endif
 	Wire.begin();
+
+	Serial.println("test");
 
 	rotenc.initialize();
 	rotenc.start();
