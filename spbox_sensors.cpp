@@ -40,6 +40,12 @@ bool SPBOX_SENSORS::initializeBarometer() {
 	DEBUGLOG("BMP180: connection %s\r\n", (barometer_.testConnection() ? "successful" : "failed"));
 }
 
+void SPBOX_SENSORS::initializeVBat()
+{
+	// ADC for battery measurement
+	pinMode(VBAT_PIN, INPUT);
+}
+
 void SPBOX_SENSORS::setFullScaleAccelRange(uint8_t range)
 {
 	accelgyro_.setFullScaleAccelRange(range);

@@ -14,6 +14,8 @@
 #include <TimeLib.h>
 #include <NtpClientLib.h>
 #include "spbox_conf.h"
+#include "user_config.h""
+#include "credentials.inc"
 
 class SPBOX_CONF; // forward decl
 
@@ -28,6 +30,7 @@ public:
 	void disableWlan();
 	void enableWlan();
 	void initializeOta(OTAModes_t ota_mode = OTA_IDE);
+	void checkOta();
 	void initializeMQTT();
 private:
 	WiFiClient				client_;
@@ -43,6 +46,8 @@ private:
 
 	void onSTAGotIP(WiFiEventStationModeGotIP ipInfo);
 	void onSTADisconnected(WiFiEventStationModeDisconnected event_info);
+	void onNTPSyncEvent(NTPSyncEvent_t event);
+
 protected:
 };
 

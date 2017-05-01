@@ -18,9 +18,6 @@ void initialize_GPIO() {
 	pinMode(LED_G, OUTPUT);
 	digitalWrite(LED_R, HIGH);
 	digitalWrite(LED_G, HIGH);
-
-	// ADC for battery measurement
-	pinMode(VBAT_PIN, INPUT);
 }
 
 void setup() {

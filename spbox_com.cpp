@@ -46,6 +46,8 @@ void SPBOX_COM::initializeWlan()
 			std::bind(&SPBOX_COM::onSTAGotIP, this, std::placeholders::_1));
 		disconnectedEventHandler_ = WiFi.onStationModeDisconnected(
 			std::bind(&SPBOX_COM::onSTADisconnected, this, std::placeholders::_1));
+		//NTP.onNTPSyncEvent(
+		//	std::bind(&SPBOX_COM::onNTPSyncEvent, this, std::placeholders::_1));
 
 		wlan_initialized_ = true;
 	}
@@ -81,7 +83,7 @@ void SPBOX_COM::initializeOta(OTAModes_t ota_mode)
 		// ArduinoOTA.setHostname("esp8266-XXX");
 		// ArduinoOTA.setPassword((const char *)"123");
 
-#ifdef DEBUG_SPBOX
+#ifdef DEBUG_COM
 		ArduinoOTA.onStart([]() { Serial.println("Arduino OTA Start"); });
 		ArduinoOTA.onEnd([]() { Serial.println("\nArduino OTA End"); });
 		ArduinoOTA.onProgress([](unsigned int progress, unsigned int total) {
@@ -97,6 +99,13 @@ void SPBOX_COM::initializeOta(OTAModes_t ota_mode)
 #endif
 		ArduinoOTA.begin();
 		ota_initialized_ = true;
+	}
+}
+
+void SPBOX_COM::checkOta()
+{
+	if (conf_->getOtaMode() == OTA_IDE) {
+		ArduinoOTA.handle();
 	}
 }
 
@@ -128,27 +137,28 @@ void SPBOX_COM::initializeMQTT()
 	DEBUGLOG("MQTT: Connected!\r\n");
 }
 
-void SPBOX_COM::onSTAGotIP(WiFiEventStationModeGotIP ipInfo) {
+void SPBOX_COM::onSTAGotIP(WiFiEventStationModeGotIP ipInfo)
+{
 	Serial.printf("Got IP: %s\r\n", ipInfo.ip.toString().c_str());
 	NTP.begin("pool.ntp.org", 1, true);
-	NTP.setInterval(63);
+	NTP.setInterval(5, 30);
 }
 
-void SPBOX_COM::onSTADisconnected(WiFiEventStationModeDisconnected event_info) {
+void SPBOX_COM::onSTADisconnected(WiFiEventStationModeDisconnected event_info)
+{
 	Serial.printf("Disconnected from SSID: %s\n", event_info.ssid.c_str());
 	Serial.printf("Reason: %d\n", event_info.reason);
 	NTP.stop(); // NTP sync can be disabled to avoid sync errors
 }
 
-SPBOX_COM com;
-
-/*
-void processSyncEvent(NTPSyncEvent_t ntpEvent) {
-	if (ntpEvent) {
+void SPBOX_COM::onNTPSyncEvent(NTPSyncEvent_t event)
+{
+	Serial.printf("NTP Sync Event: ");
+	if (event) {
 		Serial.print("Time Sync error: ");
-		if (ntpEvent == noResponse)
+		if (event == noResponse)
 			Serial.println("NTP server not reachable");
-		else if (ntpEvent == invalidAddress)
+		else if (event == invalidAddress)
 			Serial.println("Invalid NTP server address");
 	}
 	else {
@@ -157,9 +167,9 @@ void processSyncEvent(NTPSyncEvent_t ntpEvent) {
 	}
 }
 
-boolean syncEventTriggered = false; // True if a time even has been triggered
-NTPSyncEvent_t ntpEvent; // Last triggered event
+SPBOX_COM com;
 
+/*
 volatile bool	do_update_mqtt;
 
 void check_mqtt()

@@ -54,6 +54,7 @@ public:
 	bool initializeAccelGyro();
 	bool initializeMag();
 	bool initializeBarometer();
+	void initializeVBat();
 
 	void setFullScaleAccelRange(uint8_t range);
 	void setFullScaleGyroRange(uint8_t range);

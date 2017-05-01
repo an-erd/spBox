@@ -37,16 +37,6 @@ void SPBOX_CONF::initialize(bool from_eeprom)
 	//sea_level_pressure_ = 101325;
 }
 
-//void SPBOX_CONF::setWlanInitialized(bool wlan_initialized)
-//{
-//	wlan_initialized_ = wlan_initialized;
-//}
-
-//bool SPBOX_CONF::getWlanInitialized()
-//{
-//	return wlan_initialized_;
-//}
-
 void SPBOX_CONF::setWlanEnabled(bool wlan_enabled)
 {
 	wlan_enabled_ = wlan_enabled;

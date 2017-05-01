@@ -42,3 +42,7 @@
 /examples/sensor_display_example/Release
 /examples/sensor_display_example/Debug
 /credentials.inc
+/examples/com_conf_example/Release
+/examples/com_conf_example/__vm
+/examples/com_conf_example/Debug
+/examples/ntpclientlib_example/__vm
