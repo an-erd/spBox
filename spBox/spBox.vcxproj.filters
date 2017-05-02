@@ -16,6 +16,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="spBox.ino" />
+    <None Include="README.md" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="myconfig.h">

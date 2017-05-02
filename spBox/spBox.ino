@@ -1,3 +1,4 @@
+//#include <GDBStub.h>
 #include <EEPROM.h>
 
 #include "missing_str_util.h"
@@ -80,17 +81,17 @@ void setup() {
 }
 
 void loop() {
-	//display.updatePrintBufferScrTest();
-	//display.updateDisplayWithPrintBuffer();
-	//display.display();
+	display.updatePrintBufferScrTest();
+	display.updateDisplayWithPrintBuffer();
+	display.display();
 
-	//sensors.checkAccelGyroMag();
-	//sensors.checkTempPress();
+	sensors.checkAccelGyroMag();
+	sensors.checkTempPress();
 
-	//button.check();
-	//rotenc.check();
+	button.check();
+	rotenc.check();
 
-	//com.checkOta();
+	com.checkOta();
 
 	//LCDML_run(_LCDML_priority);
 

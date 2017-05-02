@@ -116,25 +116,25 @@ void SPBOX_COM::initializeMQTT()
 	//mqtt_ = new Adafruit_MQTT_Client(&client_, AIO_SERVER, AIO_SERVERPORT, AIO_USERNAME, AIO_KEY);
 	//battery_ = new Adafruit_MQTT_Publish(&mqtt_, AIO_USERNAME "/feeds/battery");
 
-	int8_t ret;
+	//int8_t ret;
 
-	while ((ret = mqtt_->connect()) != 0) {
-		switch (ret) {
-		case 1: Serial.println(F("Wrong protocol")); break;
-		case 2: Serial.println(F("ID rejected")); break;
-		case 3: Serial.println(F("Server unavail")); break;
-		case 4: Serial.println(F("Bad user/pass")); break;
-		case 5: Serial.println(F("Not authed")); break;
-		case 6: Serial.println(F("Failed to subscribe")); break;
-		default: Serial.println(F("Connection failed")); break;
-		}
+	//while ((ret = mqtt_->connect()) != 0) {
+	//	switch (ret) {
+	//	case 1: Serial.println(F("Wrong protocol")); break;
+	//	case 2: Serial.println(F("ID rejected")); break;
+	//	case 3: Serial.println(F("Server unavail")); break;
+	//	case 4: Serial.println(F("Bad user/pass")); break;
+	//	case 5: Serial.println(F("Not authed")); break;
+	//	case 6: Serial.println(F("Failed to subscribe")); break;
+	//	default: Serial.println(F("Connection failed")); break;
+	//	}
 
-		if (ret >= 0)
-			mqtt_->disconnect();
+	//	if (ret >= 0)
+	//		mqtt_->disconnect();
 
-		DEBUGLOG("MQTT: Retrying connection... \r\n");
-	}
-	DEBUGLOG("MQTT: Connected!\r\n");
+	//	DEBUGLOG("MQTT: Retrying connection... \r\n");
+	//}
+	//DEBUGLOG("MQTT: Connected!\r\n");
 }
 
 void SPBOX_COM::onSTAGotIP(WiFiEventStationModeGotIP ipInfo)
