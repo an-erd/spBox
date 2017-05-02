@@ -1,8 +1,6 @@
 #ifndef USER_CONFIG_H
 #define USER_CONFIG_H
 
-//#include "missing_dec.h"
-
 #define STRING_VERSION "0.0.1"
 
 // WLAN
@@ -57,8 +55,6 @@
 #define MPU6050_DEG_RAD_CONV		0.01745329251994329576	// CONST
 #define MPU6050_GAIN_DEG_RAD_CONV	0.00106422515365507901	// MPU6050_DEG_RAD_CONV / MPU6050_G_GAIN
 
-typedef enum OTAMode { OTA_OFF = 0, OTA_IDE = 1, OTA_HTTP_SERVER = 2, } OTAModes_t;
-
 // Output and debug
 #define DBG_PORT Serial
 #define DEBUG_ROTENC
@@ -70,6 +66,8 @@ typedef enum OTAMode { OTA_OFF = 0, OTA_IDE = 1, OTA_HTTP_SERVER = 2, } OTAModes
 #define	SERIAL_STATUS_OUTPUT
 
 #undef	MEASURE_PREFORMANCE
+
+typedef enum OTAMode { OTA_OFF = 0, OTA_IDE = 1, OTA_HTTP_SERVER = 2, } OTAModes_t;
 
 #define IPRINT_LEVEL INFO
 enum debug_level

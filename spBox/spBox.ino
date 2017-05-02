@@ -1,8 +1,10 @@
-#include <arduino.h>
 #include <EEPROM.h>
+
 #include "missing_str_util.h"
+#include "spBox.h"
 #include "myconfig.h"
 #include "credentials.h"
+
 //#include <LCDMenuLib.h>
 #include "spbox_com.h"
 #include "spbox_conf.h"
@@ -25,7 +27,7 @@ void setup() {
 	Serial.begin(115200);
 #endif
 	Wire.begin();
-	//EEPROM.begin(512);
+	EEPROM.begin(512);
 
 	conf.initialize(false);
 	com.setConf(&conf);
@@ -34,26 +36,63 @@ void setup() {
 	com.initializeMQTT();
 	initialize_GPIO();
 
-	//sensors.initializeAccelGyro();
-	//sensors.initializeMag();
-	//sensors.initializeBarometer();
+	display.initializeDisplay();
+	sensors.initializeAccelGyro();
+	sensors.initializeMag();
+	sensors.initializeBarometer();
 
-	//display.begin();
-	//rotenc.initialize();
-	//rotenc.start();
-	//button.initialize();
-	//button.start();
+	sensors.setupUpdateAccelGyroMag();
+	sensors.startUpdateAccelGyroMag();
+	sensors.setupUpdateTempPress();
+	sensors.startUpdateTempPress();
+
+	sensors.onAccelGyroMagEvent([](accelGyroMagEvent_t e) {
+		Serial.printf("onAccelGyroMagEvent event: heading: ");
+		Serial.println(e.heading);
+		//e.ax_f, e.ay_f, e.az_f, e.gx_f, e.gy_f, e.gz_f);
+	});
+
+	sensors.onTempPressAltiEvent([](tempPressAltiEvent_t e) {
+		Serial.printf("onTempPressAltiEvent event: temp: "); Serial.print(e.temperature);
+		Serial.print(", press: "); Serial.print(e.pressure);
+		Serial.print(", alti: "); Serial.println(e.altitude);
+	});
+
+	rotenc.initialize();
+	rotenc.start();
+	button.initialize();
+	button.start();
+
+	button.onButtonChangeEvent([](buttonChangeEvent_t e) {
+		Serial.printf("onButtonChangeEvent: %d\n", e);
+	});
+
+	//rotenc.onRotencChangeEvent([](rotencChangeEvent_t e) {
+	//	Serial.printf("onRotEncChangeEvent: %d\n", e);
+	//});
+
+	rotenc.onRotencPosEvent([](rotencPosEvent_t e) {
+		Serial.printf("onRotEncChangeEvent event: %d, diff: %d, pos: %d\n", e.event, e.diff, e.pos);
+	});
 
 	//LCDML_DISP_groupEnable(_LCDML_G1);
 	//LCDML_setup(_LCDML_BACK_cnt);
 }
 
 void loop() {
-	//button.check();
-	//rotenc.check();
+	display.updatePrintBufferScrTest();
+	display.updateDisplayWithPrintBuffer();
+	display.display();
+
+	sensors.checkAccelGyroMag();
+	sensors.checkTempPress();
+
+	button.check();
+	rotenc.check();
+
+	com.checkOta();
 
 	//LCDML_run(_LCDML_priority);
-	//ArduinoOTA.handle();
 
 	yield();
 }
