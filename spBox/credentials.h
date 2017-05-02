@@ -1,4 +1,0 @@
-#define WLAN_SSID		"W12"
-#define WLAN_PASSWORD	"EYo6Hv4qRO7P1JSpAqZCH6vGVPHwznRWODIIIdhd1pBkeWCYie0knb1pOQ9t2cc"
-#define AIO_USERNAME    "andreaserd"
-#define AIO_KEY			"ee3974dd87d3450490aa2840667e8162"
