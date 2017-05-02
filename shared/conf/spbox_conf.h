@@ -1,12 +1,10 @@
-// spbox_conf.h
-
 #ifndef _SPBOX_CONF_h
 #define _SPBOX_CONF_h
 
-#include "arduino.h"
+//#include "arduino.h"
+#include <MPU6050.h>
 #include "myconfig.h"
 #include "spbox_com.h"
-#include "MPU6050.h"
 
 class SPBOX_CONF
 {

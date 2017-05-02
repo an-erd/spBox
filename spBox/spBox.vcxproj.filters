@@ -15,30 +15,13 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <None Include="com_conf_example.ino" />
-    <None Include="..\..\credentials.inc">
-      <Filter>Header Files</Filter>
-    </None>
+    <None Include="spBox.ino" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\spbox_com.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\spbox_conf.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="..\..\spbox_com.h">
+    <ClInclude Include="__vm\.spBox.vsarduino.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\spbox_conf.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\user_config.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="__vm\.com_conf_example.vsarduino.h">
+    <ClInclude Include="myconfig.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

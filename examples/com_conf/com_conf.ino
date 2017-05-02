@@ -1,8 +1,8 @@
 #include <EEPROM.h>
-#include "myconfig.h"
-#include "credentials.h"
 #include "spbox_conf.h"
 #include "spbox_com.h"
+#include "myconfig.h"
+#include "credentials.h"
 
 void processSyncEvent(NTPSyncEvent_t ntpEvent) {
 	if (ntpEvent) {

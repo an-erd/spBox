@@ -1,5 +1,3 @@
-// spbox_com.h
-
 #ifndef _SPBOX_COM_h
 #define _SPBOX_COM_h
 
@@ -14,7 +12,6 @@
 #include <TimeLib.h>
 #include <NtpClientLib.h>
 #include "spbox_conf.h"
-#include "myconfig.h""
 #include "credentials.h"
 
 class SPBOX_CONF; // forward decl

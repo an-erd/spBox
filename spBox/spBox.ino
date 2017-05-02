@@ -1,15 +1,15 @@
 #include <arduino.h>
-#include <GDBStub.h>
 #include <EEPROM.h>
-//#include <LCDMenuLib.h>
 #include "missing_str_util.h"
-#include "user_config.h"
+#include "myconfig.h"
+#include "credentials.h"
+//#include <LCDMenuLib.h>
+#include "spbox_com.h"
 #include "spbox_conf.h"
+#include "spbox_display.h"
+#include "spbox_sensors.h"
 #include "rotenc.h"
 #include "button.h"
-//#include "spbox_display.h"
-//#include "spbox_sensors.h"
-#include "spbox_com.h"
 //#include "LCDML_DEFS.h"
 
 void initialize_GPIO() {

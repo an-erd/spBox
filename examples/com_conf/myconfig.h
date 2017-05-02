@@ -1,5 +1,5 @@
-#ifndef MYCONFIG_H
-#define MYCONFIG_H
+#ifndef _MYCONFIG_h
+#define _MYCONFIG__
 
 // WLAN
 //#define WLAN_SSID		"..."
@@ -20,7 +20,7 @@
 #define DELAY_MS_TENSEC	10000
 #define DELAY_MS_1MIN	60000
 
-typedef enum OTAMode { OTA_OFF = 0, OTA_IDE = 1, OTA_HTTP_SERVER = 2, } OTAModes_t;
+// typedef enum OTAMode { OTA_OFF = 0, OTA_IDE = 1, OTA_HTTP_SERVER = 2, } OTAModes_t;
 
 // Output and debug
 #define DBG_PORT Serial
@@ -28,4 +28,6 @@ typedef enum OTAMode { OTA_OFF = 0, OTA_IDE = 1, OTA_HTTP_SERVER = 2, } OTAModes
 #define DEBUG_CONF
 #define	SERIAL_STATUS_OUTPUT
 
-#endif // MYCONFIG_H
+typedef enum OTAMode { OTA_OFF = 0, OTA_IDE = 1, OTA_HTTP_SERVER = 2, } OTAModes_t;
+
+#endif
