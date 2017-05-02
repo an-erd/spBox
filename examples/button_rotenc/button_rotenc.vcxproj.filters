@@ -18,10 +18,10 @@
     <None Include="button_rotenc.ino" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="__vm\.button_rotenc.vsarduino.h">
+    <ClInclude Include="myconfig.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="myconfig.h">
+    <ClInclude Include="__vm\.button_rotenc.vsarduino.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

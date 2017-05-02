@@ -18,13 +18,13 @@
     <None Include="com_conf.ino" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="__vm\.com_conf.vsarduino.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="credentials.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="myconfig.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="__vm\.com_conf.vsarduino.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
