@@ -2,7 +2,7 @@
 //
 //
 
-#include "user_config.h"
+#include "myconfig.h"
 #include "spbox_sensors.h"
 
 #ifdef DEBUG_SENSORS
