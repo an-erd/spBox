@@ -56,3 +56,7 @@
 /examples/com_conf/Release
 /spBox/__vm
 /spBox/credentials.h
+/examples/com_conf/Debug
+/examples/sensor_display/Debug
+/spBox/Debug
+/spBox/Release

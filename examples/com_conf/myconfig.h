@@ -1,5 +1,5 @@
 #ifndef _MYCONFIG_h
-#define _MYCONFIG__
+#define _MYCONFIG_h
 
 // WLAN
 //#define WLAN_SSID		"..."
