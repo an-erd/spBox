@@ -1,19 +1,19 @@
 //#include <GDBStub.h>
 #include <EEPROM.h>
+#include <LCDMenuLib.h>
 
 #include "missing_str_util.h"
 #include "spBox.h"
 #include "myconfig.h"
 #include "credentials.h"
 
-#include <LCDMenuLib.h>
-#include "LCDML_DEFS.h"
 #include "spbox_com.h"
 #include "spbox_conf.h"
 #include "spbox_display.h"
 #include "spbox_sensors.h"
 #include "rotenc.h"
 #include "button.h"
+#include "LCDML_DEFS.h"
 
 void initialize_GPIO() {
 	// red and green knob leds
@@ -76,14 +76,16 @@ void setup() {
 		Serial.printf("onRotEncChangeEvent event: %d, diff: %d, pos: %d\n", e.event, e.diff, e.pos);
 	});
 
+	Serial.println(F(_LCDML_VERSION)); // only for examples
+
 	LCDML_DISP_groupEnable(_LCDML_G1);
 	LCDML_setup(_LCDML_BACK_cnt);
 }
 
 void loop() {
-	display.updatePrintBufferScrTest();
-	display.updateDisplayWithPrintBuffer();
-	display.display();
+	//display.updatePrintBufferScrTest();
+	//display.updateDisplayWithPrintBuffer();
+	//display.display();
 
 	sensors.checkAccelGyroMag();
 	sensors.checkTempPress();
