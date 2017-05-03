@@ -103,7 +103,6 @@
     <ClInclude Include="credentials.h" />
     <ClInclude Include="LCDML_DEFS.h" />
     <ClInclude Include="myconfig.h" />
-    <ClInclude Include="spBox.h" />
     <ClInclude Include="__vm\.spBox.vsarduino.h" />
   </ItemGroup>
   <ItemGroup>

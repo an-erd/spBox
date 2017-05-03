@@ -23,9 +23,6 @@
     <None Include="LCDML_FUNC_DISP.ino" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="spBox.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="myconfig.h">
       <Filter>Header Files</Filter>
     </ClInclude>
