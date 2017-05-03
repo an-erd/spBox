@@ -47,46 +47,46 @@ void setup() {
 	sensors.setupUpdateTempPress();
 	sensors.startUpdateTempPress();
 
-	sensors.onAccelGyroMagEvent([](accelGyroMagEvent_t e) {
-		Serial.printf("onAccelGyroMagEvent event: heading: ");
-		Serial.println(e.heading);
-		//e.ax_f, e.ay_f, e.az_f, e.gx_f, e.gy_f, e.gz_f);
-	});
-
-	sensors.onTempPressAltiEvent([](tempPressAltiEvent_t e) {
-		Serial.printf("onTempPressAltiEvent event: temp: "); Serial.print(e.temperature);
-		Serial.print(", press: "); Serial.print(e.pressure);
-		Serial.print(", alti: "); Serial.println(e.altitude);
-	});
-
 	rotenc.initialize();
 	rotenc.start();
 	button.initialize();
 	button.start();
 
 	button.onButtonChangeEvent([](buttonChangeEvent_t e) {
-		Serial.printf("onButtonChangeEvent: %d\n", e);
+		//Serial.printf("onButtonChangeEvent: %d\n", e);
+		switch (e) {
+		case H_L_SHORT:
+			LCDML_BUTTON_enter();
+			break;
+		case H_L_LONG:
+			LCDML_BUTTON_left();
+			break;
+		case H_L_VERYLONG:
+			LCDML_BUTTON_right();
+			break;
+		default:
+			break;
+		}
 	});
-
-	//rotenc.onRotencChangeEvent([](rotencChangeEvent_t e) {
-	//	Serial.printf("onRotEncChangeEvent: %d\n", e);
-	//});
 
 	rotenc.onRotencPosEvent([](rotencPosEvent_t e) {
-		Serial.printf("onRotEncChangeEvent event: %d, diff: %d, pos: %d\n", e.event, e.diff, e.pos);
+		//Serial.printf("onRotEncChangeEvent event: %d, diff: %d, pos: %d\n", e.event, e.diff, e.pos);
+		switch (e.event) {
+		case CW:
+			LCDML_BUTTON_up();
+			break;
+		case CCW:
+			LCDML_BUTTON_down();
+		default:
+			break;
+		}
 	});
-
-	Serial.println(F(_LCDML_VERSION)); // only for examples
 
 	LCDML_DISP_groupEnable(_LCDML_G1);
 	LCDML_setup(_LCDML_BACK_cnt);
 }
 
 void loop() {
-	//display.updatePrintBufferScrTest();
-	//display.updateDisplayWithPrintBuffer();
-	//display.display();
-
 	sensors.checkAccelGyroMag();
 	sensors.checkTempPress();
 

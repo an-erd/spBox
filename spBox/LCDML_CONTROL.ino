@@ -14,9 +14,10 @@
 // (5) Control with an ir remote
 // (6) Control with a youstick
 // (7) Control using own rotary encoder code (INT0..2)
+// (8) Control "none" in this context, done by registered onEvent functions
 // *********************************************************************
 
-#define _LCDML_CONTROL_cfg      7
+#define _LCDML_CONTROL_cfg      8
 
 // therory:
 // "#if" is a preprocessor directive and no error, look here:
@@ -50,8 +51,7 @@ void LCDML_BACK_stable(LCDML_BACKEND_control)
 // *************** (0) CONTROL OVER SERIAL INTERFACE *******************
 // *********************************************************************
 #if(_LCDML_CONTROL_cfg == 0)
-// settings
-# define _LCDML_CONTROL_serial_enter           'e'
+// settings# define _LCDML_CONTROL_serial_enter           'e'
 # define _LCDML_CONTROL_serial_up              'w'
 # define _LCDML_CONTROL_serial_down            's'
 # define _LCDML_CONTROL_serial_left            'a'
@@ -441,6 +441,18 @@ void LCDML_CONTROL_loop()
 	//	LCDML_BUTTON_enter();
 	//	button.LCDML_button_pressed = false;
 	//}
+}
+
+#elif(_LCDML_CONTROL_cfg == 8)
+// *********************************************************************
+// setup
+void LCDML_CONTROL_setup()
+{
+}
+// *********************************************************************
+// loop
+void LCDML_CONTROL_loop()
+{
 }
 
 #else

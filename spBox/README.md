@@ -64,6 +64,34 @@ Temperature issue
 =================
 if the sensor module (gy-87) is turned on for some time, it's getting warm on the PCB and inside the box (~30°C). Find way to deactivate the modle if not necessary.
 
+
+onEvent handler
+===============
+
+sensors.onAccelGyroMagEvent([](accelGyroMagEvent_t e) {
+	Serial.printf("onAccelGyroMagEvent event: heading: ");
+	Serial.println(e.heading);
+	//e.ax_f, e.ay_f, e.az_f, e.gx_f, e.gy_f, e.gz_f);
+});
+
+sensors.onTempPressAltiEvent([](tempPressAltiEvent_t e) {
+	Serial.printf("onTempPressAltiEvent event: temp: "); Serial.print(e.temperature);
+	Serial.print(", press: "); Serial.print(e.pressure);
+	Serial.print(", alti: "); Serial.println(e.altitude);
+});
+
+button.onButtonChangeEvent([](buttonChangeEvent_t e) {
+	Serial.printf("onButtonChangeEvent: %d\n", e);
+});
+
+rotenc.onRotencChangeEvent([](rotencChangeEvent_t e) {
+	Serial.printf("onRotEncChangeEvent: %d\n", e);
+});
+
+rotenc.onRotencPosEvent([](rotencPosEvent_t e) {
+	Serial.printf("onRotEncChangeEvent event: %d, diff: %d, pos: %d\n", e.event, e.diff, e.pos);
+});
+
 ___________________________________________________________
 Crash:
 
