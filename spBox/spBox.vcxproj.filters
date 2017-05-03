@@ -17,18 +17,25 @@
   <ItemGroup>
     <None Include="spBox.ino" />
     <None Include="README.md" />
+    <None Include="LCDML_CONTROL.ino" />
+    <None Include="LCDML_DISP.ino" />
+    <None Include="LCDML_FUNC_BACKEND.ino" />
+    <None Include="LCDML_FUNC_DISP.ino" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="myconfig.h">
+    <ClInclude Include="spBox.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="__vm\.spBox.vsarduino.h">
+    <ClInclude Include="myconfig.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="credentials.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="spBox.h">
+    <ClInclude Include="LCDML_DEFS.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="__vm\.spBox.vsarduino.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

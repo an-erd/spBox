@@ -6,14 +6,14 @@
 #include "myconfig.h"
 #include "credentials.h"
 
-//#include <LCDMenuLib.h>
+#include <LCDMenuLib.h>
+#include "LCDML_DEFS.h"
 #include "spbox_com.h"
 #include "spbox_conf.h"
 #include "spbox_display.h"
 #include "spbox_sensors.h"
 #include "rotenc.h"
 #include "button.h"
-//#include "LCDML_DEFS.h"
 
 void initialize_GPIO() {
 	// red and green knob leds
@@ -76,8 +76,8 @@ void setup() {
 		Serial.printf("onRotEncChangeEvent event: %d, diff: %d, pos: %d\n", e.event, e.diff, e.pos);
 	});
 
-	//LCDML_DISP_groupEnable(_LCDML_G1);
-	//LCDML_setup(_LCDML_BACK_cnt);
+	LCDML_DISP_groupEnable(_LCDML_G1);
+	LCDML_setup(_LCDML_BACK_cnt);
 }
 
 void loop() {
@@ -93,7 +93,7 @@ void loop() {
 
 	com.checkOta();
 
-	//LCDML_run(_LCDML_priority);
+	LCDML_run(_LCDML_priority);
 
 	yield();
 }
