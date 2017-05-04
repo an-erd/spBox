@@ -26,7 +26,7 @@ LCDML_DISP_add(4, _LCDML_G1, LCDML_root_1_1_2, 1, "Max. Werte", LCDML_FUNC_senso
 LCDML_DISP_add(5, _LCDML_G1, LCDML_root_1_1_2, 2, "Reset max. Werte", LCDML_FUNC_sensor_min_max_reset);
 LCDML_DISP_add(6, _LCDML_G1, LCDML_root_1_1_2, 3, "Zurueck", LCDML_FUNC_back);
 LCDML_DISP_add(7, _LCDML_G1, LCDML_root_1_1, 3, "Temp/Druck/Höhe", LCDML_FUNC);
-LCDML_DISP_add(8, _LCDML_G1, LCDML_root_1_1_3, 1, "Overview", LCDML_FUNC);
+LCDML_DISP_add(8, _LCDML_G1, LCDML_root_1_1_3, 1, "Overview", LCDML_FUNC_speed);
 LCDML_DISP_add(9, _LCDML_G1, LCDML_root_1_1_3, 2, "Zurueck", LCDML_FUNC_back);
 LCDML_DISP_add(10, _LCDML_G1, LCDML_root_1_1, 4, "Kompass", LCDML_FUNC);
 LCDML_DISP_add(11, _LCDML_G1, LCDML_root_1_1_4, 1, "Overview", LCDML_FUNC);

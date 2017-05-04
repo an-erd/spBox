@@ -1,10 +1,7 @@
 void LCDML_lcd_menu_display()
 {
-	display.clearDisplay();
-	display.setTextColor(_LCDML_TEXT_COLOR);
-	display.setTextSize(_LCDML_FONT_SIZE);
-
 	if (LCDML_DISP_update()) {
+		display.clearDisplay();
 		uint8_t n_max = (LCDML.getChilds() >= _LCDML_rows) ? ((_LCDML_rows > _LCDML_rows_max) ? _LCDML_rows : _LCDML_rows_max) : (LCDML.getChilds());
 		for (uint8_t n = 0; n < n_max; n++)
 		{
@@ -40,9 +37,9 @@ void LCDML_lcd_menu_display()
 				display.fillRect(_LCDML_lcd_w - (_LCDML_scrollbar_w - 1), (scrollbar_block_length * LCDML.getCursorPosAbs() + 1), (_LCDML_scrollbar_w - 2), scrollbar_block_length, _LCDML_TEXT_COLOR);
 			}
 		}
+		display.display();
 	}
 
-	display.display();
 	LCDML_DISP_update_end();
 }
 

@@ -57,8 +57,8 @@
 
 // Output and debug
 #define DBG_PORT Serial
-#define DEBUG_ROTENC
-#define DEBUG_BUTTON
+//#define DEBUG_ROTENC
+//#define DEBUG_BUTTON
 #define DEBUG_SENSORS
 #define DEBUG_DISPLAY
 #define DEBUG_COM

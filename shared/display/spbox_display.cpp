@@ -131,6 +131,14 @@ void SPBOX_DISPLAY::updateDisplayScr3() {
 	display();
 }
 
+void SPBOX_DISPLAY::updatePrintBufferScr4_speed(long val)
+{
+	snprintf(displaybuffer_[0], 21, "Alt %d", val);
+	snprintf(displaybuffer_[1], 21, "");
+	snprintf(displaybuffer_[2], 21, "");
+	snprintf(displaybuffer_[3], 21, "");
+}
+
 void SPBOX_DISPLAY::updatePrintBufferScrTest()
 {
 	snprintf(displaybuffer_[0], 21, "123456789012345678901");

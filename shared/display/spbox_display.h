@@ -17,6 +17,7 @@ public:
 	void updatePrintBufferScr1();
 	void updatePrintBufferScr2();
 	void updateDisplayScr3();
+	void updatePrintBufferScr4_speed(long val);
 	void updatePrintBufferScrTest();
 
 	void updateDisplayWithPrintBuffer();
