@@ -1,7 +1,3 @@
-//
-//
-//
-
 #include "rotenc.h"
 
 #ifdef DEBUG_ROTENC
@@ -26,9 +22,6 @@ void ROTENC::initialize()
 	pinMode(ENCODER_PIN_B, INPUT_PULLUP);
 	rotary_half_steps_ = 0;
 	actualRotaryTicks = 0;
-
-	//LCDML_rotenc_value = 0;
-	//LCDML_rotenc_value_history = 0;
 }
 
 void ROTENC::start()
@@ -104,8 +97,6 @@ bool ROTENC::check() {
 		return false;
 
 	actualRotaryTicks = tempTicks;
-	//LCDML_rotenc_value = actualRotaryTicks;
-
 	rotencPosEvent_t temp_event;
 	temp_event.event = (diff > 0 ? CW : CCW);
 	temp_event.diff = diff;

@@ -1,7 +1,3 @@
-//
-//
-//
-
 #include "button.h"
 #include "user_config.h"
 
@@ -22,6 +18,7 @@ BUTTON::BUTTON()
 
 void BUTTON::initialize()
 {
+	DEBUGLOG("button::initialize()");
 	pinMode(ENCODER_SW, OUTPUT);
 	digitalWrite(ENCODER_SW, 0);
 	pinMode(ENCODER_SW, INPUT_PULLUP);
@@ -29,6 +26,7 @@ void BUTTON::initialize()
 
 void BUTTON::start()
 {
+	DEBUGLOG("button::start()");
 	attachInterrupt(digitalPinToInterrupt(ENCODER_SW), buttonInt0, CHANGE);
 	int_signal_ = digitalRead(ENCODER_SW);
 	int_history_ = int_signal_;
@@ -37,6 +35,7 @@ void BUTTON::start()
 
 void BUTTON::stop()
 {
+	DEBUGLOG("button::stop()");
 	detachInterrupt(digitalPinToInterrupt(ENCODER_SW));
 }
 
@@ -46,6 +45,7 @@ void BUTTON::onButtonChangeEvent(onButtonChangeEvent_t handler)
 }
 
 void BUTTON::isrInt0() {
+	// ISR no debug output
 	volatile uint32_t time_diff;
 	time_diff = millis() - int_time_;
 	if (time_diff < THRESHOLD)

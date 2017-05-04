@@ -67,7 +67,6 @@ if the sensor module (gy-87) is turned on for some time, it's getting warm on th
 
 onEvent handler
 ===============
-
 sensors.onAccelGyroMagEvent([](accelGyroMagEvent_t e) {
 	Serial.printf("onAccelGyroMagEvent event: heading: ");
 	Serial.println(e.heading);
@@ -92,29 +91,37 @@ rotenc.onRotencPosEvent([](rotencPosEvent_t e) {
 	Serial.printf("onRotEncChangeEvent event: %d, diff: %d, pos: %d\n", e.event, e.diff, e.pos);
 });
 
-___________________________________________________________
-Crash:
-
 
 ___________________________________________________________
 TODO:
-- get rid of this crucial stuff
-	rotenc.actualRotaryTicks %= MAX_NUMBER_DISPLAY_SCREENS;		// TODO different screens hard coded uuuugh.
-- handle OTA
-- power saving, in particular
-	* sleep modes
-	* shut down and restart
-	* at least minimize GY-87 power consumption, desolder voltage regulator, LED
-	* maybe use a switch and do a EN->GND for the voltage regulator on the HUZZAH FEATHER
+- file header
+- licence
+- make gyro range scale configurable
+- make accel range scale configurable
+- get NTP working, in particular check, that the time is fetched in the background
+- complete menu structure and backend functions
+- get QR code working
+- get multiple WLANs working
+- functional class method callback, i.e. fetch commit from 2.4.x ESP core tree, get rid of wrapper function, see https://github.com/esp8266/Arduino/pull/2745
+- get MQTT running, incl keepalive
+- implement LED usage
+- check EEPROM usage
+- improve/check OTA update, security w/password and certificate
+- naming conventions
+- file name and solution/project update
+- make barometer / altitude configurable
+- nice startup splash screen
+- get Umlaute working
+- power saving, in particular sleep modes w/PIN16, shut down and restart, at least minimize GY-87 power consumption, desolder voltage regulator, LED
+- menu idle screen
+- WLAN honeypot ;-)
+- OTA progress bar/screen, and implement other OTA method
 
-Use interrupts/C++ methods:
-https://github.com/esp8266/Arduino/pull/2745
+
 ___________________________________________________________
 Power saving
 * https://www.i2cdevlib.com/docs/html/class_m_p_u6050.html, e.g. void MPU6050::setSleepEnabled, ...
 * PCB stuff, see https://bengoncalves.wordpress.com/2015/10/02/arduino-power-down-mode-with-accelerometer-compass-and-pressure-sensor/
-
-
 see also:
 https://courses.cs.washington.edu/courses/cse466/14au/labs/l4/MPU6050BasicExample.ino, in particular "void LowPowerAccelOnlyMPU6050()"
 
@@ -128,85 +135,6 @@ https://courses.cs.washington.edu/courses/cse466/14au/labs/l4/MPU6050BasicExampl
 // The code for the rotary encoder has been copied from http://playground.arduino.cc/Main/RotaryEncoders,
 // Int0 & Int1 example using bitRead() with debounce handling and true Rotary Encoder pulse tracking, J.Carter(of Earth)
 //
+___________________________________________________________
+Crash:
 
-
-void test_macros(void)
-{
-	static unsigned long i = 0;
-
-	i++;
-	iprintf(INFO, "Debug macro test run %lu\n\n", i);
-	iprintf(DEBUG, "This is a debug message.\n");
-	iprintf(WARNING, "This is a warning.\n");
-	iprintf(ERROR, "This is an error\n\n");
-}
-
-void BUTTON::check() {
-	//	ArduinoOTA.handle();		// TODO
-
-	if (!changed_)
-		return;
-
-	if (int_signal_) {
-		if (!button.time_long_diff_) {
-			// kurz LOW -> HIGH
-#ifdef SERIAL_STATUS_OUTPUT
-			Serial.println(" Button: kurz LOW jetzt HIGH");
-#endif
-		}
-		else {
-			// lange LOW -> HIGH
-#ifdef SERIAL_STATUS_OUTPUT
-			Serial.println(" Button: lange LOW jetzt HIGH");
-#endif
-		}
-	}
-	else {
-		if (!time_long_diff_) {
-			// kurz HIGH -> LOW
-#ifdef SERIAL_STATUS_OUTPUT
-			Serial.println(" Button: kurz HIGH jetzt LOW");
-#endif
-			//if (rotenc.actualRotaryTicks == DISPLAY_SCR_MAXVALUES) {
-			//	reset_min_max_accelgyro();
-			//}
-			LCDML_button_pressed = true;
-		}
-		else {
-			if (!time_verylong_diff_) {
-				// lange HIGH ->  LOW
-#ifdef SERIAL_STATUS_OUTPUT
-				Serial.println(" Button: lange HIGH jetzt LOW");
-#endif
-
-				switch_WLAN((gConfig.wlan_enabled ? false : true));
-			}
-			else
-			{
-#ifdef SERIAL_STATUS_OUTPUT
-				Serial.println(" Button: very lange HIGH jetzt LOW");
-#endif
-			}
-		}
-	}
-	changed_ = false;
-	time_long_diff_ = false;
-	time_verylong_diff_ = false;
-}
-
-
-
-	if ((millis() - last) > 5100) {
-		//Serial.println(millis() - last);
-		last = millis();
-		Serial.print(i); Serial.print(" ");
-		Serial.print(NTP.getTimeDateString()); Serial.print(" ");
-		Serial.print(NTP.isSummerTime() ? "Summer Time. " : "Winter Time. ");
-		Serial.print("WiFi is ");
-		Serial.print(WiFi.isConnected() ? "connected" : "not connected"); Serial.print(". ");
-		Serial.print("Uptime: ");
-		Serial.print(NTP.getUptimeString()); Serial.print(" since ");
-		Serial.println(NTP.getTimeDateString(NTP.getFirstSync()).c_str());
-
-		i++;
-	}

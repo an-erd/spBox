@@ -1,9 +1,11 @@
-//
-//
-//
-
 #include <EEPROM.h>
 #include "spbox_conf.h"
+
+#ifdef DEBUG_CONF
+#define DEBUGLOG(...) DBG_PORT.printf(__VA_ARGS__)
+#else
+#define DEBUGLOG(...)
+#endif
 
 typedef union
 {
@@ -19,6 +21,7 @@ SPBOX_CONF::SPBOX_CONF()
 
 void SPBOX_CONF::initialize(bool from_eeprom)
 {
+	DEBUGLOG("SPBOX_CONF::Initialize");
 	if (from_eeprom) {
 		readConfFromEEPROM();
 		return;
@@ -87,8 +90,20 @@ void SPBOX_CONF::setGyroRangeScale(float gyro_range_scale)
 	gyro_range_scale_ = gyro_range_scale;
 }
 
+uint8_t SPBOX_CONF::getAccelRangeScale()
+{
+	return accel_range_scale_;
+}
+
+uint8_t SPBOX_CONF::getGyroRangeScale()
+{
+	return gyro_range_scale_;
+}
+
 bool SPBOX_CONF::writeConfToEEPROM()
 {
+	DEBUGLOG("SPBOX_CONF::writeConfToEEPROM()\n");
+
 	int i = 0;
 	char seq;
 	float_char_conversion temp;
@@ -113,6 +128,8 @@ bool SPBOX_CONF::writeConfToEEPROM()
 
 void SPBOX_CONF::readConfFromEEPROM()
 {
+	DEBUGLOG("SPBOX_CONF::readConfFromEEPROM()\n");
+
 	int i = 0;
 	int seq;
 	float_char_conversion temp;
@@ -133,6 +150,7 @@ void SPBOX_CONF::readConfFromEEPROM()
 
 bool SPBOX_CONF::clearEEPROM(char seq)
 {
+	DEBUGLOG("SPBOX_CONF::clearEEPROM()\n");
 	for (int i = 0; i < 13; i++) { // 12 values + 1 free space
 		EEPROM.write(i, 0);
 	}

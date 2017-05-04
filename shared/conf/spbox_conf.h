@@ -1,7 +1,6 @@
 #ifndef _SPBOX_CONF_h
 #define _SPBOX_CONF_h
 
-//#include "arduino.h"
 #include <MPU6050.h>
 #include "myconfig.h"
 #include "spbox_com.h"
@@ -26,6 +25,9 @@ public:
 
 	void setAccelRangeScale(uint8_t accel_range_scale = MPU6050_ACCEL_FS_16);
 	void setGyroRangeScale(float gyro_range_scale = MPU6050_GYRO_FS_2000);
+	uint8_t getAccelRangeScale();
+	uint8_t getGyroRangeScale();
+
 	//	void setAccelGyroOrientation(uint8_t accel_gyro_orientation = 0);
 
 	bool writeConfToEEPROM();
@@ -38,7 +40,7 @@ private:
 	bool		ntp_enabled_;
 	bool		aio_enabled_;
 	uint8_t		accel_range_scale_;
-	float		gyro_range_scale_;
+	uint8_t		gyro_range_scale_;
 	//	uint8_t		accel_gyro_orientation_;
 	//	uint8_t		mag_orientation_;
 	//bool		use_configured_sea_level_;

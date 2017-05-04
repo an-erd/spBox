@@ -1,7 +1,7 @@
 #ifndef USER_CONFIG_H
 #define USER_CONFIG_H
 
-#define STRING_VERSION "0.0.1"
+#define STRING_VERSION "0.1.0"
 
 // WLAN
 //#define WLAN_SSID		"..."
@@ -15,7 +15,6 @@
 #define AIO_ENABLED		1
 
 // Measure battery
-#define VBAT_ENABLED	1
 #define VBAT_PIN		A0
 
 // Rotary Encoder and switch
@@ -57,31 +56,17 @@
 
 // Output and debug
 #define DBG_PORT Serial
-//#define DEBUG_ROTENC
-//#define DEBUG_BUTTON
-#define DEBUG_SENSORS
-#define DEBUG_DISPLAY
-#define DEBUG_COM
-#define DEBUG_CONF
 #define	SERIAL_STATUS_OUTPUT
 
-#undef	MEASURE_PREFORMANCE
+//#define DEBUG_BUTTON
+//#define DEBUG_COM
+//#define DEBUG_CONF
+//#define DEBUG_DISPLAY
+//#define DEBUG_LCDML
+//#define DEBUG_ROTENC
+//#define DEBUG_SENSORS
+//#define DEBUG_SPBOX
 
 typedef enum OTAMode { OTA_OFF = 0, OTA_IDE = 1, OTA_HTTP_SERVER = 2, } OTAModes_t;
-
-#define IPRINT_LEVEL INFO
-enum debug_level
-{
-	DEBUG,
-	INFO,
-	WARNING,
-	ERROR
-};
-
-//#define iprintf(dlevel, ...) if (dlevel >= IPRINT_LEVEL) ets_printf(__VA_ARGS__)
-//
-//#if (SSD1306_LCDHEIGHT != 32)
-//#error("Height incorrect, please fix Adafruit_SSD1306.h!");
-//#endif
 
 #endif //USER_CONFIG_H

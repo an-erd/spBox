@@ -1,5 +1,4 @@
-void LCDML_lcd_menu_display()
-{
+void LCDML_lcd_menu_display() {
 	if (LCDML_DISP_update()) {
 		display.clearDisplay();
 		uint8_t n_max = (LCDML.getChilds() >= _LCDML_rows) ? ((_LCDML_rows > _LCDML_rows_max) ? _LCDML_rows : _LCDML_rows_max) : (LCDML.getChilds());

@@ -1,7 +1,3 @@
-//
-//
-//
-
 #include "myconfig.h"
 #include "spbox_sensors.h"
 
@@ -24,11 +20,13 @@ SPBOX_SENSORS::SPBOX_SENSORS()
 {
 }
 
-bool SPBOX_SENSORS::initializeAccelGyro() {
+bool SPBOX_SENSORS::initializeAccelGyro(uint8_t accel_range, uint8_t gyro_range) {
 	accelgyro_.setI2CMasterModeEnabled(false);
 	accelgyro_.setI2CBypassEnabled(true);
 	accelgyro_.setSleepEnabled(false);
 	accelgyro_.initialize();
+	setFullScaleAccelRange(accel_range);
+	setFullScaleGyroRange(gyro_range);
 	DEBUGLOG("MPU6050: connection %s\r\n", (accelgyro_.testConnection() ? "successful" : "failed"));
 }
 bool SPBOX_SENSORS::initializeMag() {

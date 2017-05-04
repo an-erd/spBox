@@ -52,7 +52,7 @@ class SPBOX_SENSORS
 public:
 	SPBOX_SENSORS();
 
-	bool initializeAccelGyro();
+	bool initializeAccelGyro(uint8_t accel_range, uint8_t gyro_range);
 	bool initializeMag();
 	bool initializeBarometer();
 	void initializeVBat();

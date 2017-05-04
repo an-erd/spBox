@@ -1,11 +1,5 @@
-//
-//
-//
-
 #include "spbox_com.h"
 
-#define DBG_PORT Serial
-#define DEBUG_COM
 #ifdef DEBUG_COM
 #define DEBUGLOG(...) DBG_PORT.printf(__VA_ARGS__)
 #else
@@ -36,7 +30,7 @@ void SPBOX_COM::initializeWlan()
 	if (conf_->getWlanEnabled()) {
 		WiFi.mode(WIFI_STA);
 		WiFi.begin(WLAN_SSID, WLAN_PASSWORD);
-#ifdef DEBUG_SPBOX
+#ifdef DEBUG_COM
 		WiFi.onEvent([](WiFiEvent_t e) {
 			Serial.printf("Event wifi -----> %d\n", e);
 		});
@@ -104,6 +98,7 @@ void SPBOX_COM::initializeOta(OTAModes_t ota_mode)
 
 void SPBOX_COM::checkOta()
 {
+	DEBUGLOG("checkOta()\r\n");
 	if (conf_->getOtaMode() == OTA_IDE) {
 		ArduinoOTA.handle();
 	}
@@ -139,20 +134,27 @@ void SPBOX_COM::initializeMQTT()
 
 void SPBOX_COM::onSTAGotIP(WiFiEventStationModeGotIP ipInfo)
 {
+	DEBUGLOG("Got IP: %s\r\n", ipInfo.ip.toString().c_str());
+#ifdef DEBUG_COM
 	Serial.printf("Got IP: %s\r\n", ipInfo.ip.toString().c_str());
+#endif
 	NTP.begin("pool.ntp.org", 1, true);
 	NTP.setInterval(5, 30);
 }
 
 void SPBOX_COM::onSTADisconnected(WiFiEventStationModeDisconnected event_info)
 {
+	DEBUGLOG("Disconnected from SSID: %s, Reason: %d\n", event_info.ssid.c_str(), event_info.reason);
+#ifdef DEBUG_COM
 	Serial.printf("Disconnected from SSID: %s\n", event_info.ssid.c_str());
 	Serial.printf("Reason: %d\n", event_info.reason);
+#endif
 	NTP.stop(); // NTP sync can be disabled to avoid sync errors
 }
 
 void SPBOX_COM::onNTPSyncEvent(NTPSyncEvent_t event)
 {
+#ifdef DEBUG_COM
 	Serial.printf("NTP Sync Event: ");
 	if (event) {
 		Serial.print("Time Sync error: ");
@@ -165,34 +167,30 @@ void SPBOX_COM::onNTPSyncEvent(NTPSyncEvent_t event)
 		Serial.print("Got NTP time: ");
 		Serial.println(NTP.getTimeDateString(NTP.getLastNTPSync()));
 	}
+#endif
 }
 
 SPBOX_COM com;
 
-/*
-volatile bool	do_update_mqtt;
-
-void check_mqtt()
-{
-	if (!do_update_mqtt)
-		return;
-
-	do_update_mqtt = false;
-
-	updateVbat();
-
-	if (!battery.publish(g_vbatADC)) {
-#ifdef SERIAL_STATUS_OUTPUT
-		Serial.println(F("Update vbat Failed."));
-#endif
-	}
-	else {
-#ifdef SERIAL_STATUS_OUTPUT
-		Serial.println(F("Update vbat Success!"));
-#endif
-	}
-}
-
-// e1 = WiFi.onStationModeGotIP(std::bind(&IotHttpClass::onSTAGotIP, HTTP,std::placeholders::_1));
-
-*/
+//volatile bool	do_update_mqtt;
+//
+//void check_mqtt()
+//{
+//	if (!do_update_mqtt)
+//		return;
+//
+//	do_update_mqtt = false;
+//
+//	updateVbat();
+//
+//	if (!battery.publish(g_vbatADC)) {
+//#ifdef SERIAL_STATUS_OUTPUT
+//		Serial.println(F("Update vbat Failed."));
+//#endif
+//	}
+//	else {
+//#ifdef SERIAL_STATUS_OUTPUT
+//		Serial.println(F("Update vbat Success!"));
+//#endif
+//	}
+//}

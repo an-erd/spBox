@@ -4,7 +4,6 @@
 #include "missing_str_util.h"
 #include "myconfig.h"
 #include "credentials.h"
-
 #include "spbox_com.h"
 #include "spbox_conf.h"
 #include "spbox_display.h"
@@ -36,7 +35,7 @@ void setup() {
 	initialize_GPIO();
 
 	display.initializeDisplay();
-	sensors.initializeAccelGyro();
+	sensors.initializeAccelGyro(conf.getAccelRangeScale(), conf.getGyroRangeScale());
 	sensors.initializeMag();
 	sensors.initializeBarometer();
 
@@ -51,7 +50,6 @@ void setup() {
 	button.start();
 
 	button.onButtonChangeEvent([](buttonChangeEvent_t e) {
-		//Serial.printf("onButtonChangeEvent: %d\n", e);
 		switch (e) {
 		case H_L_SHORT:
 			LCDML_BUTTON_enter();
@@ -66,9 +64,7 @@ void setup() {
 			break;
 		}
 	});
-
 	rotenc.onRotencPosEvent([](rotencPosEvent_t e) {
-		//Serial.printf("onRotEncChangeEvent event: %d, diff: %d, pos: %d\n", e.event, e.diff, e.pos);
 		switch (e.event) {
 		case CW:
 			LCDML_BUTTON_up();
@@ -87,13 +83,9 @@ void setup() {
 void loop() {
 	sensors.checkAccelGyroMag();
 	sensors.checkTempPress();
-
 	button.check();
 	rotenc.check();
-
 	com.checkOta();
-
 	LCDML_run(_LCDML_priority);
-
 	yield();
 }

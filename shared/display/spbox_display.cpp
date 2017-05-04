@@ -1,7 +1,3 @@
-//
-//
-//
-
 #include <ESP8266WiFi.h>
 #include "missing_str_util.h"
 #include "spbox_display.h"
@@ -15,7 +11,6 @@ void SPBOX_DISPLAY::initializeDisplay() {
 	setTextSize(1);
 	setTextColor(WHITE);
 	display();
-	//display_struct.update_display = true;	// TODO
 }
 
 void SPBOX_DISPLAY::updatePrintBufferScr1() {

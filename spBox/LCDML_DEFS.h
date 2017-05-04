@@ -1,19 +1,18 @@
 #pragma once
 
-#define _LCDML_DISP_cfg_button_press_time		200    // button press time in ms
-#define _LCDML_TEXT_COLOR						WHITE
-#define _LCDML_FONT_SIZE						1
-#define _LCDML_FONT_W							(6*_LCDML_FONT_SIZE)             // font width
-#define _LCDML_FONT_H							(8*_LCDML_FONT_SIZE)             // font heigt
-#define _LCDML_lcd_w							128            // lcd width
-#define _LCDML_lcd_h							32             // lcd height
-#define _LCDML_cols_max							(_LCDML_lcd_w/_LCDML_FONT_W)
-#define _LCDML_rows_max							(_LCDML_lcd_h/_LCDML_FONT_H)
-#define _LCDML_cols								20                   // max cols
-#define _LCDML_rows								_LCDML_rows_max  // max rows
-#define _LCDML_scrollbar_w						6  // scrollbar width
-#define _LCDML_DISP_cols						_LCDML_cols
-#define _LCDML_DISP_rows						_LCDML_rows
+#define _LCDML_TEXT_COLOR		WHITE
+#define _LCDML_FONT_SIZE		1
+#define _LCDML_FONT_W			(6*_LCDML_FONT_SIZE)
+#define _LCDML_FONT_H			(8*_LCDML_FONT_SIZE)
+#define _LCDML_lcd_w			128
+#define _LCDML_lcd_h			32
+#define _LCDML_cols_max			(_LCDML_lcd_w/_LCDML_FONT_W)
+#define _LCDML_rows_max			(_LCDML_lcd_h/_LCDML_FONT_H)
+#define _LCDML_cols				20
+#define _LCDML_rows				_LCDML_rows_max
+#define _LCDML_scrollbar_w		6
+#define _LCDML_DISP_cols		_LCDML_cols
+#define _LCDML_DISP_rows		_LCDML_rows
 
 // LCDMenuLib_add(id, group, prev_layer_element, new_element_num, lang_char_array, callback_function)
 #define _LCDML_DISP_cnt    35
