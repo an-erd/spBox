@@ -134,12 +134,27 @@ void SPBOX_DISPLAY::updatePrintBufferScr4_speed(long val)
 	snprintf(displaybuffer_[3], 21, "");
 }
 
+void SPBOX_DISPLAY::updatePrintBufferScr4_charmap(uint8_t val)
+{
+	snprintf(displaybuffer_[0], 21, "Char %d", val);
+	snprintf(displaybuffer_[1], 21, "%c", val);
+	snprintf(displaybuffer_[2], 21, "");
+	snprintf(displaybuffer_[3], 21, "");
+}
+
 void SPBOX_DISPLAY::updatePrintBufferScrTest()
 {
 	snprintf(displaybuffer_[0], 21, "123456789012345678901");
 	snprintf(displaybuffer_[1], 21, "abcdefghijklmnopqrstu");
 	snprintf(displaybuffer_[2], 21, "ABCDEFGHIJKLMNOPQRSTU");
 	snprintf(displaybuffer_[3], 21, "öäü()[]/\?");
+}
+void SPBOX_DISPLAY::updatePrintBufferScrTest2()
+{
+	snprintf(displaybuffer_[0], 21, "Zur\81ck");
+	snprintf(displaybuffer_[1], 21, "Zur\81 ck");
+	snprintf(displaybuffer_[2], 21, "");
+	snprintf(displaybuffer_[3], 21, "");
 }
 
 void SPBOX_DISPLAY::updateDisplayWithPrintBuffer() {

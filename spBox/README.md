@@ -111,11 +111,12 @@ TODO:
 - file name and solution/project update
 - make barometer / altitude configurable
 - nice startup splash screen
-- get Umlaute working
 - power saving, in particular sleep modes w/PIN16, shut down and restart, at least minimize GY-87 power consumption, desolder voltage regulator, LED
 - menu idle screen
 - WLAN honeypot ;-)
 - OTA progress bar/screen, and implement other OTA method
+
+done - get Umlaute working
 
 
 ___________________________________________________________
@@ -138,3 +139,48 @@ https://courses.cs.washington.edu/courses/cse466/14au/labs/l4/MPU6050BasicExampl
 ___________________________________________________________
 Crash:
 
+___________________________________________________________
+Menu:
+
+Sensor
+	Overview
+	Accel/Gyro Max. Werte		Reset: lange drücken
+	Temp/Druck/Höhe
+	Kompass
+	Zurueck
+Status
+	WLAN/Batterie/NTP
+	MQTT
+	Zurueck
+Konfiguration
+	WLAN
+	Sensor
+		Accel
+		Gyro
+		Kompass
+		Höhe
+		Zurueck
+	MQTT
+	EEPROM
+		Save to EEPROM
+		Read from EEPROM
+		Zurueck
+	Zurueck
+Information
+	Besitzer
+	QR
+	Sensor-Ausrichtung
+		Accel
+		Gyro
+		Kompass
+		Zurueck
+	Zurueck
+
+
+Umlaute:  
+	ä 132 0x84 \x84 \204
+	Ä 142 0x8e \x8e \216
+	ö 148 0x94 \x94 \224
+	Ö 153 0x99 \x99 \231
+	ü 129 0x81 \x81	\201
+	Ü 154 0x9a \x9a \232

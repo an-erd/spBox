@@ -18,7 +18,9 @@ public:
 	void updatePrintBufferScr2();
 	void updateDisplayScr3();
 	void updatePrintBufferScr4_speed(long val);
+	void updatePrintBufferScr4_charmap(uint8_t val);
 	void updatePrintBufferScrTest();
+	void updatePrintBufferScrTest2();
 
 	void updateDisplayWithPrintBuffer();
 private:

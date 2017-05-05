@@ -120,7 +120,8 @@ void LCDML_DISP_setup(LCDML_FUNC_config_altitude)
 	//display.print(gConfigAltitude);
 	//display.display();
 	gConfigAltitude = 0;
-	display.updatePrintBufferScr4_speed(gConfigAltitude);
+	//display.updatePrintBufferScr4_speed(gConfigAltitude);
+	display.updatePrintBufferScr4_charmap(gConfigAltitude);
 	display.updateDisplayWithPrintBuffer();
 	gConfigValueChanged = false;
 
@@ -153,7 +154,8 @@ void LCDML_DISP_loop(LCDML_FUNC_config_altitude)
 			gConfigValueChanged = false;
 		}
 
-		display.updatePrintBufferScr4_speed(gConfigAltitude);
+		//display.updatePrintBufferScr4_speed(gConfigAltitude);
+		display.updatePrintBufferScr4_charmap(gConfigAltitude);
 		display.updateDisplayWithPrintBuffer();
 	}
 
@@ -209,5 +211,25 @@ void LCDML_DISP_loop(LCDML_FUNC_speed)
 }
 
 void LCDML_DISP_loop_end(LCDML_FUNC_speed)
+{
+}
+// ############################################################################
+
+void LCDML_DISP_setup(LCDML_FUNC_test2)
+{
+	display.updatePrintBufferScrTest2();
+	display.updateDisplayWithPrintBuffer();
+	LCDML_DISP_triggerMenu(DELAY_MS_10HZ);
+}
+
+void LCDML_DISP_loop(LCDML_FUNC_test2)
+{
+	if (LCDML_BUTTON_checkAny()) {
+		LCDML_DISP_resetIsTimer();
+		LCDML_DISP_funcend();
+	}
+}
+
+void LCDML_DISP_loop_end(LCDML_FUNC_test2)
 {
 }
