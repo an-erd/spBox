@@ -117,7 +117,7 @@ TODO:
 - OTA progress bar/screen, and implement other OTA method
 
 done - get Umlaute working
-
+done - compass functions and draw routine
 
 ___________________________________________________________
 Power saving
@@ -185,3 +185,17 @@ Umlaute:
 	Ö		153		0x99 \x99	\231
 	ü		129		0x81 \x81	\201
 	Ü		154		0x9a \x9a	\232
+	°		9		0x09 \x09	\011		oder \260 (dec 176)
+
+Kompass Kalibrierung
+	1) x, y, z Werte ausgeben lassen, insb. den Kompass im ebenen Zustand hinlegen (Verbaut ist so, dass +x nach unten, und -z nach vorne geht, also +y nach rechts)
+	2) den Kompass langsam einmal drehen
+	3) über min und max für x und y den Mittelpunkt finden -> dies ergibt den Offset
+	3) über Spanne y und z den skalieren auf Werte (nach Anwendung Offset) von -100..100 für x und y Achse -> dies ergibt Scale
+
+	4) Mit echtem Kompass auf Norden ausrichten, Werte messen. 
+		Hier:	Mag	194	0	-100 
+	super Link: http://www.germersogorb.de/html/kalibrierung_des_hcm5883l.html 
+	Total Field  48,378.8 nT -> 0.48378G
+	Raw total field: 527
+	

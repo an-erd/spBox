@@ -19,7 +19,7 @@ void LCDML_DISP_setup(LCDML_FUNC_sensor_overview)
 {
 	display.updatePrintBufferScr1();
 	display.updateDisplayWithPrintBuffer();
-	LCDML_DISP_triggerMenu(DELAY_MS_10HZ);
+	LCDML_DISP_triggerMenu(DELAY_MS_5HZ);
 }
 
 void LCDML_DISP_loop(LCDML_FUNC_sensor_overview)
@@ -27,6 +27,7 @@ void LCDML_DISP_loop(LCDML_FUNC_sensor_overview)
 	display.updatePrintBufferScr1();
 	display.updateDisplayWithPrintBuffer();
 	if (LCDML_BUTTON_checkAny()) {
+		LCDML_BUTTON_resetAll();
 		LCDML_DISP_resetIsTimer();
 		LCDML_DISP_funcend();
 	}
@@ -46,9 +47,16 @@ void LCDML_DISP_setup(LCDML_FUNC_sensor_min_max)
 
 void LCDML_DISP_loop(LCDML_FUNC_sensor_min_max)
 {
+	if (LCDML_BUTTON_checkLeft()) {
+		LCDML_BUTTON_resetAll();
+		sensors.resetMinMaxAccelGyro();
+	}
+
 	display.updatePrintBufferScr2();
 	display.updateDisplayWithPrintBuffer();
+
 	if (LCDML_BUTTON_checkAny()) {
+		LCDML_BUTTON_resetAll();
 		LCDML_DISP_resetIsTimer();
 		LCDML_DISP_funcend();
 	}
@@ -59,19 +67,48 @@ void LCDML_DISP_loop_end(LCDML_FUNC_sensor_min_max)
 }
 
 // ############################################################################
-void LCDML_DISP_setup(LCDML_FUNC_sensor_min_max_reset)
+void LCDML_DISP_setup(LCDML_FUNC_sensor_temp_press_alt)
+{
+	//display.updatePrintBufferScr3();
+	//display.updateDisplayWithPrintBuffer();
+	LCDML_DISP_triggerMenu(DELAY_MS_1HZ);
+}
+
+void LCDML_DISP_loop(LCDML_FUNC_sensor_temp_press_alt)
+{
+	display.updatePrintBufferScr3();
+	display.updateDisplayWithPrintBuffer();
+
+	if (LCDML_BUTTON_checkAny()) {
+		LCDML_BUTTON_resetAll();
+		LCDML_DISP_resetIsTimer();
+		LCDML_DISP_funcend();
+	}
+}
+
+void LCDML_DISP_loop_end(LCDML_FUNC_sensor_temp_press_alt)
 {
 }
 
-void LCDML_DISP_loop(LCDML_FUNC_sensor_min_max_reset)
+// ############################################################################
+void LCDML_DISP_setup(LCDML_FUNC_kompass)
 {
-	//reset_min_max_accelgyro();
-
-	LCDML_DISP_resetIsTimer();
-	LCDML_DISP_funcend();
+	display.updateDisplayScr4();
+	LCDML_DISP_triggerMenu(DELAY_MS_5HZ);
 }
 
-void LCDML_DISP_loop_end(LCDML_FUNC_sensor_min_max_reset)
+void LCDML_DISP_loop(LCDML_FUNC_kompass)
+{
+	display.updateDisplayScr4();
+
+	if (LCDML_BUTTON_checkAny()) {
+		LCDML_BUTTON_resetAll();
+		LCDML_DISP_resetIsTimer();
+		LCDML_DISP_funcend();
+	}
+}
+
+void LCDML_DISP_loop_end(LCDML_FUNC_kompass)
 {
 }
 
@@ -84,14 +121,14 @@ void LCDML_DISP_setup(LCDML_FUNC_status_wlan)
 	display.setRSSIVisible(true);
 	display.setRSSIIcon(true);
 
-	display.updateDisplayScr3();
+	display.updateDisplayScrXXX();
 
 	LCDML_DISP_triggerMenu(DELAY_MS_2HZ);
 }
 
 void LCDML_DISP_loop(LCDML_FUNC_status_wlan)
 {
-	display.updateDisplayScr3();
+	display.updateDisplayScrXXX();
 
 	if (LCDML_BUTTON_checkAny()) {
 		LCDML_DISP_resetIsTimer();
@@ -109,23 +146,13 @@ int16_t	gConfigAltitude;
 
 void LCDML_DISP_setup(LCDML_FUNC_config_altitude)
 {
-	//display.clearDisplay();
-	//display.setCursor(0, 0);
-	//display.println("Durch Drehen eingeben");
-	//display.println("und Knopf drücken.");
-	//display.println(" ");
-	//display.print("Neue Höhe:");
-	//gConfigAltitudeCursorX = display.getCursorX();
-	//gConfigAltitudeCursorY = display.getCursorY();
-	//display.print(gConfigAltitude);
-	//display.display();
 	gConfigAltitude = 0;
 	//display.updatePrintBufferScr4_speed(gConfigAltitude);
 	display.updatePrintBufferScr4_charmap(gConfigAltitude);
 	display.updateDisplayWithPrintBuffer();
 	gConfigValueChanged = false;
 
-	LCDML_DISP_triggerMenu(DELAY_MS_10HZ);
+	//LCDML_DISP_triggerMenu(DELAY_MS_10HZ);
 }
 
 void LCDML_DISP_loop(LCDML_FUNC_config_altitude)
@@ -133,6 +160,7 @@ void LCDML_DISP_loop(LCDML_FUNC_config_altitude)
 	//Serial.println("enter LCDML_FUNC_config_altitude");
 	if (LCDML_BUTTON_checkEnter()) {
 		//Serial.println("checkEnter()");
+		Serial.printf("Layer: %d, Function: %d\n", LCDML.getLayer(), LCDML.getFunction());
 		LCDML_DISP_resetIsTimer();
 		LCDML_DISP_funcend();
 	}

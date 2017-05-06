@@ -1,21 +1,22 @@
-void LCDML_lcd_menu_display() {
+void LCDML_lcd_menu_display()
+{
 	if (LCDML_DISP_update()) {
-		display.clearDisplay();
 		uint8_t n_max = (LCDML.getChilds() >= _LCDML_rows) ? ((_LCDML_rows > _LCDML_rows_max) ? _LCDML_rows : _LCDML_rows_max) : (LCDML.getChilds());
-		for (uint8_t n = 0; n < n_max; n++)
-		{
+		LCDML_lcd_menu_clear();
+
+		for (uint8_t n = 0; n < n_max; n++) {
 			if (n == LCDML.getCursorPos()) {
 				display.setCursor(0, _LCDML_FONT_H * (n));
 				display.write(0x10);
 			}
-			switch (LCDML.content_id[n])
-			{
+			display.setCursor(_LCDML_FONT_W, _LCDML_FONT_H * (n));
+
+			switch (LCDML.content_id[n]) {
 				//case 0: // dynamic content
 				//	display.setCursor(0, _LCDML_FONT_H * (n));
 				//	display.println("var_datetime");
 				//	break;
 			default: // static content
-				display.setCursor(_LCDML_FONT_W, _LCDML_FONT_H * (n));
 				display.println(LCDML.content[n]);
 				break;
 			}
@@ -45,4 +46,5 @@ void LCDML_lcd_menu_display() {
 // lcd clear
 void LCDML_lcd_menu_clear()
 {
+	display.clearDisplay();
 }

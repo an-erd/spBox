@@ -50,6 +50,12 @@
 #define MPU6050_GZOFFSET	0
 #define MPU6050_G_GAIN		(16.4)		// MPU6050_GYRO_FS_2000
 
+// HMC5883L - calibration matrix and offset
+#define MAG_X 0
+#define MAG_Y 1
+#define MAG_Z 2
+// calibration values are in spbox_sensors.cpp
+
 // constants to convert deg - rad
 #define MPU6050_DEG_RAD_CONV		0.01745329251994329576	// CONST
 #define MPU6050_GAIN_DEG_RAD_CONV	0.00106422515365507901	// MPU6050_DEG_RAD_CONV / MPU6050_G_GAIN

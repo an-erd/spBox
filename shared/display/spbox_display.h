@@ -14,9 +14,11 @@ public:
 	SPBOX_DISPLAY(int reset = -1) : Adafruit_FeatherOLED_WiFi(reset) { };
 	void initializeDisplay();
 
-	void updatePrintBufferScr1();
-	void updatePrintBufferScr2();
-	void updateDisplayScr3();
+	void updatePrintBufferScr1();	// Sensor overview
+	void updatePrintBufferScr2();	// Sensor Accel/Gyro min/max
+	void updatePrintBufferScr3();	// Sensor Temp/Press/Alti
+	void updateDisplayScr4();		// Sensor Kompass
+	void updateDisplayScrXXX();
 	void updatePrintBufferScr4_speed(long val);
 	void updatePrintBufferScr4_charmap(uint8_t val);
 	void updatePrintBufferScrTest();

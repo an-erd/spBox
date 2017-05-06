@@ -7,6 +7,14 @@
 #define DEBUGLOG(...)
 #endif
 
+// magnometer calibration values
+double cal_matrix[3][3] = {
+	{0.970506, 0.002044, 0.004219},
+	{0.002044, 0.945654, -0.002506},
+	{0.004219, -0.002506, 1.070759} };
+double cal_offsets[3] = { -53.818994, 77.549821, 214.359594 };
+double declination_angle = 0.04246890849;// in Rad, entspricht 2.43333 Rad
+
 SPBOX_SENSORS sensors;
 
 // Timer
@@ -62,7 +70,7 @@ void SPBOX_SENSORS::setupUpdateAccelGyroMag()
 
 void SPBOX_SENSORS::startUpdateAccelGyroMag()
 {
-	os_timer_arm(&timerUpdateAccelGyroMag, DELAY_MS_5HZ, true);
+	os_timer_arm(&timerUpdateAccelGyroMag, DELAY_MS_10HZ, true);
 }
 
 void SPBOX_SENSORS::stopUpdateAccelGyroMag()
@@ -105,6 +113,7 @@ bool SPBOX_SENSORS::checkAccelGyroMag()
 	change_minmax = updateMinMaxAccelGyro();
 
 	fetchMag();
+	calibrateMag();
 	calcMag();
 	calcAltitude();
 
@@ -221,16 +230,36 @@ bool SPBOX_SENSORS::updateMinMaxAccelGyro() {
 void SPBOX_SENSORS::fetchMag()
 {
 	mag_.getHeading(&mx_, &my_, &mz_);
+
+	/*Serial.printf("%d\t%d\t%d\t", mx_, my_, mz_);*/
+}
+
+void SPBOX_SENSORS::calibrateMag()
+{
+	mx_f_ = (float)mx_ + cal_offsets[MAG_X];
+	my_f_ = (float)my_ + cal_offsets[MAG_Y];
+	mz_f_ = (float)mz_ + cal_offsets[MAG_Z];
+
+	mx_f_ = cal_matrix[MAG_X][MAG_X] * mx_f_ + cal_matrix[MAG_X][MAG_Y] * my_f_ + cal_matrix[MAG_X][MAG_Z] * mz_f_;
+	my_f_ = cal_matrix[MAG_Y][MAG_X] * mx_f_ + cal_matrix[MAG_Y][MAG_Y] * my_f_ + cal_matrix[MAG_Y][MAG_Z] * mz_f_;
+	mz_f_ = cal_matrix[MAG_Z][MAG_X] * mx_f_ + cal_matrix[MAG_Z][MAG_Y] * my_f_ + cal_matrix[MAG_Z][MAG_Z] * mz_f_;
+
+	//Serial.printf("%d\t%d\t%d\t", (int16_t)mx_f_, (int16_t)my_f_, (int16_t)mz_f_);
 }
 
 void SPBOX_SENSORS::calcMag()
 {
 	// To calculate heading in degrees. 0 degree indicates North
-	float heading = atan2(mz_, my_);
+	float heading = atan2(-my_f_, -mz_f_);
+	heading += declination_angle;
 	if (heading < 0)
 		heading += M_TWOPI;
 	heading *= 180.0 / M_PI;
 	heading_ = heading;
+
+	//char tempbuffer[8][20], disp[100];
+	//dtostrf(heading_, 4, 2, tempbuffer[0]);
+	//Serial.printf("%s\n", tempbuffer[0]);
 }
 
 void SPBOX_SENSORS::calcAltitude()

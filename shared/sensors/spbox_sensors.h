@@ -70,6 +70,7 @@ public:
 	void resetMinMaxAccelGyro();
 	bool updateMinMaxAccelGyro();
 	void fetchMag();
+	void calibrateMag();
 	void calcMag();
 	void calcAltitude();
 
@@ -89,7 +90,7 @@ public:
 	void getMaxGyro(float *max_gx, float *max_gy, float *max_gz);
 	void getMinGyro(float *min_gx, float *min_gy, float *min_gz);
 	void getMag(int16_t *mx_, int16_t *my, int16_t *mz);
-	void getHeading(float *heading);
+	void getHeading(float *heading);		// returns the heading in degree (not rad)
 	void getAccelGyroMag(accelGyroMagEvent_t *e);
 	void getMinMaxAccelGyro(minMaxAccelGyroEvent_t *e);
 	void getTemperature(float *temperature);
@@ -116,6 +117,7 @@ private:
 	float		max_gx_f_, max_gy_f_, max_gz_f_, min_gx_f_, min_gy_f_, min_gz_f_;
 
 	int16_t		mx_, my_, mz_;			// magnetometer values (sensor)
+	float		mx_f_, my_f_, mz_f_;	// calibrated magnetometer values
 	float		heading_;			// calculated heading (calculated)
 
 	float		temperature_;		// temperature (sensor)
