@@ -98,7 +98,6 @@ TODO:
 - licence
 - make gyro range scale configurable
 - make accel range scale configurable
-- get NTP working, in particular check, that the time is fetched in the background
 - complete menu structure and backend functions
 - get QR code working
 - get multiple WLANs working
@@ -115,9 +114,11 @@ TODO:
 - menu idle screen
 - WLAN honeypot ;-)
 - OTA progress bar/screen, and implement other OTA method
+- PIN Code Abfrage hinzufügen
 
 done - get Umlaute working
 done - compass functions and draw routine
+done - get NTP working, in particular check, that the time is fetched in the background, seems to be ok.
 
 ___________________________________________________________
 Power saving
@@ -167,6 +168,7 @@ Konfiguration
 		Zurueck
 	Zurueck
 Information
+	Uhrzeit
 	Besitzer
 	QR
 	Sensor-Ausrichtung

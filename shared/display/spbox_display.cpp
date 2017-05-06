@@ -1,4 +1,5 @@
 #include <ESP8266WiFi.h>
+#include <NtpClientLib.h>
 #include "missing_str_util.h"
 #include "spbox_display.h"
 #include "spbox_sensors.h"
@@ -119,6 +120,16 @@ void SPBOX_DISPLAY::updateDisplayScr4()
 	fillTriangle(x0, y0, x1, y1, x2, y2, WHITE);
 	//drawLine(127, 0, 127, 31, WHITE);
 	display();
+}
+
+void SPBOX_DISPLAY::updateDisplayScr5()
+{
+	snprintf(displaybuffer_[0], 21, "%s", NTP.getTimeDateString().c_str());
+	snprintf(displaybuffer_[1], 21, "Up %s, since %s", NTP.getUptimeString().c_str(), NTP.getTimeDateString(NTP.getFirstSync()).c_str());
+	snprintf(displaybuffer_[2], 21, "Since %s", NTP.getTimeDateString(NTP.getFirstSync()).c_str());
+	snprintf(displaybuffer_[3], 21, "");
+
+	updateDisplayWithPrintBuffer();
 }
 
 void SPBOX_DISPLAY::updateDisplayScrXXX() {

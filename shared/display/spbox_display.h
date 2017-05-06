@@ -18,6 +18,7 @@ public:
 	void updatePrintBufferScr2();	// Sensor Accel/Gyro min/max
 	void updatePrintBufferScr3();	// Sensor Temp/Press/Alti
 	void updateDisplayScr4();		// Sensor Kompass
+	void updateDisplayScr5();		// Uhrzeit anzeigen
 	void updateDisplayScrXXX();
 	void updatePrintBufferScr4_speed(long val);
 	void updatePrintBufferScr4_charmap(uint8_t val);

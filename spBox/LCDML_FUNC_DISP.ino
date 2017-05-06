@@ -218,6 +218,27 @@ void LCDML_DISP_loop_end(LCDML_FUNC_ownerinformation)
 }
 
 // ############################################################################
+void LCDML_DISP_setup(LCDML_FUNC_clock)
+{
+	LCDML_DISP_triggerMenu(DELAY_MS_1HZ);
+}
+
+void LCDML_DISP_loop(LCDML_FUNC_clock)
+{
+	display.updateDisplayScr5();
+
+	if (LCDML_BUTTON_checkAny()) {
+		LCDML_DISP_resetIsTimer();
+		LCDML.goBack();
+		LCDML_DISP_funcend();
+	}
+}
+
+void LCDML_DISP_loop_end(LCDML_FUNC_clock)
+{
+}
+
+// ############################################################################
 long speedcnt;
 void LCDML_DISP_setup(LCDML_FUNC_speed)
 {
