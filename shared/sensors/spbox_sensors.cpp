@@ -306,7 +306,7 @@ void SPBOX_SENSORS::updateVBat() {
 	uint16_t vbatADC;
 	float vbatFloat = 0.0F;
 	float vbatLSB = 0.97751F;		// 1000mV/1023 -> mV per LSB
-	float vbatVoltDiv = 0.201321;	// 271K/1271K resistor voltage divider
+	float vbatVoltDiv = 0.20015680;	// 271K/1271K resistor voltage divider
 
 	vbatADC = analogRead(VBAT_PIN);
 
