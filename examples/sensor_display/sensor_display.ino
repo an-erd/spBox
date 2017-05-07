@@ -20,6 +20,8 @@ void setup() {
 	sensors.setupUpdateTempPress();
 	sensors.startUpdateTempPress();
 
+	sensors.initializeVBat();
+
 	//sensors.onAccelGyroMagEvent([](accelGyroMagEvent_t e) {
 	//	Serial.printf("onAccelGyroMagEvent event: heading: ");
 	//	Serial.println(e.heading);

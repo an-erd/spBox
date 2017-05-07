@@ -96,6 +96,7 @@ ___________________________________________________________
 TODO:
 - file header
 - licence
+- magnetometer sollte mit accel verknüpft werden bzgl. Lageerkennung/Ausgleich
 - make gyro range scale configurable
 - make accel range scale configurable
 - complete menu structure and backend functions
@@ -115,10 +116,13 @@ TODO:
 - WLAN honeypot ;-)
 - OTA progress bar/screen, and implement other OTA method
 - PIN Code Abfrage hinzufügen
+- in Initscreen/Screensaver gehen und mit Hochheben/Klick wieder anzeigen
+- calibrate vbat 
 
 done - get Umlaute working
 done - compass functions and draw routine
 done - get NTP working, in particular check, that the time is fetched in the background, seems to be ok.
+done - WLAN and Battery status 
 
 ___________________________________________________________
 Power saving

@@ -132,63 +132,49 @@ void SPBOX_DISPLAY::updateDisplayScr5()
 	updateDisplayWithPrintBuffer();
 }
 
-void SPBOX_DISPLAY::updateDisplayScrXXX() {
+void SPBOX_DISPLAY::updateDisplayScr6() {
+	bool is_connected = WiFi.status() == WL_CONNECTED;
 	int8_t rssi = WiFi.RSSI();
 	uint32_t ipAddress = WiFi.localIP();
 
-	//int level = analogRead(VBAT_PIN);
-	// analog read level is 10 bit 0-1023 (0V-1V).
-	// resistors of the voltage divider 271K and 1M -> 271 / 1271 =
-	// lipo values:
-	// 3.14V -> 0.669V -> analog value 684
-	// 4.20V -> 0.895V -> analog value 915
-	//int perc_level = map(level, 684, 915, 0, 100); // level in percentage
-	//float temp_volt = level * 0.97751 * 4.69;
-	//setBattery(temp_volt);
-	//Serial.print("Battery: "); Serial.print(temp_volt); Serial.print(", level "); Serial.println(perc_level);
-	//Serial.println(level);
-	//Adafruit_IO_Feed battery = aio.getFeed("battery");
-	//battery.send(level);
+	setConnected(is_connected);
+	if (is_connected) {
+		setRSSI(rssi);
+		setIPAddress(ipAddress);
+	}
+	sensors.updateVBat();
+	setBattery(sensors.getVBat());
 
-	//updateVbat();
-	//bool is_connected;
-	//is_connected = WiFi.status() == WL_CONNECTED;
-	//setConnected(is_connected);
-	//if (is_connected) {
-	//	setRSSI(rssi);
-	//	setIPAddress(ipAddress);
-	//}
-	//refreshIcons();
+	fillRect(0, 8, 128, 16, BLACK);
+	setCursor(0, 8);
+	switch (WiFi.status()) {
+	case WL_IDLE_STATUS:
+		print("Idle Status");
+		break;
+	case WL_NO_SSID_AVAIL:
+		print("");
+		break;
+	case WL_SCAN_COMPLETED:
+		print("Scan Completed");
+		break;
+	case WL_CONNECTED:
+		print(WiFi.SSID());
+		break;
+	case WL_CONNECT_FAILED:
+		print("Connect Failed");
+		break;
+	case WL_CONNECTION_LOST:
+		print("Connection Lost");
+		break;
+	case WL_DISCONNECTED:
+		print("Disconnected");
+		break;
+	case WL_NO_SHIELD:
+		print("No Shield");
+		break;
+	}
 
-	//clearMsgArea();
-	//print(level);
-	//switch (WiFi.status()) {
-	//case WL_IDLE_STATUS:
-	//	print("Idle Status");
-	//	break;
-	//case WL_NO_SSID_AVAIL:
-	//	print("");
-	//	break;
-	//case WL_SCAN_COMPLETED:
-	//	print("Scan Completed");
-	//	break;
-	//case WL_CONNECTED:
-	//	print(WiFi.SSID());
-	//	break;
-	//case WL_CONNECT_FAILED:
-	//	print("Connect Failed");
-	//	break;
-	//case WL_CONNECTION_LOST:
-	//	print("Connection Lost");
-	//	break;
-	//case WL_DISCONNECTED:
-	//	print("Disconnected");
-	//	break;
-	//case WL_NO_SHIELD:
-	//	print("No Shield");
-	//	break;
-	//}
-
+	refreshIcons();
 	display();
 }
 

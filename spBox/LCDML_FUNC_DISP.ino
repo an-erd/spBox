@@ -121,16 +121,27 @@ void LCDML_DISP_setup(LCDML_FUNC_status_wlan)
 	display.setRSSIVisible(true);
 	display.setRSSIIcon(true);
 
-	display.updateDisplayScrXXX();
+	display.updateDisplayScr6();
 
 	LCDML_DISP_triggerMenu(DELAY_MS_2HZ);
 }
 
 void LCDML_DISP_loop(LCDML_FUNC_status_wlan)
 {
-	display.updateDisplayScrXXX();
+	if (LCDML_BUTTON_checkLeft()) {
+		LCDML_BUTTON_resetAll();
+		if (conf.getWlanEnabled()) {
+			com.disableWlan();
+		}
+		else {
+			com.enableWlan();
+		}
+	}
+
+	display.updateDisplayScr6();
 
 	if (LCDML_BUTTON_checkAny()) {
+		LCDML_BUTTON_resetAll();
 		LCDML_DISP_resetIsTimer();
 		LCDML_DISP_funcend();
 	}
