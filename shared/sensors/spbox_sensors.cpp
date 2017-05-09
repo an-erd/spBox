@@ -242,11 +242,17 @@ void SPBOX_SENSORS::fetchMag()
 	temp_myf = (float)temp_my + cal_offsets[MAG_Y];
 	temp_mzf = (float)temp_mz + cal_offsets[MAG_Z];
 
-	mx_f_ = cal_matrix[MAG_Z][MAG_X] * temp_mxf + cal_matrix[MAG_Z][MAG_Y] * temp_myf + cal_matrix[MAG_Z][MAG_Z] * temp_mzf;
+	mx_f_ = -(cal_matrix[MAG_Z][MAG_X] * temp_mxf + cal_matrix[MAG_Z][MAG_Y] * temp_myf + cal_matrix[MAG_Z][MAG_Z] * temp_mzf);
 	my_f_ = cal_matrix[MAG_Y][MAG_X] * temp_mxf + cal_matrix[MAG_Y][MAG_Y] * temp_myf + cal_matrix[MAG_Y][MAG_Z] * temp_mzf;
 	mz_f_ = cal_matrix[MAG_X][MAG_X] * temp_mxf + cal_matrix[MAG_X][MAG_Y] * temp_myf + cal_matrix[MAG_X][MAG_Z] * temp_mzf;
 
-	//Serial.printf("%d\t%d\t%d\t", (int16_t)mx_f_, (int16_t)my_f_, (int16_t)mz_f_);
+	Serial.printf("%d\t%d\t%d\t\t \n", (int16_t)mx_f_, (int16_t)my_f_, (int16_t)mz_f_);
+	//Serial.print("\t(A) "); Serial.print(atan2(my_f_, mz_f_), 2);
+	//Serial.print("\t(B) "); Serial.print(atan2(my_f_, mx_f_), 2);
+	//Serial.print("\t(C) "); Serial.print(atan2(my_f_, -mx_f_), 2);
+	//Serial.print("\t(D) "); Serial.print(atan2(-my_f_, mx_f_), 2); // seems to be correct
+	//Serial.print("\t(E) ");	Serial.print(atan2(-my_f_, -mx_f_), 2);
+	//Serial.println("");
 }
 
 void SPBOX_SENSORS::calcMag()

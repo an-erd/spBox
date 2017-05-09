@@ -213,3 +213,7 @@ Accel orientation
 	Convention will be NED (North East Down), see: https://en.wikipedia.org/wiki/Axes_conventions
 	http://www.starlino.com/imu_guide.html
 	http://www.olliw.eu/storm32bgc-wiki/Manually_Setting_the_IMU_Orientation
+
+	Sensor readings with offsets:	6	8	16377	-2	1	0
+	Your offsets:	-4884	206	1033	51	-38	-5	Sensor readings with offsets:	0	0	16391	3	0	0
+	Your offsets:	-4884	205	1032	52	-38	-5
