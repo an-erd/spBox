@@ -65,12 +65,10 @@ public:
 	void stopUpdateAccelGyroMag();
 	void updateAccelGyroMagCB();
 	bool checkAccelGyroMag();
-	void fetchAccelGyro();
-	void calcAccelGyro();
+	void fetchAccelGyro();		// fetch incl. offset, gain and orientation calculation
 	void resetMinMaxAccelGyro();
 	bool updateMinMaxAccelGyro();
-	void fetchMag();
-	void calibrateMag();
+	void fetchMag();			// fetch incl. calibration, orientation and heading calculation
 	void calcMag();
 	void calcAltitude();
 
@@ -81,11 +79,9 @@ public:
 	void prepTempPressure();
 	bool checkTempPress();
 
-	void getAccel(int16_t *ax, int16_t *ay, int16_t *az);
 	void getAccel(float *ax_f, float *ay_f, float *az_f);
 	void getMaxAccel(float *max_ax, float *max_ay, float *max_az);
 	void getMinAccel(float *max_ax, float *max_ay, float *max_az);
-	void getGyro(int16_t *ax, int16_t *ay, int16_t *az);
 	void getGyro(float *ax_f, float *ay_f, float *az_f);
 	void getMaxGyro(float *max_gx, float *max_gy, float *max_gz);
 	void getMinGyro(float *min_gx, float *min_gy, float *min_gz);
@@ -108,15 +104,12 @@ private:
 	HMC5883L	mag_;
 	BMP085		barometer_;
 
-	int16_t		ax_, ay_, az_;			// accel values (sensor)
 	float		ax_f_, ay_f_, az_f_;	// accel float values (calculated)
 	float		max_ax_f_, max_ay_f_, max_az_f_, min_ax_f_, min_ay_f_, min_az_f_;
 
-	int16_t		gx_, gy_, gz_;			// gyro values (sensor)
 	float		gx_f_, gy_f_, gz_f_;	// gyro float values (calculated)
 	float		max_gx_f_, max_gy_f_, max_gz_f_, min_gx_f_, min_gy_f_, min_gz_f_;
 
-	int16_t		mx_, my_, mz_;			// magnetometer values (sensor)
 	float		mx_f_, my_f_, mz_f_;	// calibrated magnetometer values
 	float		heading_;			// calculated heading (calculated)
 

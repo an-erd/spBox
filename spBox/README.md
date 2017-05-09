@@ -208,3 +208,8 @@ Kompass Kalibrierung
 	Total Field  48,378.8 nT -> 0.48378G
 	Raw total field: 527
 	
+Accel orientation
+	from MPU-6050 datasheet: "When the device is placed on a flat surface, it will measure 0g on the X- and Y-axes and +1g on the Z-axis."
+	Convention will be NED (North East Down), see: https://en.wikipedia.org/wiki/Axes_conventions
+	http://www.starlino.com/imu_guide.html
+	http://www.olliw.eu/storm32bgc-wiki/Manually_Setting_the_IMU_Orientation

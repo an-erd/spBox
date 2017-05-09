@@ -109,11 +109,9 @@ bool SPBOX_SENSORS::checkAccelGyroMag()
 	do_update_accel_gyro_mag_ = false;
 
 	fetchAccelGyro();
-	calcAccelGyro();
 	change_minmax = updateMinMaxAccelGyro();
 
 	fetchMag();
-	calibrateMag();
 	calcMag();
 	calcAltitude();
 
@@ -186,20 +184,22 @@ bool SPBOX_SENSORS::checkTempPress()
 
 void SPBOX_SENSORS::fetchAccelGyro()
 {
-	accelgyro_.getMotion6(&ax_, &ay_, &az_, &gx_, &gy_, &gz_);
+	int16_t temp_ax, temp_ay, temp_az, temp_gx, temp_gy, temp_gz;
+	accelgyro_.getMotion6(&temp_ax, &temp_ay, &temp_az, &temp_gx, &temp_gy, &temp_gz);
+
+	// apply offset and gain, and change to NED reference orientation:
+	//		x' = -z; y' = y; z'=x	for accel and gyro
+	ax_f_ = -(float)(temp_az - MPU6050_AZOFFSET) / MPU6050_A_GAIN;
+	ay_f_ = (float)(temp_ay - MPU6050_AYOFFSET) / MPU6050_A_GAIN;
+	az_f_ = (float)(temp_ax - MPU6050_AXOFFSET) / MPU6050_A_GAIN;
+
+	gx_f_ = -(float)(temp_gz - MPU6050_GZOFFSET) * MPU6050_GAIN_DEG_RAD_CONV;	// rad/s
+	gy_f_ = (float)(temp_gy - MPU6050_GYOFFSET) * MPU6050_GAIN_DEG_RAD_CONV;
+	gz_f_ = (float)(temp_gx - MPU6050_GXOFFSET) * MPU6050_GAIN_DEG_RAD_CONV;
 }
 
-void SPBOX_SENSORS::calcAccelGyro()
+void SPBOX_SENSORS::resetMinMaxAccelGyro()
 {
-	ax_f_ = (float)(ax_ - MPU6050_AXOFFSET) / MPU6050_A_GAIN;
-	ay_f_ = (float)(ay_ - MPU6050_AYOFFSET) / MPU6050_A_GAIN;
-	az_f_ = (float)(az_ - MPU6050_AZOFFSET) / MPU6050_A_GAIN;
-	gx_f_ = (float)(gx_ - MPU6050_GXOFFSET) * MPU6050_GAIN_DEG_RAD_CONV;	// rad/s
-	gy_f_ = (float)(gy_ - MPU6050_GYOFFSET) * MPU6050_GAIN_DEG_RAD_CONV;
-	gz_f_ = (float)(gz_ - MPU6050_GZOFFSET) * MPU6050_GAIN_DEG_RAD_CONV;
-}
-
-void SPBOX_SENSORS::resetMinMaxAccelGyro() {
 	max_ax_f_ = min_ax_f_ = ax_f_;
 	max_ay_f_ = min_ay_f_ = ay_f_;
 	max_az_f_ = min_az_f_ = az_f_;
@@ -208,7 +208,8 @@ void SPBOX_SENSORS::resetMinMaxAccelGyro() {
 	max_gz_f_ = min_gz_f_ = gz_f_;
 }
 
-bool SPBOX_SENSORS::updateMinMaxAccelGyro() {
+bool SPBOX_SENSORS::updateMinMaxAccelGyro()
+{
 	bool chg = false;
 
 	if (ax_f_ > max_ax_f_) { max_ax_f_ = ax_f_; chg = true; }
@@ -229,28 +230,29 @@ bool SPBOX_SENSORS::updateMinMaxAccelGyro() {
 
 void SPBOX_SENSORS::fetchMag()
 {
-	mag_.getHeading(&mx_, &my_, &mz_);
+	int16_t temp_mx, temp_my, temp_mz;
+	float temp_mxf, temp_myf, temp_mzf;
 
-	/*Serial.printf("%d\t%d\t%d\t", mx_, my_, mz_);*/
-}
+	mag_.getHeading(&temp_mx, &temp_my, &temp_mz);
+	//Serial.printf("%d\t%d\t%d\t", temp_mx, temp_my, temp_mz);
 
-void SPBOX_SENSORS::calibrateMag()
-{
-	mx_f_ = (float)mx_ + cal_offsets[MAG_X];
-	my_f_ = (float)my_ + cal_offsets[MAG_Y];
-	mz_f_ = (float)mz_ + cal_offsets[MAG_Z];
+	// apply offset and calibration matrix, and change to NED reference orientation:
+	//		x' = -z; y' = y; z'=x	for accel and gyro
+	temp_mxf = (float)temp_mx + cal_offsets[MAG_X];
+	temp_myf = (float)temp_my + cal_offsets[MAG_Y];
+	temp_mzf = (float)temp_mz + cal_offsets[MAG_Z];
 
-	mx_f_ = cal_matrix[MAG_X][MAG_X] * mx_f_ + cal_matrix[MAG_X][MAG_Y] * my_f_ + cal_matrix[MAG_X][MAG_Z] * mz_f_;
-	my_f_ = cal_matrix[MAG_Y][MAG_X] * mx_f_ + cal_matrix[MAG_Y][MAG_Y] * my_f_ + cal_matrix[MAG_Y][MAG_Z] * mz_f_;
-	mz_f_ = cal_matrix[MAG_Z][MAG_X] * mx_f_ + cal_matrix[MAG_Z][MAG_Y] * my_f_ + cal_matrix[MAG_Z][MAG_Z] * mz_f_;
+	mx_f_ = cal_matrix[MAG_Z][MAG_X] * temp_mxf + cal_matrix[MAG_Z][MAG_Y] * temp_myf + cal_matrix[MAG_Z][MAG_Z] * temp_mzf;
+	my_f_ = cal_matrix[MAG_Y][MAG_X] * temp_mxf + cal_matrix[MAG_Y][MAG_Y] * temp_myf + cal_matrix[MAG_Y][MAG_Z] * temp_mzf;
+	mz_f_ = cal_matrix[MAG_X][MAG_X] * temp_mxf + cal_matrix[MAG_X][MAG_Y] * temp_myf + cal_matrix[MAG_X][MAG_Z] * temp_mzf;
 
 	//Serial.printf("%d\t%d\t%d\t", (int16_t)mx_f_, (int16_t)my_f_, (int16_t)mz_f_);
 }
 
 void SPBOX_SENSORS::calcMag()
 {
-	// To calculate heading in degrees. 0 degree indicates North
-	float heading = atan2(-my_f_, -mz_f_);
+	// To calculate heading in degrees. 0 degree indicates North, take adjusted NED reference orientation into account
+	float heading = atan2(-my_f_, mx_f_);
 	heading += declination_angle;
 	if (heading < 0)
 		heading += M_TWOPI;
@@ -270,17 +272,14 @@ void SPBOX_SENSORS::calcAltitude()
 	altitude_ = barometer_.getAltitude(pressure_);
 }
 
-void SPBOX_SENSORS::getAccel(int16_t * ax, int16_t * ay, int16_t * az) { *ax = ax_; *ay = ay_; *az = az_; }
 void SPBOX_SENSORS::getAccel(float * ax_f, float * ay_f, float * az_f) { *ax_f = ax_f_; *ay_f = ay_f_; *az_f = az_f_; }
 void SPBOX_SENSORS::getMaxAccel(float * max_ax, float * max_ay, float * max_az) { *max_ax = max_ax_f_; *max_ay = max_ay_f_; *max_az = max_az_f_; }
 void SPBOX_SENSORS::getMinAccel(float * min_ax, float * min_ay, float * min_az) { *min_ax = min_ax_f_; *min_ay = min_ay_f_; *min_az = min_az_f_; }
 
-void SPBOX_SENSORS::getGyro(int16_t * gx, int16_t * gy, int16_t * gz) { *gx = gx_; *gy = gy_; *gz = gz_; }
 void SPBOX_SENSORS::getGyro(float * gx_f, float * gy_f, float * gz_f) { *gx_f = gx_f_; *gy_f = gy_f_; *gz_f = gz_f_; }
 void SPBOX_SENSORS::getMaxGyro(float * max_gx, float * max_gy, float * max_gz) { *max_gx = max_gx_f_; *max_gy = max_gy_f_; *max_gz = max_gz_f_; }
 void SPBOX_SENSORS::getMinGyro(float * min_gx, float * min_gy, float * min_gz) { *min_gx = min_gx_f_; *min_gy = min_gy_f_; *min_gz = min_gz_f_; }
 
-void SPBOX_SENSORS::getMag(int16_t * mx, int16_t * my, int16_t * mz) { *mx = mx_; *my = my_; *mz = mz_; }
 void SPBOX_SENSORS::getHeading(float * heading) { *heading = heading_; }
 
 void SPBOX_SENSORS::getAccelGyroMag(accelGyroMagEvent_t *e)

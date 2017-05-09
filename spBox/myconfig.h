@@ -38,13 +38,13 @@
 #define DELAY_MS_TENSEC	10000
 #define DELAY_MS_1MIN	60000
 
-// MPU6050 accel offsets
+// MPU6050 accel offsets, referencing the sensor naming (not the adjusted NED namings for orientation reference model)
 #define MPU6050_AXOFFSET	0
 #define MPU6050_AYOFFSET	0
 #define MPU6050_AZOFFSET	0
 #define MPU6050_A_GAIN		2048		// MPU6050_ACCEL_FS_16
 
-// MPU6050 gyro offsets
+// MPU6050 gyro offsets, referencing the sensor naming (not the adjusted NED namings for orientation reference model)
 #define MPU6050_GXOFFSET	0
 #define MPU6050_GYOFFSET	0
 #define MPU6050_GZOFFSET	0
