@@ -118,6 +118,9 @@ TODO:
 - PIN Code Abfrage hinzufügen
 - in Initscreen/Screensaver gehen und mit Hochheben/Klick wieder anzeigen
 - calibrate vbat 
+- calibrate accel and gyro
+- add tilt-compensating functions to compass inkl. tools and documentation
+- cleanup of accel and compass axis inkl. documentation
 
 done - get Umlaute working
 done - compass functions and draw routine
