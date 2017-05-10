@@ -69,7 +69,7 @@ public:
 	void resetMinMaxAccelGyro();
 	bool updateMinMaxAccelGyro();
 	void fetchMag();			// fetch incl. calibration, orientation and heading calculation
-	void calcMag();
+	float calcMag();
 	float calcMagCompensated();
 	void calcAltitude();
 

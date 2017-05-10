@@ -114,7 +114,11 @@ bool SPBOX_SENSORS::checkAccelGyroMag()
 	change_minmax = updateMinMaxAccelGyro();
 
 	fetchMag();
-	calcMag();
+	//float cM1 = calcMag();
+	float cM2 = calcMagCompensated();
+	//Serial.print("\t\tH1 "); Serial.print(cM1, 1);
+	//Serial.print("\tH2 "); Serial.print(cM2, 1);	Serial.println();
+
 	calcAltitude();
 
 	accelGyroMagEvent_t temp_event;
@@ -191,13 +195,16 @@ void SPBOX_SENSORS::fetchAccelGyro()
 
 	// apply offset and gain, and change to NED reference orientation:
 	//		x' = -z; y' = y; z'=x	for accel and gyro
-	ax_f_ = -(float)(temp_az - MPU6050_AZOFFSET) / MPU6050_A_GAIN;
-	ay_f_ = (float)(temp_ay - MPU6050_AYOFFSET) / MPU6050_A_GAIN;
-	az_f_ = (float)(temp_ax - MPU6050_AXOFFSET) / MPU6050_A_GAIN;
+	ax_f_ = (float)(temp_az - MPU6050_AZOFFSET) / MPU6050_A_GAIN;
+	ay_f_ = -(float)(temp_ay - MPU6050_AYOFFSET) / MPU6050_A_GAIN;
+	az_f_ = -(float)(temp_ax - MPU6050_AXOFFSET) / MPU6050_A_GAIN;
 
 	gx_f_ = -(float)(temp_gz - MPU6050_GZOFFSET) * MPU6050_GAIN_DEG_RAD_CONV;	// rad/s
 	gy_f_ = (float)(temp_gy - MPU6050_GYOFFSET) * MPU6050_GAIN_DEG_RAD_CONV;
 	gz_f_ = (float)(temp_gx - MPU6050_GXOFFSET) * MPU6050_GAIN_DEG_RAD_CONV;
+
+	//Serial.print("\tA "); Serial.print(ax_f_, 1); Serial.print("\t"); Serial.print(ay_f_, 1); Serial.print("\t"); Serial.print(az_f_, 1);
+	//Serial.print("\tG "); Serial.print(gx_f_, 1); Serial.print("\t"); Serial.print(gy_f_, 1); Serial.print("\t"); Serial.print(gz_f_, 1); Serial.println();
 }
 
 void SPBOX_SENSORS::resetMinMaxAccelGyro()
@@ -248,16 +255,10 @@ void SPBOX_SENSORS::fetchMag()
 	my_f_ = cal_matrix[MAG_Y][MAG_X] * temp_mxf + cal_matrix[MAG_Y][MAG_Y] * temp_myf + cal_matrix[MAG_Y][MAG_Z] * temp_mzf;
 	mz_f_ = cal_matrix[MAG_X][MAG_X] * temp_mxf + cal_matrix[MAG_X][MAG_Y] * temp_myf + cal_matrix[MAG_X][MAG_Z] * temp_mzf;
 
-	Serial.printf("%d\t%d\t%d\t\t \n", (int16_t)mx_f_, (int16_t)my_f_, (int16_t)mz_f_);
-	//Serial.print("\t(A) "); Serial.print(atan2(my_f_, mz_f_), 2);
-	//Serial.print("\t(B) "); Serial.print(atan2(my_f_, mx_f_), 2);
-	//Serial.print("\t(C) "); Serial.print(atan2(my_f_, -mx_f_), 2);
-	//Serial.print("\t(D) "); Serial.print(atan2(-my_f_, mx_f_), 2); // seems to be correct
-	//Serial.print("\t(E) ");	Serial.print(atan2(-my_f_, -mx_f_), 2);
-	//Serial.println("");
+	//Serial.print("\tM "); Serial.print(mx_f_, 1); Serial.print("\t"); Serial.print(my_f_, 1); Serial.print("\t"); Serial.print(mz_f_, 1);
 }
 
-void SPBOX_SENSORS::calcMag()
+float SPBOX_SENSORS::calcMag()
 {
 	// To calculate heading in degrees. 0 degree indicates North, take adjusted NED reference orientation into account
 	float heading = atan2(-my_f_, mx_f_);
@@ -267,7 +268,9 @@ void SPBOX_SENSORS::calcMag()
 	heading *= 180.0 / M_PI;
 	heading_ = heading;
 
-	Serial.print("Heading: "); Serial.print(heading_); Serial.println();
+	//Serial.print("H1: "); Serial.print(heading_, 1);
+
+	return heading_;
 }
 
 float SPBOX_SENSORS::calcMagCompensated()
@@ -281,7 +284,7 @@ float SPBOX_SENSORS::calcMagCompensated()
 	cos_roll = cos(roll);
 	sin_roll = sin(roll);
 
-	pitch = atan2(ax_f_, ay_f_*sin_roll + az_f_*cos_roll);
+	pitch = atan2(-ax_f_, ay_f_*sin_roll + az_f_*cos_roll);
 	cos_pitch = cos(pitch);
 	sin_pitch = sin(pitch);
 
@@ -296,12 +299,12 @@ float SPBOX_SENSORS::calcMagCompensated()
 
 	heading_ = heading;
 
-	Serial.print("Roll: "); Serial.print(roll); Serial.print(" Pitch: "); Serial.print(pitch);
-	Serial.print("cmx, cmy, cmz: ");
-	Serial.print(cmx); Serial.print(", "); Serial.print(cmy); Serial.print(", "); Serial.print(cmz);
-	Serial.print(", Heading "); Serial.print(heading_); Serial.println();
+	//Serial.print("\tRoll: "); Serial.print(roll); Serial.print("\tPitch: "); Serial.print(pitch);
+	//Serial.print("\tM2 ");
+	//Serial.print(cmx, 1); Serial.print("\t"); Serial.print(cmy, 1); Serial.print("\t"); Serial.print(cmz, 1);
+	//Serial.print("\tH2: "); Serial.print(heading_, 1); Serial.println();
 
-	return heading;
+	return heading_;
 }
 
 void SPBOX_SENSORS::calcAltitude()

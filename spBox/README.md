@@ -216,4 +216,5 @@ Accel orientation
 
 	Sensor readings with offsets:	6	8	16377	-2	1	0
 	Your offsets:	-4884	206	1033	51	-38	-5	Sensor readings with offsets:	0	0	16391	3	0	0
-	Your offsets:	-4884	205	1032	52	-38	-5
+	Your offsets:	-4884	205	1032	52	-38	-5	https://cache.freescale.com/files/sensors/doc/app_note/AN4248.pdf, Implementing a Tilt-Compensated
+eCompass using Accelerometer and Magnetometer Sensors, Document Number: AN4248 Rev. 4.0, 11/2015
