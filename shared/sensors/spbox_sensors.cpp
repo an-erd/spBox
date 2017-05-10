@@ -8,12 +8,14 @@
 #endif
 
 // magnometer calibration values
+// (done with Magneto https://sites.google.com/site/sailboatinstruments1/home
+// using https://www.ngdc.noaa.gov/geomag-web/ following http://www.germersogorb.de/html/kalibrierung_des_hcm5883l.html)
 double cal_matrix[3][3] = {
 	{0.970506, 0.002044, 0.004219},
 	{0.002044, 0.945654, -0.002506},
 	{0.004219, -0.002506, 1.070759} };
 double cal_offsets[3] = { -53.818994, 77.549821, 214.359594 };
-double declination_angle = 0.04246890849;// in Rad, entspricht 2.43333 Rad
+double declination_angle = 0.04246890849; // in Rad (entspricht 2.43333 Deg =2°26'E)
 
 SPBOX_SENSORS sensors;
 
@@ -265,9 +267,41 @@ void SPBOX_SENSORS::calcMag()
 	heading *= 180.0 / M_PI;
 	heading_ = heading;
 
-	//char tempbuffer[8][20], disp[100];
-	//dtostrf(heading_, 4, 2, tempbuffer[0]);
-	//Serial.printf("%s\n", tempbuffer[0]);
+	Serial.print("Heading: "); Serial.print(heading_); Serial.println();
+}
+
+float SPBOX_SENSORS::calcMagCompensated()
+{
+	float roll, cos_roll, sin_roll;
+	float pitch, cos_pitch, sin_pitch;
+	float cmx, cmy, cmz;
+	float heading;
+
+	roll = atan2(ay_f_, az_f_);
+	cos_roll = cos(roll);
+	sin_roll = sin(roll);
+
+	pitch = atan2(ax_f_, ay_f_*sin_roll + az_f_*cos_roll);
+	cos_pitch = cos(pitch);
+	sin_pitch = sin(pitch);
+
+	cmx = mx_f_ * cos_pitch + my_f_ * sin_pitch * sin_roll + mz_f_ * sin_pitch * cos_roll;
+	cmy = my_f_*cos_roll - mz_f_ * sin_roll;
+	cmz = -mx_f_ * sin_pitch + my_f_ * cos_pitch*sin_roll + mz_f_ * cos_pitch * cos_roll;
+
+	heading = atan2(-cmy, cmx) + declination_angle;
+	if (heading < 0)
+		heading += M_TWOPI;
+	heading *= 180.0 / M_PI;
+
+	heading_ = heading;
+
+	Serial.print("Roll: "); Serial.print(roll); Serial.print(" Pitch: "); Serial.print(pitch);
+	Serial.print("cmx, cmy, cmz: ");
+	Serial.print(cmx); Serial.print(", "); Serial.print(cmy); Serial.print(", "); Serial.print(cmz);
+	Serial.print(", Heading "); Serial.print(heading_); Serial.println();
+
+	return heading;
 }
 
 void SPBOX_SENSORS::calcAltitude()

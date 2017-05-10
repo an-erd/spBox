@@ -70,6 +70,7 @@ public:
 	bool updateMinMaxAccelGyro();
 	void fetchMag();			// fetch incl. calibration, orientation and heading calculation
 	void calcMag();
+	float calcMagCompensated();
 	void calcAltitude();
 
 	void setupUpdateTempPress();
