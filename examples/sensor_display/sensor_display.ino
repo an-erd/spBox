@@ -11,7 +11,7 @@ void setup() {
 	delay(2000);
 
 	display.initializeDisplay();
-	sensors.initializeAccelGyro();
+	sensors.initializeAccelGyro(MPU6050_ACCEL_FS_16, MPU6050_GYRO_FS_2000);
 	sensors.initializeMag();
 	sensors.initializeBarometer();
 
@@ -20,17 +20,19 @@ void setup() {
 	sensors.setupUpdateTempPress();
 	sensors.startUpdateTempPress();
 
-	sensors.onAccelGyroMagEvent([](accelGyroMagEvent_t e) {
-		Serial.printf("onAccelGyroMagEvent event: heading: ");
-		Serial.println(e.heading);
-		//e.ax_f, e.ay_f, e.az_f, e.gx_f, e.gy_f, e.gz_f);
-	});
+	sensors.initializeVBat();
 
-	sensors.onTempPressAltiEvent([](tempPressAltiEvent_t e) {
-		Serial.printf("onTempPressAltiEvent event: temp: "); Serial.print(e.temperature);
-		Serial.print(", press: "); Serial.print(e.pressure);
-		Serial.print(", alti: "); Serial.println(e.altitude);
-	});
+	//sensors.onAccelGyroMagEvent([](accelGyroMagEvent_t e) {
+	//	Serial.printf("onAccelGyroMagEvent event: heading: ");
+	//	Serial.println(e.heading);
+	//	//e.ax_f, e.ay_f, e.az_f, e.gx_f, e.gy_f, e.gz_f);
+	//});
+
+	//sensors.onTempPressAltiEvent([](tempPressAltiEvent_t e) {
+	//	Serial.printf("onTempPressAltiEvent event: temp: "); Serial.print(e.temperature);
+	//	Serial.print(", press: "); Serial.print(e.pressure);
+	//	Serial.print(", alti: "); Serial.println(e.altitude);
+	//});
 }
 
 void loop() {

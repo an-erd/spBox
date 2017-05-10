@@ -44,6 +44,8 @@ void setup() {
 	sensors.setupUpdateTempPress();
 	sensors.startUpdateTempPress();
 
+	sensors.initializeVBat();
+
 	rotenc.initialize();
 	rotenc.start();
 	button.initialize();

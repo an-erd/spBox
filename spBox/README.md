@@ -96,9 +96,9 @@ ___________________________________________________________
 TODO:
 - file header
 - licence
+- magnetometer sollte mit accel verknüpft werden bzgl. Lageerkennung/Ausgleich
 - make gyro range scale configurable
 - make accel range scale configurable
-- get NTP working, in particular check, that the time is fetched in the background
 - complete menu structure and backend functions
 - get QR code working
 - get multiple WLANs working
@@ -115,9 +115,17 @@ TODO:
 - menu idle screen
 - WLAN honeypot ;-)
 - OTA progress bar/screen, and implement other OTA method
+- PIN Code Abfrage hinzufügen
+- in Initscreen/Screensaver gehen und mit Hochheben/Klick wieder anzeigen
+- calibrate vbat 
+- calibrate accel and gyro
+- add tilt-compensating functions to compass inkl. tools and documentation
+- cleanup of accel and compass axis inkl. documentation
 
 done - get Umlaute working
-
+done - compass functions and draw routine
+done - get NTP working, in particular check, that the time is fetched in the background, seems to be ok.
+done - WLAN and Battery status 
 
 ___________________________________________________________
 Power saving
@@ -167,6 +175,7 @@ Konfiguration
 		Zurueck
 	Zurueck
 Information
+	Uhrzeit
 	Besitzer
 	QR
 	Sensor-Ausrichtung
@@ -178,9 +187,34 @@ Information
 
 
 Umlaute:  
-	ä 132 0x84 \x84 \204
-	Ä 142 0x8e \x8e \216
-	ö 148 0x94 \x94 \224
-	Ö 153 0x99 \x99 \231
-	ü 129 0x81 \x81	\201
-	Ü 154 0x9a \x9a \232
+	char	dec		hex			oct
+	ä		132		0x84 \x84	\204
+	Ä		142		0x8e \x8e	\216
+	ö		148		0x94 \x94	\224
+	Ö		153		0x99 \x99	\231
+	ü		129		0x81 \x81	\201
+	Ü		154		0x9a \x9a	\232
+	°		9		0x09 \x09	\011		oder \260 (dec 176)
+
+Kompass Kalibrierung
+	1) x, y, z Werte ausgeben lassen, insb. den Kompass im ebenen Zustand hinlegen (Verbaut ist so, dass +x nach unten, und -z nach vorne geht, also +y nach rechts)
+	2) den Kompass langsam einmal drehen
+	3) über min und max für x und y den Mittelpunkt finden -> dies ergibt den Offset
+	3) über Spanne y und z den skalieren auf Werte (nach Anwendung Offset) von -100..100 für x und y Achse -> dies ergibt Scale
+
+	4) Mit echtem Kompass auf Norden ausrichten, Werte messen. 
+		Hier:	Mag	194	0	-100 
+	super Link: http://www.germersogorb.de/html/kalibrierung_des_hcm5883l.html 
+	Total Field  48,378.8 nT -> 0.48378G
+	Raw total field: 527
+	
+Accel orientation
+	from MPU-6050 datasheet: "When the device is placed on a flat surface, it will measure 0g on the X- and Y-axes and +1g on the Z-axis."
+	Convention will be NED (North East Down), see: https://en.wikipedia.org/wiki/Axes_conventions
+	http://www.starlino.com/imu_guide.html
+	http://www.olliw.eu/storm32bgc-wiki/Manually_Setting_the_IMU_Orientation
+
+	Sensor readings with offsets:	6	8	16377	-2	1	0
+	Your offsets:	-4884	206	1033	51	-38	-5	Sensor readings with offsets:	0	0	16391	3	0	0
+	Your offsets:	-4884	205	1032	52	-38	-5	https://cache.freescale.com/files/sensors/doc/app_note/AN4248.pdf, Implementing a Tilt-Compensated
+eCompass using Accelerometer and Magnetometer Sensors, Document Number: AN4248 Rev. 4.0, 11/2015

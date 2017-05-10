@@ -38,17 +38,23 @@
 #define DELAY_MS_TENSEC	10000
 #define DELAY_MS_1MIN	60000
 
-// MPU6050 accel offsets
+// MPU6050 accel offsets, referencing the sensor naming (not the adjusted NED namings for orientation reference model)
 #define MPU6050_AXOFFSET	0
 #define MPU6050_AYOFFSET	0
 #define MPU6050_AZOFFSET	0
 #define MPU6050_A_GAIN		2048		// MPU6050_ACCEL_FS_16
 
-// MPU6050 gyro offsets
+// MPU6050 gyro offsets, referencing the sensor naming (not the adjusted NED namings for orientation reference model)
 #define MPU6050_GXOFFSET	0
 #define MPU6050_GYOFFSET	0
 #define MPU6050_GZOFFSET	0
 #define MPU6050_G_GAIN		(16.4)		// MPU6050_GYRO_FS_2000
+
+// HMC5883L - calibration matrix and offset
+#define MAG_X 0
+#define MAG_Y 1
+#define MAG_Z 2
+// calibration values are in spbox_sensors.cpp
 
 // constants to convert deg - rad
 #define MPU6050_DEG_RAD_CONV		0.01745329251994329576	// CONST
