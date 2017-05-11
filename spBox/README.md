@@ -46,7 +46,7 @@ Encoder pulse tracking, J.Carter(of Earth)"
 LCDMenuLib:
 ===========
 The code for the menu navigation uses the excellent library LCDMenuLib (see
-https://github.com/Jomelo/LCDMenuLib) by Nils Feldkämper. The following 
+https://github.com/Jomelo/LCDMenuLib) by Nils Feldkï¿½mper. The following 
 files follow the implementation proposal from LCDMenuLib, but are using own
 functions to accomplish the functions: LCDML_CONTROL.ino, LCDML_DISP.ino, 
 LCDML_FUNC_BACKEND.ino, LCDML_FUNC_DISP.ino and LCDML_DEFS.h.
@@ -119,7 +119,7 @@ see also https://courses.cs.washington.edu/courses/cse466/14au/labs/l4/MPU6050Ba
 
 Temperature issue
 =================
-if the sensor module (gy-87) is turned on for some time, it's getting warm on the PCB and inside the box (~30°C). Find way to deactivate the modle if not necessary.
+if the sensor module (gy-87) is turned on for some time, it's getting warm on the PCB and inside the box (~30ï¿½C). Find way to deactivate the modle if not necessary.
 
 onEvent handler
 ===============
@@ -157,8 +157,8 @@ Menu:
 
 Sensor
 	Overview
-	Accel/Gyro Max. Werte		Reset: lange drücken
-	Temp/Druck/Höhe
+	Accel/Gyro Max. Werte		Reset: lange drï¿½cken
+	Temp/Druck/Hï¿½he
 	Kompass
 	Zurueck
 Status
@@ -171,7 +171,7 @@ Konfiguration
 		Accel
 		Gyro
 		Kompass
-		Höhe
+		Hï¿½he
 		Zurueck
 	MQTT
 	EEPROM
@@ -195,21 +195,21 @@ Umlaute:
 Umlaute can be used using octal values (e.g., \204 for the German "ae")
 
 	char	dec		hex			oct
-	ä		132		0x84 \x84	\204
-	Ä		142		0x8e \x8e	\216
-	ö		148		0x94 \x94	\224
-	Ö		153		0x99 \x99	\231
-	ü		129		0x81 \x81	\201
-	Ü		154		0x9a \x9a	\232
-	°		9		0x09 \x09	\011		oder \260 (dec 176)
+	ï¿½		132		0x84 \x84	\204
+	ï¿½		142		0x8e \x8e	\216
+	ï¿½		148		0x94 \x94	\224
+	ï¿½		153		0x99 \x99	\231
+	ï¿½		129		0x81 \x81	\201
+	ï¿½		154		0x9a \x9a	\232
+	ï¿½		9		0x09 \x09	\011		oder \260 (dec 176)
 
 Compass calibration:
 ====================
 The following process had/can be used to performa a compass calibration:
 	1) x, y, z Werte ausgeben lassen, insb. den Kompass im ebenen Zustand hinlegen (Verbaut ist so, dass +x nach unten, und -z nach vorne geht, also +y nach rechts)
 	2) den Kompass langsam einmal drehen
-	3) über min und max für x und y den Mittelpunkt finden -> dies ergibt den Offset
-	3) über Spanne y und z den skalieren auf Werte (nach Anwendung Offset) von -100..100 für x und y Achse -> dies ergibt Scale
+	3) ï¿½ber min und max fï¿½r x und y den Mittelpunkt finden -> dies ergibt den Offset
+	3) ï¿½ber Spanne y und z den skalieren auf Werte (nach Anwendung Offset) von -100..100 fï¿½r x und y Achse -> dies ergibt Scale
 
 	4) Mit echtem Kompass auf Norden ausrichten, Werte messen. 
 		Hier:	Mag	194	0	-100 
