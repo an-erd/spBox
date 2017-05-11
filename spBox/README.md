@@ -1,4 +1,81 @@
+/*
+MIT License
+
+Copyright (c) 2017 Andreas Erdmann
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
+
 # spBox
+
+In this project several libraries and tools will be used which will be 
+referenced here:
+
+I2Cdevlib:
+==========
+The code makes use of I2Cdevlib (http://www.i2cdevlib.com/). All the thanks
+to Jeff Rowberg and further contributers for providing that great work! In 
+particular, the following sensor drivers are used are used:
+  - HMC5883L
+  - MPU6050
+  - BMP180
+
+Rotary Encoder:
+===============
+The code for the rotary encoder is inspired (and partially based) by the 
+discussions in http://playground.arduino.cc/Main/RotaryEncoders, in particular
+"Int0 & Int1 example using bitRead() with debounce handling and true Rotary
+Encoder pulse tracking, J.Carter(of Earth)"
+
+LCDMenuLib:
+===========
+The code for the menu navigation uses the excellent library LCDMenuLib (see
+https://github.com/Jomelo/LCDMenuLib) by Nils Feldkämper. The following 
+files follow the implementation proposal from LCDMenuLib, but are using own
+functions to accomplish the functions: LCDML_CONTROL.ino, LCDML_DISP.ino, 
+LCDML_FUNC_BACKEND.ino, LCDML_FUNC_DISP.ino and LCDML_DEFS.h.
+
+Display:
+========
+The hardware (ESP board and OLED extension) used (and thus some of the 
+libraries) are from Adafruit, so the following libraries are used:
+  - Adafruit_GFX
+  - Adafruit_SSD1306
+  - Adafruit_FeatherOLED_WiFi
+  - ArduinoOTA
+  - Adafruit_MQTT
+  - Adafruit_MQTT_Client
+
+NTP:
+====
+For NTP time syncrhonisation the NtpClientLib library from German Martin is
+used.
+
+ESP8266:
+========
+The Arduino IDE is used, with  Visual Studio 2017 and Visual Micro (Arduino 
+IDE for Microsoft Visual Studio, http://www.visualmicro.com/) is used as 
+development environment, using the ESP8266 core from
+https://github.com/esp8266/Arduino providing the "board".
+
+
+The board is configured as follows: 
 
 I2C devices
 ===========
@@ -20,53 +97,36 @@ PIN assignment
 #16									(Huzzah OLED Button B)
 GND		Rotary Encoder Pin C/GND
 VCC		Rotary Encoder VCC
-		
-WLAN Status
-===========
-WL_NO_SHIELD        = 255,   // for compatibility with WiFi Shield library
-WL_IDLE_STATUS      = 0,
-WL_NO_SSID_AVAIL    = 1,
-WL_SCAN_COMPLETED   = 2,
-WL_CONNECTED        = 3,
-WL_CONNECT_FAILED   = 4,
-WL_CONNECTION_LOST  = 5,
-WL_DISCONNECTED     = 6		
+EN		Connected via switch to GND to turn of the board.
 
 
 Software TIMER usage
 ====================
-name	
+In the software the following timer are used. In addition to them, there may 
+be used mor (e.g. in time.h used from NTPClientLib)
 
-Read sensors
-============
-  barometer.setControl(BMP085_MODE_TEMPERATURE);
-  wait barometer.getMeasureDelayMicroseconds();
-  temperature = barometer.getTemperatureC();
-
-  barometer.setControl(BMP085_MODE_PRESSURE_3);
-  wait barometer.getMeasureDelayMicroseconds();
-  pressure = barometer.getPressure();
-
-
-
-ARDUINO Libraries used
-======================
-i2cdevlib (see https://www.i2cdevlib.com/usage)
-Adafruit GFX
-Adafruit SSD1306
+LOCAL os_timer_t timerUpdateAccelGyroMag;	// read Accel, Gyro and Mag regularly
+LOCAL os_timer_t timerUpdateTempPress;		// prepare temperature and pressure regularly
+LOCAL os_timer_t timerUpdateSteps;			// handle different BMP085 preparation duration for temperature and pressure
 
 Power consumption
 =================
-not optimizes yet. Device should power off or put itslf in sleep mode after whatever time.
-How to wake up again? Reset=
+not optimizes yet. Device should power off or put itself in sleep mode after 
+whatever time. How to wake up again? Reset?
+* https://www.i2cdevlib.com/docs/html/class_m_p_u6050.html
+* PCB stuff, see https://bengoncalves.wordpress.com/2015/10/02/arduino-power-down-mode-with-accelerometer-compass-and-pressure-sensor/
+see also https://courses.cs.washington.edu/courses/cse466/14au/labs/l4/MPU6050BasicExample.ino, in particular "void LowPowerAccelOnlyMPU6050()"
 
 Temperature issue
 =================
 if the sensor module (gy-87) is turned on for some time, it's getting warm on the PCB and inside the box (~30°C). Find way to deactivate the modle if not necessary.
 
-
 onEvent handler
 ===============
+The following event handler are examples that can be used to retrieve 
+information on events occuring. For example, the onButtonChangeEvent is used
+to trigger the LCDMenuLib "Enter" function.
+
 sensors.onAccelGyroMagEvent([](accelGyroMagEvent_t e) {
 	Serial.printf("onAccelGyroMagEvent event: heading: ");
 	Serial.println(e.heading);
@@ -92,60 +152,8 @@ rotenc.onRotencPosEvent([](rotencPosEvent_t e) {
 });
 
 
-___________________________________________________________
-TODO:
-- file header
-- licence
-- magnetometer sollte mit accel verknüpft werden bzgl. Lageerkennung/Ausgleich
-- make gyro range scale configurable
-- make accel range scale configurable
-- complete menu structure and backend functions
-- get QR code working
-- get multiple WLANs working
-- functional class method callback, i.e. fetch commit from 2.4.x ESP core tree, get rid of wrapper function, see https://github.com/esp8266/Arduino/pull/2745
-- get MQTT running, incl keepalive
-- implement LED usage
-- check EEPROM usage
-- improve/check OTA update, security w/password and certificate
-- naming conventions
-- file name and solution/project update
-- make barometer / altitude configurable
-- nice startup splash screen
-- power saving, in particular sleep modes w/PIN16, shut down and restart, at least minimize GY-87 power consumption, desolder voltage regulator, LED
-- menu idle screen
-- WLAN honeypot ;-)
-- OTA progress bar/screen, and implement other OTA method
-- PIN Code Abfrage hinzufügen
-- in Initscreen/Screensaver gehen und mit Hochheben/Klick wieder anzeigen
-- calibrate vbat 
-
-done - get Umlaute working
-done - compass functions and draw routine
-done - get NTP working, in particular check, that the time is fetched in the background, seems to be ok.
-done - WLAN and Battery status 
-
-___________________________________________________________
-Power saving
-* https://www.i2cdevlib.com/docs/html/class_m_p_u6050.html, e.g. void MPU6050::setSleepEnabled, ...
-* PCB stuff, see https://bengoncalves.wordpress.com/2015/10/02/arduino-power-down-mode-with-accelerometer-compass-and-pressure-sensor/
-see also:
-https://courses.cs.washington.edu/courses/cse466/14au/labs/l4/MPU6050BasicExample.ino, in particular "void LowPowerAccelOnlyMPU6050()"
-
-
-
-
-// I2Cdevlib:
-// The code makes use of I2Cdevlib (http://www.i2cdevlib.com/). All the thanks to the team for providing that great work!
-//
-// Rotary Encoder:
-// The code for the rotary encoder has been copied from http://playground.arduino.cc/Main/RotaryEncoders,
-// Int0 & Int1 example using bitRead() with debounce handling and true Rotary Encoder pulse tracking, J.Carter(of Earth)
-//
-___________________________________________________________
-Crash:
-
-___________________________________________________________
 Menu:
+=====
 
 Sensor
 	Overview
@@ -182,8 +190,10 @@ Information
 		Zurueck
 	Zurueck
 
+Umlaute:
+========
+Umlaute can be used using octal values (e.g., \204 for the German "ae")
 
-Umlaute:  
 	char	dec		hex			oct
 	ä		132		0x84 \x84	\204
 	Ä		142		0x8e \x8e	\216
@@ -193,7 +203,9 @@ Umlaute:
 	Ü		154		0x9a \x9a	\232
 	°		9		0x09 \x09	\011		oder \260 (dec 176)
 
-Kompass Kalibrierung
+Compass calibration:
+====================
+The following process had/can be used to performa a compass calibration:
 	1) x, y, z Werte ausgeben lassen, insb. den Kompass im ebenen Zustand hinlegen (Verbaut ist so, dass +x nach unten, und -z nach vorne geht, also +y nach rechts)
 	2) den Kompass langsam einmal drehen
 	3) über min und max für x und y den Mittelpunkt finden -> dies ergibt den Offset
@@ -204,4 +216,28 @@ Kompass Kalibrierung
 	super Link: http://www.germersogorb.de/html/kalibrierung_des_hcm5883l.html 
 	Total Field  48,378.8 nT -> 0.48378G
 	Raw total field: 527
-	
+
+PCB and sensor orientation:
+===========================
+There a several different sensor orientation information and thus I fixed on 
+the NED definition, see https://en.wikipedia.org/wiki/Axes_conventions, 
+  - North: positiv x-axis, this is the heading
+  - East: positiv y-axis, pointing to right
+  - Down: positiv z-axis, pointing down
+The sensors used are positioned on the GY-87 board (consisting of accel/gyro 
+MPU6050 and magnetometer HMC5883L). It is placed vertically in the box.
+  - GY-87 axis as assembled are: positiv x-axis down, positiv y-axis right.
+  - this is than mapped to NED in functions 
+
+
+Accel orientation
+	from MPU-6050 datasheet: "When the device is placed on a flat surface, it will measure 0g on the X- and Y-axes and +1g on the Z-axis."
+	Convention will be NED (North East Down), see: https://en.wikipedia.org/wiki/Axes_conventions
+	http://www.starlino.com/imu_guide.html
+	http://www.olliw.eu/storm32bgc-wiki/Manually_Setting_the_IMU_Orientation
+
+	Sensor readings with offsets:	6	8	16377	-2	1	0
+	Your offsets:	-4884	206	1033	51	-38	-5
+
+	Sensor readings with offsets:	0	0	16391	3	0	0
+	Your offsets:	-4884	205	1032	52	-38	-5

@@ -1,7 +1,31 @@
+/*
+MIT License
+
+Copyright (c) 2017 Andreas Erdmann
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
+
 #ifndef USER_CONFIG_H
 #define USER_CONFIG_H
 
-#define STRING_VERSION "0.1.0"
+#define STRING_VERSION "v0.2"
 
 // WLAN
 //#define WLAN_SSID		"..."
@@ -38,13 +62,13 @@
 #define DELAY_MS_TENSEC	10000
 #define DELAY_MS_1MIN	60000
 
-// MPU6050 accel offsets
+// MPU6050 accel offsets, referencing the sensor naming (not the adjusted NED namings for orientation reference model)
 #define MPU6050_AXOFFSET	0
 #define MPU6050_AYOFFSET	0
 #define MPU6050_AZOFFSET	0
 #define MPU6050_A_GAIN		2048		// MPU6050_ACCEL_FS_16
 
-// MPU6050 gyro offsets
+// MPU6050 gyro offsets, referencing the sensor naming (not the adjusted NED namings for orientation reference model)
 #define MPU6050_GXOFFSET	0
 #define MPU6050_GYOFFSET	0
 #define MPU6050_GZOFFSET	0
