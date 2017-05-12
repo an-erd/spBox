@@ -83,12 +83,15 @@ void SPBOX_DISPLAY::updatePrintBufferScr3()
 void SPBOX_DISPLAY::updateDisplayScr4()
 {
 	// code to draw compass inspired by http://cassiopeia.hk/arduinocompass/
-	float heading_deg, angle_rad;
+	float heading_deg, heading_deg_round, angle_rad;
 
 	sensors.getHeading(&heading_deg);
-	angle_rad = PI * (float)heading_deg / 180.0;
 
-	dtostrf(heading_deg, 3, 0, tempbuffer_[0]);
+	heading_deg_round = round(heading_deg);
+	if (heading_deg_round = 360)
+		heading_deg_round = 0;
+
+	dtostrf(heading_deg_round, 3, 0, tempbuffer_[0]);
 	if (heading_deg > 337 || heading_deg < 23) snprintf(tempbuffer_[1], 3, "N ");
 	else if (heading_deg > 22 && heading_deg < 68)snprintf(tempbuffer_[1], 3, "NO");
 	else if (heading_deg > 67 && heading_deg < 113)snprintf(tempbuffer_[1], 3, "O ");
@@ -100,6 +103,7 @@ void SPBOX_DISPLAY::updateDisplayScr4()
 
 	snprintf(displaybuffer_[0], 20, "%s\011 %s", tempbuffer_[0], tempbuffer_[1]);
 
+	angle_rad = PI * (float)heading_deg / 180.0;
 	clearDisplay();
 	setCursor(43, 8);
 	setTextSize(2);
