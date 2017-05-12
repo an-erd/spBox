@@ -88,7 +88,7 @@ void SPBOX_DISPLAY::updateDisplayScr4()
 	sensors.getHeading(&heading_deg);
 
 	heading_deg_round = round(heading_deg);
-	if (heading_deg_round = 360)
+	if (heading_deg_round == 360)
 		heading_deg_round = 0;
 
 	dtostrf(heading_deg_round, 3, 0, tempbuffer_[0]);
