@@ -133,7 +133,7 @@ void SPBOX_DISPLAY::updateDisplayScr5()
 	snprintf(displaybuffer_[0], 21, "%s", NTP.getTimeDateString().c_str());
 	snprintf(displaybuffer_[1], 21, "Up %s, since %s", NTP.getUptimeString().c_str(), NTP.getTimeDateString(NTP.getFirstSync()).c_str());
 	snprintf(displaybuffer_[2], 21, "Since %s", NTP.getTimeDateString(NTP.getFirstSync()).c_str());
-	snprintf(displaybuffer_[3], 21, "");
+	snprintf(displaybuffer_[3], 21, "Last %s", NTP.getTimeDateString(NTP.getLastNTPSync()).c_str());
 
 	updateDisplayWithPrintBuffer();
 }
