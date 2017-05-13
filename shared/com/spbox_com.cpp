@@ -6,6 +6,11 @@
 #define DEBUGLOG(...)
 #endif
 
+LOCAL os_timer_t timerPing;					// regular ping
+void updatePing_CB(void *arc) {
+	com.updatePingCB();
+}
+
 //Adafruit_MQTT_Client	mqtt(&client, AIO_SERVER, AIO_SERVERPORT, AIO_USERNAME, AIO_KEY);
 //Adafruit_MQTT_Publish	battery = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/battery");
 //LOCAL os_timer_t timer_update_mqtt;
@@ -19,8 +24,16 @@ void SPBOX_COM::setConf(SPBOX_CONF *conf)
 	conf_ = conf;
 }
 
+void SPBOX_COM::initialize()
+{
+	os_timer_disarm(&timerPing);
+	os_timer_setfn(&timerPing, (os_timer_func_t *)updatePing_CB, (void *)0);
+}
+
 void SPBOX_COM::initializeWlan()
 {
+	const char *ips[] = { "8.8.8.8" };	// google.com
+
 	DEBUGLOG("Initializing WLAN\r\n");
 	if (wlan_initialized_) {
 		DEBUGLOG("WLAN already initialized\r\n");
@@ -40,11 +53,19 @@ void SPBOX_COM::initializeWlan()
 			std::bind(&SPBOX_COM::onSTAGotIP, this, std::placeholders::_1));
 		disconnectedEventHandler_ = WiFi.onStationModeDisconnected(
 			std::bind(&SPBOX_COM::onSTADisconnected, this, std::placeholders::_1));
-		//NTP.onNTPSyncEvent(
-		//	std::bind(&SPBOX_COM::onNTPSyncEvent, this, std::placeholders::_1));
+		NTP.onNTPSyncEvent(
+			std::bind(&SPBOX_COM::onNTPSyncEvent, this, std::placeholders::_1));
 
-		wlan_initialized_ = true;
+		// Initialize PING
+		IPAddress addr(8, 8, 8, 8);
+		pingAddress_ = addr;
+		ping_.on(false, [](const AsyncPingResponse& response) {
+			com.setInternetAvailable(response.total_sent, response.total_recv, response.total_time);
+			return true;
+		});
 	}
+
+	wlan_initialized_ = true;
 }
 
 void SPBOX_COM::disableWlan()
@@ -132,6 +153,50 @@ void SPBOX_COM::initializeMQTT()
 	//DEBUGLOG("MQTT: Connected!\r\n");
 }
 
+void SPBOX_COM::updatePingCB()
+{
+	doPing_ = true;
+}
+
+void SPBOX_COM::checkPing()
+{
+	if (wlan_initialized_ && doPing_) {
+		doPing_ = false;
+		ping_.begin(pingAddress_, 1, 300);
+	}
+}
+
+void SPBOX_COM::setInternetAvailable(u16_t total_sent, u16_t total_recv, u32_t total_time)
+{
+	bool internetAvail = total_sent == total_recv;
+	if (internetAvail == internetAvailable_)
+		return;
+
+	if (internetAvail) {
+		NTP.begin("pool.ntp.org", 1, true);
+	}
+	else {
+		NTP.stop(); // NTP sync can be disabled to avoid sync errors
+	}
+
+	internetAvailable_ = internetAvail;
+	internetChanged_ = true;
+}
+
+bool SPBOX_COM::getInternetAvailalbe()
+{
+	return internetAvailable_;
+}
+
+bool SPBOX_COM::getAndClearInternetChanged()
+{
+	if (!internetChanged_)
+		return false;
+
+	internetChanged_ = false;
+	return true;
+}
+
 void SPBOX_COM::onSTAGotIP(WiFiEventStationModeGotIP ipInfo)
 {
 	DEBUGLOG("Got IP: %s\r\n", ipInfo.ip.toString().c_str());
@@ -140,6 +205,9 @@ void SPBOX_COM::onSTAGotIP(WiFiEventStationModeGotIP ipInfo)
 #endif
 	NTP.begin("pool.ntp.org", 1, true);
 	NTP.setInterval(5, 30);
+
+	os_timer_disarm(&timerPing);
+	os_timer_arm(&timerPing, DELAY_MS_TENSEC, true);
 }
 
 void SPBOX_COM::onSTADisconnected(WiFiEventStationModeDisconnected event_info)
@@ -149,7 +217,9 @@ void SPBOX_COM::onSTADisconnected(WiFiEventStationModeDisconnected event_info)
 	Serial.printf("Disconnected from SSID: %s\n", event_info.ssid.c_str());
 	Serial.printf("Reason: %d\n", event_info.reason);
 #endif
-	NTP.stop(); // NTP sync can be disabled to avoid sync errors
+
+	os_timer_disarm(&timerPing);
+	ping_.cancel();
 }
 
 void SPBOX_COM::onNTPSyncEvent(NTPSyncEvent_t event)

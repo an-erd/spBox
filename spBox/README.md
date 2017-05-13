@@ -46,7 +46,7 @@ Encoder pulse tracking, J.Carter(of Earth)"
 LCDMenuLib:
 ===========
 The code for the menu navigation uses the excellent library LCDMenuLib (see
-https://github.com/Jomelo/LCDMenuLib) by Nils Feldk�mper. The following 
+https://github.com/Jomelo/LCDMenuLib) by Nils Feldkämper. The following 
 files follow the implementation proposal from LCDMenuLib, but are using own
 functions to accomplish the functions: LCDML_CONTROL.ino, LCDML_DISP.ino, 
 LCDML_FUNC_BACKEND.ino, LCDML_FUNC_DISP.ino and LCDML_DEFS.h.
@@ -66,6 +66,11 @@ NTP:
 ====
 For NTP time syncrhonisation the NtpClientLib library from German Martin is
 used.
+
+PING:
+=====
+To test the availability of an internet connection, the asynchronous ping 
+library "AsyncPing" is used, see https://github.com/akaJes/AsyncPing.
 
 ESP8266:
 ========
@@ -99,7 +104,6 @@ GND		Rotary Encoder Pin C/GND
 VCC		Rotary Encoder VCC
 EN		Connected via switch to GND to turn of the board.
 
-
 Software TIMER usage
 ====================
 In the software the following timer are used. In addition to them, there may 
@@ -119,7 +123,7 @@ see also https://courses.cs.washington.edu/courses/cse466/14au/labs/l4/MPU6050Ba
 
 Temperature issue
 =================
-if the sensor module (gy-87) is turned on for some time, it's getting warm on the PCB and inside the box (~30�C). Find way to deactivate the modle if not necessary.
+if the sensor module (gy-87) is turned on for some time, it's getting warm on the PCB and inside the box (~30°C). Find way to deactivate the modle if not necessary.
 
 onEvent handler
 ===============
@@ -157,8 +161,8 @@ Menu:
 
 Sensor
 	Overview
-	Accel/Gyro Max. Werte		Reset: lange dr�cken
-	Temp/Druck/H�he
+	Accel/Gyro Max. Werte		Reset: lange drücken
+	Temp/Druck/Höhe
 	Kompass
 	Zurueck
 Status
@@ -171,7 +175,7 @@ Konfiguration
 		Accel
 		Gyro
 		Kompass
-		H�he
+		Höhe
 		Zurueck
 	MQTT
 	EEPROM
@@ -193,15 +197,14 @@ Information
 Umlaute:
 ========
 Umlaute can be used using octal values (e.g., \204 for the German "ae")
-
-	char	dec		hex			oct
-	�		132		0x84 \x84	\204
-	�		142		0x8e \x8e	\216
-	�		148		0x94 \x94	\224
-	�		153		0x99 \x99	\231
-	�		129		0x81 \x81	\201
-	�		154		0x9a \x9a	\232
-	�		9		0x09 \x09	\011		oder \260 (dec 176)
+	char	dec		hex		oct
+	ä/ae	132		0x84	\204
+	Ä/AE	142		0x8e	\216
+	ö/oe	148		0x94	\224
+	Ö/OE	153		0x99	\231
+	ü/ue	129		0x81	\201
+	Ü/UE	154		0x9a	\232
+	°/grad	9		0x09	\011	
 
 Compass calibration:
 ====================
@@ -228,16 +231,12 @@ The sensors used are positioned on the GY-87 board (consisting of accel/gyro
 MPU6050 and magnetometer HMC5883L). It is placed vertically in the box.
   - GY-87 axis as assembled are: positiv x-axis down, positiv y-axis right.
   - this is than mapped to NED in functions 
+From MPU-6050 datasheet: "When the device is placed on a flat surface, it will
+measure 0g on the X- and Y-axes and +1g on the Z-axis." This is inverse to 
+common literature. In our implementation, wie follow the details in 
+https://cache.freescale.com/files/sensors/doc/app_note/AN4248.pdf, Document 
+Number: AN4248 Rev. 4.0, 11/2015
 
-
-Accel orientation
-	from MPU-6050 datasheet: "When the device is placed on a flat surface, it will measure 0g on the X- and Y-axes and +1g on the Z-axis."
-	Convention will be NED (North East Down), see: https://en.wikipedia.org/wiki/Axes_conventions
-	http://www.starlino.com/imu_guide.html
+Useful links:
+  - http://www.starlino.com/imu_guide.html
 	http://www.olliw.eu/storm32bgc-wiki/Manually_Setting_the_IMU_Orientation
-
-	Sensor readings with offsets:	6	8	16377	-2	1	0
-	Your offsets:	-4884	206	1033	51	-38	-5
-
-	Sensor readings with offsets:	0	0	16391	3	0	0
-	Your offsets:	-4884	205	1032	52	-38	-5
