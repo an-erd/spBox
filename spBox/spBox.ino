@@ -53,6 +53,7 @@ void setup() {
 
 	conf.initialize(false);
 	com.setConf(&conf);
+	com.initialize();
 	com.initializeWlan();
 	com.initializeOta();
 	com.initializeMQTT();
@@ -109,9 +110,16 @@ void setup() {
 void loop() {
 	sensors.checkAccelGyroMag();
 	sensors.checkTempPress();
+
 	button.check();
 	rotenc.check();
+
+	com.checkPing();
+	if (com.getAndClearInternetChanged())
+		display.setInternetAvailable(com.getInternetAvailalbe());
 	com.checkOta();
+
 	LCDML_run(_LCDML_priority);
+
 	yield();
 }

@@ -67,6 +67,11 @@ NTP:
 For NTP time syncrhonisation the NtpClientLib library from German Martin is
 used.
 
+PING:
+=====
+To test the availability of an internet connection, the asynchronous ping 
+library "AsyncPing" is used, see https://github.com/akaJes/AsyncPing.
+
 ESP8266:
 ========
 The Arduino IDE is used, with  Visual Studio 2017 and Visual Micro (Arduino 

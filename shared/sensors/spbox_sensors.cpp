@@ -23,6 +23,7 @@ SPBOX_SENSORS sensors;
 LOCAL os_timer_t timerUpdateAccelGyroMag;	// read Accel, Gyro and Mag regularly
 LOCAL os_timer_t timerUpdateTempPress;		// prepare temperature and pressure regularly
 LOCAL os_timer_t timerUpdateSteps;			// handle different BMP085 preparation duration for temperature and pressure
+
 void updateAccelGyroMag_CB(void *arg) { sensors.updateAccelGyroMagCB(); }
 void updateTempPress_CB(void *arg) { sensors.updateTempPressCB(); }
 

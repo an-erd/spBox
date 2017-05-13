@@ -11,6 +11,7 @@
 #include <Time.h>
 #include <TimeLib.h>
 #include <NtpClientLib.h>
+#include "AsyncPing.h"
 #include "spbox_conf.h"
 #include "credentials.h"
 
@@ -22,17 +23,24 @@ public:
 	SPBOX_COM();
 
 	void setConf(SPBOX_CONF *conf);
-
+	void initialize();
 	void initializeWlan();
 	void disableWlan();
 	void enableWlan();
 	void initializeOta(OTAModes_t ota_mode = OTA_IDE);
 	void checkOta();
 	void initializeMQTT();
+	void updatePingCB();
+	void checkPing();
+	void setInternetAvailable(u16_t total_sent, u16_t total_recv, u32_t total_time);
+	bool getInternetAvailalbe();
+	bool getAndClearInternetChanged();
 private:
 	WiFiClient				client_;
 	WiFiEventHandler		gotIpEventHandler_;
 	WiFiEventHandler		disconnectedEventHandler_;
+	AsyncPing				ping_;
+	IPAddress				pingAddress_;
 
 	SPBOX_CONF				*conf_;
 	Adafruit_MQTT_Client	*mqtt_;
@@ -40,6 +48,9 @@ private:
 	bool					wlan_initialized_;
 	bool					ota_initialized_;
 	bool					mqtt_initialized_;
+	bool					doPing_;
+	bool					internetAvailable_;
+	bool					internetChanged_;
 
 	void onSTAGotIP(WiFiEventStationModeGotIP ipInfo);
 	void onSTADisconnected(WiFiEventStationModeDisconnected event_info);

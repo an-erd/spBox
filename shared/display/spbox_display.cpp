@@ -12,6 +12,8 @@ void SPBOX_DISPLAY::initializeDisplay() {
 	setTextSize(1);
 	setTextColor(WHITE);
 	display();
+
+	manageInternetAvailable_ = false;
 }
 
 void SPBOX_DISPLAY::updatePrintBufferScr1() {
@@ -163,6 +165,12 @@ void SPBOX_DISPLAY::updateDisplayScr6() {
 		break;
 	case WL_CONNECTED:
 		print(WiFi.SSID());
+		if (manageInternetAvailable_) {
+			if (internetAvailable_) {
+				print(", Inet");
+			}
+			else { print(", no Inet"); }
+		}
 		break;
 	case WL_CONNECT_FAILED:
 		print("Connect Failed");
