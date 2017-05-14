@@ -58,9 +58,6 @@ libraries) are from Adafruit, so the following libraries are used:
   - Adafruit_GFX
   - Adafruit_SSD1306
   - Adafruit_FeatherOLED_WiFi
-  - ArduinoOTA
-  - Adafruit_MQTT
-  - Adafruit_MQTT_Client
 
 NTP:
 ====
@@ -71,6 +68,17 @@ PING:
 =====
 To test the availability of an internet connection, the asynchronous ping 
 library "AsyncPing" is used, see https://github.com/akaJes/AsyncPing.
+
+MQTT:
+=====
+The non-blocking MQTT client "AsyncMQTT" from Marvin Roger is used, see 
+https://github.com/marvinroger/async-mqtt-client. It works out of the box 
+incl. keepalive, and nice callbacks. The library is based on "ESPAsyncESP", 
+see https://github.com/me-no-dev/ESPAsyncTCP. 
+
+OTA:
+====
+ArduinoOTA
 
 ESP8266:
 ========
@@ -112,6 +120,8 @@ be used mor (e.g. in time.h used from NTPClientLib)
 LOCAL os_timer_t timerUpdateAccelGyroMag;	// read Accel, Gyro and Mag regularly
 LOCAL os_timer_t timerUpdateTempPress;		// prepare temperature and pressure regularly
 LOCAL os_timer_t timerUpdateSteps;			// handle different BMP085 preparation duration for temperature and pressure
+LOCAL os_timer_t timerUpdateMqtt;			// pusblish health data to IO
+
 
 Power consumption
 =================
@@ -120,10 +130,12 @@ whatever time. How to wake up again? Reset?
 * https://www.i2cdevlib.com/docs/html/class_m_p_u6050.html
 * PCB stuff, see https://bengoncalves.wordpress.com/2015/10/02/arduino-power-down-mode-with-accelerometer-compass-and-pressure-sensor/
 see also https://courses.cs.washington.edu/courses/cse466/14au/labs/l4/MPU6050BasicExample.ino, in particular "void LowPowerAccelOnlyMPU6050()"
+* Display https://forums.adafruit.com/viewtopic.php?f=47&t=45520
+
 
 Temperature issue
 =================
-if the sensor module (gy-87) is turned on for some time, it's getting warm on the PCB and inside the box (~30°C). Find way to deactivate the modle if not necessary.
+if the sensor module (gy-87) is turned on for some time, it's getting warm on the PCB and inside the box (~30°C). Find way to deactivate the module if not necessary.
 
 onEvent handler
 ===============

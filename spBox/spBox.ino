@@ -115,9 +115,12 @@ void loop() {
 	rotenc.check();
 
 	com.checkPing();
-	if (com.getAndClearInternetChanged())
-		display.setInternetAvailable(com.getInternetAvailalbe());
-	com.checkOta();
+	if (com.getAndClearInternetChanged()) {
+		display.setInternetAvailable(com.getInternetAvailable());
+	}
+	display.setMqttAvailable(com.getMqttAvailable());
+	com.checkMqtt();
+	//com.checkOta();
 
 	LCDML_run(_LCDML_priority);
 

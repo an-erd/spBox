@@ -192,6 +192,8 @@ void SPBOX_DISPLAY::updateDisplayScr6() {
 		if (manageInternetAvailable_) {
 			if (internetAvailable_) {
 				print(", Inet");
+				if (setMqttAvailable_)
+					print(", MQTT");
 			}
 			else { print(", no Inet"); }
 		}

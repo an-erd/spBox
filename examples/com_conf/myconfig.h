@@ -35,6 +35,9 @@ SOFTWARE.
 //#define AIO_USERNAME  "..."
 //#define AIO_KEY		"..."
 
+// Measure battery
+#define VBAT_PIN		A0
+
 // Timer delay constants in milliseconds(MS)
 #define DELAY_MS_1HZ	1000
 #define DELAY_MS_2HZ	500

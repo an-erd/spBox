@@ -89,7 +89,7 @@ SOFTWARE.
 #define	SERIAL_STATUS_OUTPUT
 
 //#define DEBUG_BUTTON
-//#define DEBUG_COM
+#define DEBUG_COM
 //#define DEBUG_CONF
 //#define DEBUG_DISPLAY
 //#define DEBUG_LCDML

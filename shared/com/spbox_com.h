@@ -30,16 +30,16 @@ SOFTWARE.
 #include <ESP8266mDNS.h>
 #include <WiFiUdp.h>
 #include <ArduinoOTA.h>
-#include <Adafruit_MQTT.h>
-#include <Adafruit_MQTT_Client.h>
 #include <Time.h>
 #include <TimeLib.h>
 #include <NtpClientLib.h>
-#include "AsyncPing.h"
+#include <AsyncPing.h>
+#include <AsyncMqttClient.h>
 #include "spbox_conf.h"
 #include "credentials.h"
 
 class SPBOX_CONF; // forward decl
+extern AsyncMqttClient mqttClient;
 
 class SPBOX_COM
 {
@@ -57,8 +57,12 @@ public:
 	void updatePingCB();
 	void checkPing();
 	void setInternetAvailable(u16_t total_sent, u16_t total_recv, u32_t total_time);
-	bool getInternetAvailalbe();
+	bool getInternetAvailable();
 	bool getAndClearInternetChanged();
+	void updateMqttCB();
+	void checkMqtt();
+	void setMqttAvailable(bool avail);
+	bool getMqttAvailable();
 private:
 	WiFiClient				client_;
 	WiFiEventHandler		gotIpEventHandler_;
@@ -67,14 +71,14 @@ private:
 	IPAddress				pingAddress_;
 
 	SPBOX_CONF				*conf_;
-	Adafruit_MQTT_Client	*mqtt_;
-	Adafruit_MQTT_Publish	*battery_;
 	bool					wlan_initialized_;
 	bool					ota_initialized_;
-	bool					mqtt_initialized_;
+	//bool					mqtt_initialized_;
 	bool					doPing_;
 	bool					internetAvailable_;
 	bool					internetChanged_;
+	bool					doUpdateMqtt_;
+	bool					mqttAvailable_;
 
 	void onSTAGotIP(WiFiEventStationModeGotIP ipInfo);
 	void onSTADisconnected(WiFiEventStationModeDisconnected event_info);
@@ -82,16 +86,6 @@ private:
 
 protected:
 };
-
-//void update_mqtt_cb(void *arg) {
-//	do_update_mqtt = true;
-//}
-//void setup_update_mqtt_timer()
-//{
-//	os_timer_disarm(&timer_update_mqtt);
-//	os_timer_setfn(&timer_update_mqtt, (os_timer_func_t *)update_mqtt_cb, (void *)0);
-//	os_timer_arm(&timer_update_mqtt, 10000, true);	// DELAY_MS_1MIN
-//}
 
 extern SPBOX_COM com;
 #endif

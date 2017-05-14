@@ -50,12 +50,14 @@ public:
 	void updateDisplayWithPrintBuffer();
 
 	void setInternetAvailable(bool avail) { manageInternetAvailable_ = true; internetAvailable_ = avail; }
+	void setMqttAvailable(bool avail) { setMqttAvailable_ = avail; }
 private:
 	char displaybuffer_[4][22];  // 4 lines with 22 chars each
 	char tempbuffer_[3][15];     // temp for float to str conversion
 	bool update_display_;
 	bool manageInternetAvailable_;	// will internet tracked in Display, too?
 	bool internetAvailable_;	// not nice, needs rework
+	bool setMqttAvailable_;
 protected:
 };
 

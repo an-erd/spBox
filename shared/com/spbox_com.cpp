@@ -30,14 +30,79 @@ SOFTWARE.
 #define DEBUGLOG(...)
 #endif
 
-LOCAL os_timer_t timerPing;					// regular ping
-void updatePing_CB(void *arc) {
-	com.updatePingCB();
+// regular ping to check availale internet connection
+LOCAL os_timer_t timerPing;
+void updatePing_CB(void *arc) { com.updatePingCB(); }
+
+// regular MQTT publish on health data
+LOCAL os_timer_t timerUpdateMqtt;
+void updateMQtt_CB(void *arc) { com.updateMqttCB(); }
+
+AsyncMqttClient mqttClient;
+
+void onMqttConnect(bool sessionPresent) {
+	Serial.println("** Connected to the broker **");
+	Serial.print("Session present: ");
+	Serial.println(sessionPresent);
+	com.setMqttAvailable(true);
+
+	//uint16_t packetIdSub = mqttClient.subscribe("andreaserd/feeds/battery", 2);
+	//Serial.print("Subscribing at QoS 2, packetId: ");
+	//Serial.println(packetIdSub);
+
+	//mqttClient.publish("/feeds/battery", 0, true, "111");
+	//Serial.println("Publishing at QoS 0");
+
+	//uint16_t packetIdPub1 = mqttClient.publish("/feeds/battery", 1, true, "222");
+	//Serial.print("Publishing at QoS 1, packetId: ");
+	//Serial.println(packetIdPub1);
+
+	//uint16_t packetIdPub2 = mqttClient.publish("/feeds/battery", 2, true, "333");
+	//Serial.print("Publishing at QoS 2, packetId: ");
+	//Serial.println(packetIdPub2);
 }
 
-//Adafruit_MQTT_Client	mqtt(&client, AIO_SERVER, AIO_SERVERPORT, AIO_USERNAME, AIO_KEY);
-//Adafruit_MQTT_Publish	battery = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/battery");
-//LOCAL os_timer_t timer_update_mqtt;
+void onMqttDisconnect(AsyncMqttClientDisconnectReason reason) {
+	Serial.println("** Disconnected from the broker **");
+	Serial.print("Reason: "); Serial.println((int)reason);
+	com.setMqttAvailable(false);
+	//Serial.println("Reconnecting to MQTT...");
+	//mqttClient.connect();
+}
+void onMqttSubscribe(uint16_t packetId, uint8_t qos) {
+	Serial.println("** Subscribe acknowledged **");
+	Serial.print("  packetId: ");
+	Serial.println(packetId);
+	Serial.print("  qos: ");
+	Serial.println(qos);
+}
+void onMqttUnsubscribe(uint16_t packetId) {
+	Serial.println("** Unsubscribe acknowledged **");
+	Serial.print("  packetId: ");
+	Serial.println(packetId);
+}
+void onMqttMessage(char* topic, char* payload, AsyncMqttClientMessageProperties properties, size_t len, size_t index, size_t total) {
+	Serial.println("** Publish received **");
+	Serial.print("  topic: ");
+	Serial.println(topic);
+	Serial.print("  qos: ");
+	Serial.println(properties.qos);
+	Serial.print("  dup: ");
+	Serial.println(properties.dup);
+	Serial.print("  retain: ");
+	Serial.println(properties.retain);
+	Serial.print("  len: ");
+	Serial.println(len);
+	Serial.print("  index: ");
+	Serial.println(index);
+	Serial.print("  total: ");
+	Serial.println(total);
+}
+void onMqttPublish(uint16_t packetId) {
+	Serial.println("** Publish acknowledged **");
+	Serial.print("  packetId: ");
+	Serial.println(packetId);
+}
 
 SPBOX_COM::SPBOX_COM()
 {
@@ -52,6 +117,10 @@ void SPBOX_COM::initialize()
 {
 	os_timer_disarm(&timerPing);
 	os_timer_setfn(&timerPing, (os_timer_func_t *)updatePing_CB, (void *)0);
+
+	os_timer_disarm(&timerUpdateMqtt);
+	os_timer_setfn(&timerUpdateMqtt, (os_timer_func_t *)updateMQtt_CB, (void *)0);
+	os_timer_arm(&timerUpdateMqtt, DELAY_MS_TENSEC, true);
 }
 
 void SPBOX_COM::initializeWlan()
@@ -153,28 +222,17 @@ void SPBOX_COM::initializeMQTT()
 {
 	DEBUGLOG("Initialize MQTT\r\n");
 
-	//mqtt_ = new Adafruit_MQTT_Client(&client_, AIO_SERVER, AIO_SERVERPORT, AIO_USERNAME, AIO_KEY);
-	//battery_ = new Adafruit_MQTT_Publish(&mqtt_, AIO_USERNAME "/feeds/battery");
+	mqttClient.onConnect(onMqttConnect);
+	mqttClient.onDisconnect(onMqttDisconnect);
+	mqttClient.onSubscribe(onMqttSubscribe);
+	mqttClient.onUnsubscribe(onMqttUnsubscribe);
+	mqttClient.onMessage(onMqttMessage);
+	mqttClient.onPublish(onMqttPublish);
 
-	//int8_t ret;
-
-	//while ((ret = mqtt_->connect()) != 0) {
-	//	switch (ret) {
-	//	case 1: Serial.println(F("Wrong protocol")); break;
-	//	case 2: Serial.println(F("ID rejected")); break;
-	//	case 3: Serial.println(F("Server unavail")); break;
-	//	case 4: Serial.println(F("Bad user/pass")); break;
-	//	case 5: Serial.println(F("Not authed")); break;
-	//	case 6: Serial.println(F("Failed to subscribe")); break;
-	//	default: Serial.println(F("Connection failed")); break;
-	//	}
-
-	//	if (ret >= 0)
-	//		mqtt_->disconnect();
-
-	//	DEBUGLOG("MQTT: Retrying connection... \r\n");
-	//}
-	//DEBUGLOG("MQTT: Connected!\r\n");
+	mqttClient.setServer(AIO_SERVER, AIO_SERVERPORT);
+	mqttClient.setKeepAlive(15).setCleanSession(false).setCredentials(AIO_USERNAME, AIO_KEY);
+	mqttClient.disconnect();
+	DEBUGLOG("Initialize MQTT done\r\n");
 }
 
 void SPBOX_COM::updatePingCB()
@@ -197,17 +255,21 @@ void SPBOX_COM::setInternetAvailable(u16_t total_sent, u16_t total_recv, u32_t t
 		return;
 
 	if (internetAvail) {
+		Serial.println("Inet available");
 		NTP.begin("pool.ntp.org", 1, true);
+		mqttClient.connect();
 	}
 	else {
+		Serial.println("Inet not available");
 		NTP.stop(); // NTP sync can be disabled to avoid sync errors
+		mqttClient.disconnect();
 	}
 
 	internetAvailable_ = internetAvail;
 	internetChanged_ = true;
 }
 
-bool SPBOX_COM::getInternetAvailalbe()
+bool SPBOX_COM::getInternetAvailable()
 {
 	return internetAvailable_;
 }
@@ -221,14 +283,64 @@ bool SPBOX_COM::getAndClearInternetChanged()
 	return true;
 }
 
+void SPBOX_COM::updateMqttCB()
+{
+	doUpdateMqtt_ = true;
+}
+
+void SPBOX_COM::checkMqtt()
+{
+	if (!doUpdateMqtt_)
+		return;
+	doUpdateMqtt_ = false;
+
+	if (!mqttClient.connected()) {
+		if (internetAvailable_)
+			mqttClient.connect();
+		return;
+	}
+
+	Serial.println("updateMqtt: ");
+	uint16_t vbatADC;
+	char text[7];
+
+	vbatADC = analogRead(VBAT_PIN);
+	Serial.println(vbatADC);
+	snprintf(text, 7, "%d", vbatADC);
+
+	mqttClient.publish("andreaserd/feeds/battery", 0, true, text);
+	Serial.println("Publishing at QoS 0");
+
+	//updateVbat();
+//	if (!battery.publish(g_vbatADC)) {
+//#ifdef SERIAL_STATUS_OUTPUT
+//		Serial.println(F("Update vbat Failed."));
+//#endif
+//	}
+//	else {
+//#ifdef SERIAL_STATUS_OUTPUT
+//		Serial.println(F("Update vbat Success!"));
+//#endif
+//	}
+//}
+}
+
+void SPBOX_COM::setMqttAvailable(bool avail)
+{
+	mqttAvailable_ = avail;
+}
+
+bool SPBOX_COM::getMqttAvailable()
+{
+	return mqttAvailable_;
+}
+
 void SPBOX_COM::onSTAGotIP(WiFiEventStationModeGotIP ipInfo)
 {
 	DEBUGLOG("Got IP: %s\r\n", ipInfo.ip.toString().c_str());
 #ifdef DEBUG_COM
 	Serial.printf("Got IP: %s\r\n", ipInfo.ip.toString().c_str());
 #endif
-	NTP.begin("pool.ntp.org", 1, true);
-	//NTP.setInterval(5, 30);
 
 	os_timer_disarm(&timerPing);
 	os_timer_arm(&timerPing, DELAY_MS_TENSEC, true);
@@ -265,26 +377,3 @@ void SPBOX_COM::onNTPSyncEvent(NTPSyncEvent_t event)
 }
 
 SPBOX_COM com;
-
-//volatile bool	do_update_mqtt;
-//
-//void check_mqtt()
-//{
-//	if (!do_update_mqtt)
-//		return;
-//
-//	do_update_mqtt = false;
-//
-//	updateVbat();
-//
-//	if (!battery.publish(g_vbatADC)) {
-//#ifdef SERIAL_STATUS_OUTPUT
-//		Serial.println(F("Update vbat Failed."));
-//#endif
-//	}
-//	else {
-//#ifdef SERIAL_STATUS_OUTPUT
-//		Serial.println(F("Update vbat Success!"));
-//#endif
-//	}
-//}
