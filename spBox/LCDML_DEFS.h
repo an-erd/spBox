@@ -13,9 +13,10 @@
 #define _LCDML_scrollbar_w		6
 #define _LCDML_DISP_cols		_LCDML_cols
 #define _LCDML_DISP_rows		_LCDML_rows
+#define _LCDML_DISP_cfg_initscreen_time		10000
 
 // LCDMenuLib_add(id, group, prev_layer_element, new_element_num, lang_char_array, callback_function)
-#define _LCDML_DISP_cnt    33
+#define _LCDML_DISP_cnt    34
 LCDML_DISP_init(_LCDML_DISP_cnt);
 LCDML_DISP_add(0, _LCDML_G1, LCDML_root, 1, "Sensor", LCDML_FUNC);
 LCDML_DISP_add(1, _LCDML_G1, LCDML_root_1, 1, "\232berblick", LCDML_FUNC_sensor_overview);
@@ -51,6 +52,7 @@ LCDML_DISP_add(30, _LCDML_G1, LCDML_root_4_3, 2, "Gyro", LCDML_FUNC);
 LCDML_DISP_add(31, _LCDML_G1, LCDML_root_4_3, 3, "Kompass", LCDML_FUNC);
 LCDML_DISP_add(32, _LCDML_G1, LCDML_root_4_3, 4, "Zur\201ck", LCDML_FUNC_back);
 LCDML_DISP_add(33, _LCDML_G1, LCDML_root_4, 5, "Zur\201ck", LCDML_FUNC_back);
+LCDML_DISP_add(34, _LCDML_G7, LCDML_root, 6, "Initscreen", LCDML_FUNC_initscreen); // in g7 => hidden
 LCDML_DISP_createMenu(_LCDML_DISP_cnt);
 
 #define _LCDML_BACK_cnt    1  // last backend function id
