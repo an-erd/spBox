@@ -1,0 +1,39 @@
+/*
+MIT License
+
+Copyright (c) 2017 Andreas Erdmann
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
+
+# spBox-BOM
+
+1x Adafruit Feather HUZZAH with ESP8266 WiFi, PRODUCT ID: 2821, https://www.adafruit.com/product/2821
+1x Adafruit FeatherWing OLED - 128x32 OLED Add-on For All Feather Boards, PRODUCT ID: 2900, https://www.adafruit.com/product/2900
+1x Adafruit Short Feather Headers Kit - 12-pin and 16-pin Female Header Set, PRODUCT ID: 2940, https://www.adafruit.com/product/2940
+1x SparkFun Rotary Encoder - Illuminated (RGB), PRODUCT ID: COM-10982, https://www.sparkfun.com/products/10982
+1x SparkFun Clear Plastic Knob, PRODUCT ID: COM-10597, https://www.sparkfun.com/products/10597
+1x SparkFun Rotary Encoder Breakout - Illuminated (RG/RGB), PRODUCT ID: BOB-11722, https://www.sparkfun.com/products/11722 
+1x GY-87 10DOF 3-Achsen Gyroskop Accelerometer MPU6050 HMC5883L BMP180 Sensor Modul
+1x LiPo Akku 400mAh (3.7 V, 2 mm JST), 28mm x 25mm x 5.8mm, e.g. http://www.exp-tech.de/lipo-akku-400mah
+1x SPDT Schalter Mikro Slide Switch, dimensions see SketchUp Model, e.g. http://www.ebay.de/itm/161709736274
+1x Resistor 271K (for voltage divider)
+1x Resistor 1271K (for voltage divider)
+1x 3d printed box according to SketchUp 2017 model
+2x M3x10mm screws

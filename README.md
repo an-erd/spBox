@@ -115,7 +115,7 @@ EN		Connected via switch to GND to turn of the board.
 Software TIMER usage
 ====================
 In the software the following timer are used. In addition to them, there may 
-be used mor (e.g. in time.h used from NTPClientLib)
+be used more (e.g. in time.h used from NTPClientLib)
 
 LOCAL os_timer_t timerUpdateAccelGyroMag;	// read Accel, Gyro and Mag regularly
 LOCAL os_timer_t timerUpdateTempPress;		// prepare temperature and pressure regularly
@@ -124,7 +124,7 @@ LOCAL os_timer_t timerUpdateMqtt;			// pusblish health data to IO
 
 Power consumption
 =================
-not optimizes yet. Device should power off or put itself in sleep mode after 
+not optimized yet. Device should power off or put itself in sleep mode after 
 whatever time. How to wake up again? Reset?
 * https://www.i2cdevlib.com/docs/html/class_m_p_u6050.html
 * PCB stuff, see https://bengoncalves.wordpress.com/2015/10/02/arduino-power-down-mode-with-accelerometer-compass-and-pressure-sensor/
