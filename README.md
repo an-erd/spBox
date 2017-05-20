@@ -122,7 +122,6 @@ LOCAL os_timer_t timerUpdateTempPress;		// prepare temperature and pressure regu
 LOCAL os_timer_t timerUpdateSteps;			// handle different BMP085 preparation duration for temperature and pressure
 LOCAL os_timer_t timerUpdateMqtt;			// pusblish health data to IO
 
-
 Power consumption
 =================
 not optimizes yet. Device should power off or put itself in sleep mode after 
