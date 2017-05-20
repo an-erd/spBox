@@ -293,3 +293,51 @@ void LCDML_DISP_loop(LCDML_FUNC_test2)
 void LCDML_DISP_loop_end(LCDML_FUNC_test2)
 {
 }
+
+// ############################################################################
+int gIdleLedBlink;		// bckw. cnt
+bool gIdleLedBlinkOn;
+#define IDLE_LED_BLINK_COUNTER	99
+// 1 cyle on, 9 cycle off
+void LCDML_DISP_setup(LCDML_FUNC_initscreen)
+{
+	display.ssd1306_command(SSD1306_DISPLAYOFF);
+
+	gIdleLedBlinkOn = false;
+	gIdleLedBlink = IDLE_LED_BLINK_COUNTER;
+
+	LCDML_DISP_triggerMenu(100);
+}
+
+void LCDML_DISP_loop(LCDML_FUNC_initscreen)
+{
+	if (gIdleLedBlinkOn) {
+		digitalWrite(LED_R, HIGH);	// off
+		gIdleLedBlinkOn = false;
+		gIdleLedBlink = IDLE_LED_BLINK_COUNTER;
+	}
+	else {
+		if (gIdleLedBlink == 0) {
+			digitalWrite(LED_R, LOW);	// on
+			gIdleLedBlinkOn = true;
+			gIdleLedBlink = 0;
+		}
+		else {
+			gIdleLedBlink--;
+		}
+	}
+
+	LCDML_DISP_resetIsTimer();
+	if (LCDML_BUTTON_checkAny()) {
+		LCDML_DISP_funcend();
+	}
+}
+
+void LCDML_DISP_loop_end(LCDML_FUNC_initscreen)
+{
+	display.ssd1306_command(SSD1306_DISPLAYON);
+	digitalWrite(LED_R, HIGH);	// off
+	gIdleLedBlinkOn = false;
+
+	LCDML.goRoot();	// LCDMenuLib_getActiveFuncId()
+}

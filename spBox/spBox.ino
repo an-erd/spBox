@@ -102,9 +102,9 @@ void setup() {
 			break;
 		}
 	});
-
 	LCDML_DISP_groupEnable(_LCDML_G1);
 	LCDML_setup(_LCDML_BACK_cnt);
+	LCDML_DISP_resetIsTimer();
 }
 
 void loop() {
@@ -115,9 +115,20 @@ void loop() {
 	rotenc.check();
 
 	com.checkPing();
-	if (com.getAndClearInternetChanged())
-		display.setInternetAvailable(com.getInternetAvailalbe());
-	com.checkOta();
+	if (com.getAndClearInternetChanged()) {
+		display.setInternetAvailable(com.getInternetAvailable());
+	}
+	display.setMqttAvailable(com.getMqttAvailable());
+	com.checkMqtt();
+	//com.checkOta();
+
+	// display init screen
+	if ((millis() - g_lcdml_initscreen) >= _LCDML_DISP_cfg_initscreen_time) {
+		g_lcdml_initscreen = millis();
+
+		LCDML_DISP_jumpToFunc(LCDML_FUNC_initscreen);
+	}
+	yield();
 
 	LCDML_run(_LCDML_priority);
 
