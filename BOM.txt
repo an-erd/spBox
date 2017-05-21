@@ -35,5 +35,6 @@ SOFTWARE.
 1x SPDT Schalter Mikro Slide Switch, dimensions see SketchUp Model, e.g. http://www.ebay.de/itm/161709736274
 1x Resistor 271K (for voltage divider)
 1x Resistor 1271K (for voltage divider)
+2x Resistor for LEDs
 1x 3d printed box according to SketchUp 2017 model
 2x M3x10mm screws
