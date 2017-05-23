@@ -251,3 +251,13 @@ Number: AN4248 Rev. 4.0, 11/2015
 Useful links:
   - http://www.starlino.com/imu_guide.html
 	http://www.olliw.eu/storm32bgc-wiki/Manually_Setting_the_IMU_Orientation
+	
+	
+Splash screen:
+==============
+To create the splash screen, one way is to use Gimp, only 1bit (B/W), 
+canvas size 128x32, export as .png, then use the following tool (use invert)
+https://github.com/javl/image2cpp
+Copy/paste to myconfig.h -> const unsigned char mySplash[] = {...};
+Another way is to save in Gimp as .h, but then use display.drawxbitmap() (with
+changed LSB..MSB). 

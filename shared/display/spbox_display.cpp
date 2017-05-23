@@ -32,6 +32,8 @@ SPBOX_DISPLAY display;
 
 void SPBOX_DISPLAY::initializeDisplay() {
 	begin(SSD1306_SWITCHCAPVCC, 0x3C);
+	//display();	// display buffer from Adafruit_SSD1306.cpp = Adafruit splash screen
+	//delay(2000);
 	clearDisplay();
 	setTextSize(1);
 	setTextColor(WHITE);

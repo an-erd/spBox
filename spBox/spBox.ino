@@ -60,6 +60,10 @@ void setup() {
 	initialize_GPIO();
 
 	display.initializeDisplay();
+	display.drawBitmap(0, 0, mySplash, 128, 32, 1);
+	display.display();
+	delay(2000);
+
 	sensors.initializeAccelGyro(conf.getAccelRangeScale(), conf.getGyroRangeScale());
 	sensors.initializeMag();
 	sensors.initializeBarometer();
