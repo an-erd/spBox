@@ -259,5 +259,5 @@ To create the splash screen, one way is to use Gimp, only 1bit (B/W),
 canvas size 128x32, export as .png, then use the following tool (use invert)
 https://github.com/javl/image2cpp
 Copy/paste to myconfig.h -> const unsigned char mySplash[] = {...};
-Another way is to save in Gimp as .h, but then use display.drawxbitmap() (with
-changed LSB..MSB). 
+Another way is to save in Gimp as .h, but then use display.drawXBitmap() (with
+reversed bit order left to right is  LSB..MSB). 
