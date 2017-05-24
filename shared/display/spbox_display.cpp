@@ -276,17 +276,18 @@ void SPBOX_DISPLAY::drawScrolledChar(int16_t x, int16_t y, unsigned char cA, uns
 
 	startWrite();
 	for (int8_t i = 0; i < 6; i++) {
-		uint16_t line = 0x0;
+		uint8_t line;
 
 		// line = ( cA (bit 0..7) | cB (bit 8..15) ) >>= step;
-		if (i < 5)
-			line = (pgm_read_byte(font + (cA * 5) + i) | (pgm_read_byte(font + (cB * 5) + i) <<= 8)) >>= step;
+		if (i < 5) {
+			line = (pgm_read_byte(font + (cA * 5) + i) >> step) | (pgm_read_byte(font + (cB * 5) + i) << 8 - step);
+		}
 		else
 			line = 0x0;
 
 		for (int8_t j = 0; j < 8; j++, line >>= 1) {
 			if (line & 0x1) {
-				writePixel(x + i, y + j, color);
+				writePixel(x + i, y + j, WHITE);
 			}
 		}
 	}

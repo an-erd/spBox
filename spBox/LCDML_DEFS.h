@@ -47,10 +47,10 @@ LCDML_DISP_add(25, _LCDML_G1, LCDML_root_4, 1, "Uhrzeit", LCDML_FUNC_clock);
 LCDML_DISP_add(26, _LCDML_G1, LCDML_root_4, 2, "Besitzer", LCDML_FUNC_ownerinformation);
 LCDML_DISP_add(27, _LCDML_G1, LCDML_root_4, 3, "QR-Code", LCDML_FUNC_test2);
 LCDML_DISP_add(28, _LCDML_G1, LCDML_root_4, 4, "Sensor-Ausrichtung", LCDML_FUNC);
-LCDML_DISP_add(29, _LCDML_G1, LCDML_root_4_3, 1, "Accel", LCDML_FUNC);
-LCDML_DISP_add(30, _LCDML_G1, LCDML_root_4_3, 2, "Gyro", LCDML_FUNC);
-LCDML_DISP_add(31, _LCDML_G1, LCDML_root_4_3, 3, "Kompass", LCDML_FUNC);
-LCDML_DISP_add(32, _LCDML_G1, LCDML_root_4_3, 4, "Zur\201ck", LCDML_FUNC_back);
+LCDML_DISP_add(29, _LCDML_G1, LCDML_root_4_4, 1, "Accel", LCDML_FUNC_scrolltest);
+LCDML_DISP_add(30, _LCDML_G1, LCDML_root_4_4, 2, "Gyro", LCDML_FUNC);
+LCDML_DISP_add(31, _LCDML_G1, LCDML_root_4_4, 3, "Kompass", LCDML_FUNC);
+LCDML_DISP_add(32, _LCDML_G1, LCDML_root_4_4, 4, "Zur\201ck", LCDML_FUNC_back);
 LCDML_DISP_add(33, _LCDML_G1, LCDML_root_4, 5, "Zur\201ck", LCDML_FUNC_back);
 LCDML_DISP_add(34, _LCDML_G7, LCDML_root, 6, "Initscreen", LCDML_FUNC_initscreen); // in g7 => hidden
 LCDML_DISP_createMenu(_LCDML_DISP_cnt);
