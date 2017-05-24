@@ -27,6 +27,7 @@ SOFTWARE.
 #include "missing_str_util.h"
 #include "spbox_display.h"
 #include "spbox_sensors.h"
+#include "glcdfont.c"
 
 SPBOX_DISPLAY display;
 
@@ -257,4 +258,37 @@ void SPBOX_DISPLAY::updateDisplayWithPrintBuffer() {
 	println(displaybuffer_[2]);
 	println(displaybuffer_[3]);
 	display();
+}
+
+void SPBOX_DISPLAY::drawScrolledChar(int16_t x, int16_t y, unsigned char cA, unsigned char cB, uint8_t step)
+{
+	if (gfxFont)
+		return;
+
+	if ((x >= _width) || // Clip right
+		(y >= _height) || // Clip bottom
+		((x + 6 - 1) < 0) || // Clip left
+		((y + 8 - 1) < 0))   // Clip top
+		return;
+
+	if (!_cp437 && (cA >= 176)) cA++; // Handle 'classic' charset behavior
+	if (!_cp437 && (cB >= 176)) cB++; // Handle 'classic' charset behavior
+
+	startWrite();
+	for (int8_t i = 0; i < 6; i++) {
+		uint16_t line = 0x0;
+
+		// line = ( cA (bit 0..7) | cB (bit 8..15) ) >>= step;
+		if (i < 5)
+			line = (pgm_read_byte(font + (cA * 5) + i) | (pgm_read_byte(font + (cB * 5) + i) <<= 8)) >>= step;
+		else
+			line = 0x0;
+
+		for (int8_t j = 0; j < 8; j++, line >>= 1) {
+			if (line & 0x1) {
+				writePixel(x + i, y + j, color);
+			}
+		}
+	}
+	endWrite();
 }
