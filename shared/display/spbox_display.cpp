@@ -219,6 +219,43 @@ void SPBOX_DISPLAY::updateDisplayScr6() {
 	display();
 }
 
+// Configure Altitude screen:
+// smallerVal and largerVal are the smaller and larger(or equal) configured values,
+// step is the scrolled text animation step (see drawScrolledText())
+// bool increase true: animate from smallerVal -> largerVal
+// position is the position of the number to configure (pos 0 is 10^0, pos 1 is 10^1, ...)
+// Line 1/2 -> altitude input with "-" above/below to mark position
+// Line 3 -> Abbruch, Line 4 -> OK
+void SPBOX_DISPLAY::updateDisplayScr7(int16_t smallerVal, int16_t largerVal, uint8_t step, bool increase, uint8_t position)
+{
+	unsigned char textA[6];
+	unsigned char textB[6];
+	bool skip[] = { false, false, false, false, false, false, };
+	uint8_t tmpStep = (step > 8) ? 8 : step;	// i.e. only update position marker
+
+	snprintf((char*)textA, 5, "%4d", smallerVal);
+	snprintf((char*)textB, 5, "%4d", largerVal);
+	for (int i = 0; i < 4; i++)
+		skip[i] = textA[i] == textB[i];
+
+	clearDisplay();
+
+	// "neue Höhe: xxxxx m"	-> 18 chars
+	setCursor(0, 4);
+	print("Neue H\224he:");
+	drawScrolledText(11 * 6, 4, 5, textA, textB, skip, (increase ? step : 8 - step));
+
+	// Position marker
+	drawLine((11 + position) * 6, 2, (11 + position) * 6 + 4, 2, WHITE);
+	drawLine((11 + position) * 6, 12, (11 + position) * 6 + 4, 12, WHITE);
+
+	setCursor(0, 16);
+	println("Abbruch");
+	print("OK");
+
+	display();
+}
+
 void SPBOX_DISPLAY::updatePrintBufferScr4_speed(long val)
 {
 	snprintf(displaybuffer_[0], 21, "Alt %d", val);

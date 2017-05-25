@@ -11,13 +11,18 @@ void LCDML_lcd_menu_display()
 			}
 			display.setCursor(_LCDML_FONT_W, _LCDML_FONT_H * (n));
 
+			if (LCDML.content_id[n] == LCDML_MENU_ALTITUDE) {
+				float altitude;
+				char tempbuf[8];
+
+				sensors.getAltitude(&altitude);
+				dtostrf(altitude, 1, 0, tempbuf);
+				snprintf(g_LCDML_DISP_lang_table[LCDML.content_id[n]], 20, "Konfig H\224he: %s m", tempbuf);
+			}
+
 			switch (LCDML.content_id[n]) {
-				//case 0: // dynamic content
-				//	display.setCursor(0, _LCDML_FONT_H * (n));
-				//	display.println("var_datetime");
-				//	break;
 			default: // static content
-				display.println(LCDML.content[n]);
+				display.println(g_LCDML_DISP_lang_table[LCDML.content_id[n]]);
 				break;
 			}
 		}

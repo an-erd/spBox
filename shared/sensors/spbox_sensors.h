@@ -115,6 +115,8 @@ public:
 	void getTemperature(float *temperature);
 	void getPressure(float *pressure);
 	void getAltitude(float *altitude);
+	void setPressureAtSealevel(float seaLevelPressure = 101325);	// no arguments -> reset
+	float calcPressureAtSealevel(float altitude);
 	void updateVBat();
 	float getVBat();
 
@@ -140,6 +142,7 @@ private:
 	float		pressure_;			// pressure (sensor)
 	float		altitude_;			// altitude (sensor)
 
+	float		pressureAtSealevel_; //
 	float		vbatFloat_;
 
 	volatile	BMP085UpdateSteps_t _updateStep;
