@@ -51,6 +51,9 @@ public:
 
 	void setInternetAvailable(bool avail) { manageInternetAvailable_ = true; internetAvailable_ = avail; }
 	void setMqttAvailable(bool avail) { setMqttAvailable_ = avail; }
+
+	void drawScrolledChar(int16_t x, int16_t y, unsigned char cA, unsigned char cB, uint8_t step);
+	void drawScrolledText(int16_t x, int16_t y, uint8_t len, unsigned char *textA, unsigned char *textB, bool *skip, uint8_t step);
 private:
 	char displaybuffer_[4][22];  // 4 lines with 22 chars each
 	char tempbuffer_[3][15];     // temp for float to str conversion

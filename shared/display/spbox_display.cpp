@@ -27,6 +27,7 @@ SOFTWARE.
 #include "missing_str_util.h"
 #include "spbox_display.h"
 #include "spbox_sensors.h"
+#include "glcdfont.c"
 
 SPBOX_DISPLAY display;
 
@@ -257,4 +258,68 @@ void SPBOX_DISPLAY::updateDisplayWithPrintBuffer() {
 	println(displaybuffer_[2]);
 	println(displaybuffer_[3]);
 	display();
+}
+
+// draw a vertically scrolled char "between" char A and char B. This can be
+// used to show nice smoth scolled chars when e.g. input a value with rotary
+// encoder.
+//
+// x and y are the top left coordinates of the resulting char.
+// Char A is top char, char B is the bottom char,
+// step defines how much the window to show is moved down.
+// Example:
+// - step = 0: char A is shown
+// - step = 8: char B is shown
+// - step = 4: bottom half of char A and top half of char B is show
+//
+// Remark: only 'Classic' built-in font is available, only size = 1, only color WHITE
+//
+void SPBOX_DISPLAY::drawScrolledChar(int16_t x, int16_t y, unsigned char cA, unsigned char cB, uint8_t step)
+{
+	// only 'Classic' built-in font is available
+	if (gfxFont)
+		return;
+
+	// clip (right, bottom, left, top)
+	if ((x >= _width) || (y >= _height) || ((x + 6 - 1) < 0) || ((y + 8 - 1) < 0))
+		return;
+	// Handle 'classic' charset behavior
+	if (!_cp437 && (cA >= 176)) cA++;
+	if (!_cp437 && (cB >= 176)) cB++;
+
+	startWrite();
+	for (int8_t i = 0; i < 6; i++) {
+		uint8_t line;
+
+		// line = (( cA (bit 0..7) | cB (bit 8..15) ) >> step ) & 0xFF;
+		if (i < 5) {
+			line = (pgm_read_byte(font + (cA * 5) + i) >> step) | (pgm_read_byte(font + (cB * 5) + i) << 8 - step);
+		}
+		else
+			line = 0x0;
+
+		for (int8_t j = 0; j < 8; j++, line >>= 1) {
+			if (line & 0x1) {
+				writePixel(x + i, y + j, WHITE);
+			}
+		}
+	}
+	endWrite();
+}
+
+// draw a vertically scrolled text "between" textA and textB, see also drawScrolledChar()
+//
+// x and y are the top left coordinates of the resulting text.
+// len the length, textA and textB the text arrays
+// the skip array can be used to not scroll and keep just textA[...] fixed, e.g. for a decimal point.
+// step defines how much the window to show is moved down.
+//
+void SPBOX_DISPLAY::drawScrolledText(int16_t x, int16_t y, uint8_t len, unsigned char * textA, unsigned char * textB, bool * skip, uint8_t step)
+{
+	for (int8_t u = 0; u < len; u++) {
+		if (skip[u])
+			drawChar(x + 6 * u, y, textA[u], WHITE, BLACK, 1);
+		else
+			drawScrolledChar(x + 6 * u, y, textA[u], textB[u], step);
+	}
 }
