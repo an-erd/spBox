@@ -350,16 +350,24 @@ void LCDML_DISP_setup(LCDML_FUNC_scrolltest)
 	display.clearDisplay();
 	display.display();
 	gScrollTestStep = 0;
-	LCDML_DISP_triggerMenu(DELAY_MS_10HZ);
+	LCDML_DISP_triggerMenu(DELAY_MS_20HZ);
 }
 
 void LCDML_DISP_loop(LCDML_FUNC_scrolltest)
 {
-	display.clearDisplay();
-	display.drawScrolledChar(0, 0, 'A', 'B', gScrollTestStep);
+	uint8_t len = 5;
+	unsigned char textA[] = { '1', '2', '3', '.', '5', };
+	unsigned char textB[] = { '2', '3', '4', '.', '6', };
+	bool skip[] = { false, false, false, true, false, };
 
-	for (int i = 0; i < 9; i++)
-		display.drawScrolledChar(6 * i, 16, 'A', 'B', i);
+	display.clearDisplay();
+
+	display.drawScrolledChar(0, 0, 'A', 'B', gScrollTestStep);
+	for (int i = 0; i < 9; i++) {
+		display.drawScrolledChar(6 * i, 8, 'A', 'B', i);
+	}
+
+	display.drawScrolledText(0, 16, len, textA, textB, skip, gScrollTestStep);
 
 	display.display();
 
