@@ -37,3 +37,11 @@
 #define DEBUG_SENSORS
 #define DEBUG_DISPLAY
 #define	SERIAL_STATUS_OUTPUT
+
+typedef enum imputAltiModes {
+	BUTTON_ALTITUDE = -1,
+	INPUT_ALTITUDE = 0,
+	BUTTON_OK = 4,
+	BUTTON_CANCEL,
+	LAST
+} inputAltiModes_t;

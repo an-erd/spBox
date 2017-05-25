@@ -17,7 +17,7 @@
 #define _LCDML_DISP_cfg_enable_use_ram_mode		1
 
 // LCDMenuLib_add(id, group, prev_layer_element, new_element_num, lang_char_array, callback_function)
-#define _LCDML_DISP_cnt    37
+#define _LCDML_DISP_cnt    34
 LCDML_DISP_init(_LCDML_DISP_cnt);
 LCDML_DISP_add_use_ram(0, _LCDML_G1, LCDML_root, 1, "Sensor", LCDML_FUNC);
 LCDML_DISP_add_use_ram(1, _LCDML_G1, LCDML_root_1, 1, "\232berblick", LCDML_FUNC_sensor_overview);
@@ -35,29 +35,26 @@ LCDML_DISP_add_use_ram(12, _LCDML_G1, LCDML_root_3, 2, "Sensor", LCDML_FUNC);
 LCDML_DISP_add_use_ram(13, _LCDML_G1, LCDML_root_3_2, 1, "Accel", LCDML_FUNC);
 LCDML_DISP_add_use_ram(14, _LCDML_G1, LCDML_root_3_2, 2, "Gyro", LCDML_FUNC);
 LCDML_DISP_add_use_ram(15, _LCDML_G1, LCDML_root_3_2, 3, "Kompass", LCDML_FUNC);
-LCDML_DISP_add_use_ram(16, _LCDML_G1, LCDML_root_3_2, 4, "H\224he", LCDML_FUNC);
-LCDML_DISP_add_use_ram(17, _LCDML_G1, LCDML_root_3_2_4, 1, "Konfig H\224he: xxx m", LCDML_FUNC_config_altitude);
-#define LCDML_MENU_ALTITUDE	17
-LCDML_DISP_add_use_ram(18, _LCDML_G1, LCDML_root_3_2_4, 2, "Reset und zur\201ck", LCDML_FUNC);
-LCDML_DISP_add_use_ram(19, _LCDML_G1, LCDML_root_3_2_4, 3, "Ok und zur\201ck", LCDML_FUNC_back);
-LCDML_DISP_add_use_ram(20, _LCDML_G1, LCDML_root_3_2, 5, "Zur\201ck", LCDML_FUNC_back);
-LCDML_DISP_add_use_ram(21, _LCDML_G1, LCDML_root_3, 3, "MQTT", LCDML_FUNC);
-LCDML_DISP_add_use_ram(22, _LCDML_G1, LCDML_root_3, 4, "EEPROM", LCDML_FUNC);
-LCDML_DISP_add_use_ram(23, _LCDML_G1, LCDML_root_3_4, 1, "In EEPROM speichern", LCDML_FUNC);
-LCDML_DISP_add_use_ram(24, _LCDML_G1, LCDML_root_3_4, 2, "Aus EEPROM lesen", LCDML_FUNC_config_altitude);
-LCDML_DISP_add_use_ram(25, _LCDML_G1, LCDML_root_3_4, 3, "Zur\201ck", LCDML_FUNC_back);
-LCDML_DISP_add_use_ram(26, _LCDML_G1, LCDML_root_3, 5, "Zur\201ck", LCDML_FUNC_back);
-LCDML_DISP_add_use_ram(27, _LCDML_G1, LCDML_root, 4, "Information", LCDML_FUNC);
-LCDML_DISP_add_use_ram(28, _LCDML_G1, LCDML_root_4, 1, "Uhrzeit", LCDML_FUNC_clock);
-LCDML_DISP_add_use_ram(29, _LCDML_G1, LCDML_root_4, 2, "Besitzer", LCDML_FUNC_ownerinformation);
-LCDML_DISP_add_use_ram(30, _LCDML_G1, LCDML_root_4, 3, "QR-Code", LCDML_FUNC_test2);
-LCDML_DISP_add_use_ram(31, _LCDML_G1, LCDML_root_4, 4, "Sensor-Ausrichtung", LCDML_FUNC);
-LCDML_DISP_add_use_ram(32, _LCDML_G1, LCDML_root_4_4, 1, "Accel", LCDML_FUNC_scrolltest);
-LCDML_DISP_add_use_ram(33, _LCDML_G1, LCDML_root_4_4, 2, "Gyro", LCDML_FUNC);
-LCDML_DISP_add_use_ram(34, _LCDML_G1, LCDML_root_4_4, 3, "Kompass", LCDML_FUNC);
-LCDML_DISP_add_use_ram(35, _LCDML_G1, LCDML_root_4_4, 4, "Zur\201ck", LCDML_FUNC_back);
-LCDML_DISP_add_use_ram(36, _LCDML_G1, LCDML_root_4, 5, "Zur\201ck", LCDML_FUNC_back);
-LCDML_DISP_add_use_ram(37, _LCDML_G7, LCDML_root, 6, "Initscreen", LCDML_FUNC_initscreen); // in g7 => hidden
+LCDML_DISP_add_use_ram(16, _LCDML_G1, LCDML_root_3_2, 4, "H\224he", LCDML_FUNC_config_altitude);
+#define LCDML_MENU_ALTITUDE	16
+LCDML_DISP_add_use_ram(17, _LCDML_G1, LCDML_root_3_2, 5, "Zur\201ck", LCDML_FUNC_back);
+LCDML_DISP_add_use_ram(18, _LCDML_G1, LCDML_root_3, 3, "MQTT", LCDML_FUNC);
+LCDML_DISP_add_use_ram(19, _LCDML_G1, LCDML_root_3, 4, "EEPROM", LCDML_FUNC);
+LCDML_DISP_add_use_ram(20, _LCDML_G1, LCDML_root_3_4, 1, "In EEPROM speichern", LCDML_FUNC);
+LCDML_DISP_add_use_ram(21, _LCDML_G1, LCDML_root_3_4, 2, "Aus EEPROM lesen", LCDML_FUNC_config_altitude);
+LCDML_DISP_add_use_ram(22, _LCDML_G1, LCDML_root_3_4, 3, "Zur\201ck", LCDML_FUNC_back);
+LCDML_DISP_add_use_ram(23, _LCDML_G1, LCDML_root_3, 5, "Zur\201ck", LCDML_FUNC_back);
+LCDML_DISP_add_use_ram(24, _LCDML_G1, LCDML_root, 4, "Information", LCDML_FUNC);
+LCDML_DISP_add_use_ram(25, _LCDML_G1, LCDML_root_4, 1, "Uhrzeit", LCDML_FUNC_clock);
+LCDML_DISP_add_use_ram(26, _LCDML_G1, LCDML_root_4, 2, "Besitzer", LCDML_FUNC_ownerinformation);
+LCDML_DISP_add_use_ram(27, _LCDML_G1, LCDML_root_4, 3, "QR-Code", LCDML_FUNC_test2);
+LCDML_DISP_add_use_ram(28, _LCDML_G1, LCDML_root_4, 4, "Sensor-Ausrichtung", LCDML_FUNC);
+LCDML_DISP_add_use_ram(29, _LCDML_G1, LCDML_root_4_4, 1, "Accel", LCDML_FUNC_scrolltest);
+LCDML_DISP_add_use_ram(30, _LCDML_G1, LCDML_root_4_4, 2, "Gyro", LCDML_FUNC);
+LCDML_DISP_add_use_ram(31, _LCDML_G1, LCDML_root_4_4, 3, "Kompass", LCDML_FUNC);
+LCDML_DISP_add_use_ram(32, _LCDML_G1, LCDML_root_4_4, 4, "Zur\201ck", LCDML_FUNC_back);
+LCDML_DISP_add_use_ram(33, _LCDML_G1, LCDML_root_4, 5, "Zur\201ck", LCDML_FUNC_back);
+LCDML_DISP_add_use_ram(34, _LCDML_G7, LCDML_root, 6, "Initscreen", LCDML_FUNC_initscreen); // in g7 => hidden
 LCDML_DISP_createMenu_use_ram(_LCDML_DISP_cnt);
 
 #define _LCDML_BACK_cnt    1  // last backend function id

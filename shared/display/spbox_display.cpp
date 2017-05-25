@@ -226,7 +226,7 @@ void SPBOX_DISPLAY::updateDisplayScr6() {
 // position is the position of the number to configure (pos 0 is 10^0, pos 1 is 10^1, ...)
 // Line 1/2 -> altitude input with "-" above/below to mark position
 // Line 3 -> Abbruch, Line 4 -> OK
-void SPBOX_DISPLAY::updateDisplayScr7(int16_t smallerVal, int16_t largerVal, uint8_t step, bool increase, uint8_t position)
+void SPBOX_DISPLAY::updateDisplayScr7(int16_t smallerVal, int16_t largerVal, uint8_t step, bool increase, uint8_t position, int mode)
 {
 	unsigned char textA[6];
 	unsigned char textB[6];
@@ -240,18 +240,36 @@ void SPBOX_DISPLAY::updateDisplayScr7(int16_t smallerVal, int16_t largerVal, uin
 
 	clearDisplay();
 
-	// "neue Höhe: xxxxx m"	-> 18 chars
-	setCursor(0, 4);
-	print("Neue H\224he:");
-	drawScrolledText(11 * 6, 4, 5, textA, textB, skip, (increase ? step : 8 - step));
+	// " Neue Höhe: xxxx m"	-> 18 chars
+	setCursor(6, 4); print("Neue H\224he:      m");
+	drawScrolledText(12 * 6, 4, 5, textA, textB, skip, (increase ? step : 8 - step));
 
 	// Position marker
-	drawLine((11 + position) * 6, 2, (11 + position) * 6 + 4, 2, WHITE);
-	drawLine((11 + position) * 6, 12, (11 + position) * 6 + 4, 12, WHITE);
+	if (mode == INPUT_ALTITUDE) {
+		drawLine((12 + position) * 6, 2, (12 + position) * 6 + 4, 2, WHITE);
+		drawLine((12 + position) * 6, 12, (12 + position) * 6 + 4, 12, WHITE);
+	}
 
-	setCursor(0, 16);
-	println("Abbruch");
-	print("OK");
+	setCursor(6, 16); print("OK");
+	setCursor(6, 24); print("Abbruch");
+
+	// draw cursor to show active item
+	switch (mode) {
+	case BUTTON_ALTITUDE:
+		setCursor(0, 4);
+		write(0x10);
+		break;
+	case BUTTON_OK:
+		setCursor(0, 16);
+		write(0x10);
+		break;
+	case BUTTON_CANCEL:
+		setCursor(0, 24);
+		write(0x10);
+		break;
+	default:
+		break;
+	}
 
 	display();
 }

@@ -29,6 +29,7 @@ SOFTWARE.
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
 #include <Adafruit_FeatherOLED_WiFi.h>
+#include "myconfig.h"
 
 class SPBOX_DISPLAY : public Adafruit_FeatherOLED_WiFi
 {
@@ -42,7 +43,7 @@ public:
 	void updateDisplayScr4();		// Sensor Kompass
 	void updateDisplayScr5();		// Uhrzeit anzeigen
 	void updateDisplayScr6();		// WLAN/Batterie Status anzeigen
-	void updateDisplayScr7(int16_t smallerVal, int16_t largerVal, uint8_t step, bool increase, uint8_t position);		// Config Altitude
+	void updateDisplayScr7(int16_t smallerVal, int16_t largerVal, uint8_t step, bool increase, uint8_t position, int mode);		// Config Altitude
 	void updatePrintBufferScr4_speed(long val);
 	void updatePrintBufferScr4_charmap(uint8_t val);
 	void updatePrintBufferScrTest();
