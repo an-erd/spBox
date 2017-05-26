@@ -45,23 +45,25 @@ SPBOX_CONF::SPBOX_CONF()
 
 void SPBOX_CONF::initialize(bool from_eeprom)
 {
+	bool result = false;
+
 	DEBUGLOG("SPBOX_CONF::Initialize");
 	if (from_eeprom) {
-		readConfFromEEPROM();
-		return;
+		result = readConfFromEEPROM();
 	}
-
-	//wlan_initialized_ = false;
-	wlan_enabled_ = true;
-	ota_mode_ = OTA_IDE;
-	ntp_enabled_ = true;
-	aio_enabled_ = true;
-	accel_range_scale_ = MPU6050_ACCEL_FS_16;
-	gyro_range_scale_ = MPU6050_GYRO_FS_2000;
-	//accel_gyro_orientation_ = 0;	// TODO
-	//mag_orientation_ = 0;		// TODO
-	//use_configured_sea_level_ = false;
-	//sea_level_pressure_ = 101325;
+	if ((!from_eeprom) || (!result)) {
+		//wlan_initialized_ = false;
+		wlan_enabled_ = true;
+		ota_mode_ = OTA_IDE;
+		ntp_enabled_ = true;
+		aio_enabled_ = true;
+		accel_range_scale_ = MPU6050_ACCEL_FS_16;
+		gyro_range_scale_ = MPU6050_GYRO_FS_2000;
+		sea_level_pressure_ = 101325;
+		//accel_gyro_orientation_ = 0;	// TODO
+		//mag_orientation_ = 0;		// TODO
+	}
+	writeConfToEEPROM();
 }
 
 void SPBOX_CONF::setWlanEnabled(bool wlan_enabled)
@@ -124,6 +126,16 @@ uint8_t SPBOX_CONF::getGyroRangeScale()
 	return gyro_range_scale_;
 }
 
+void SPBOX_CONF::setSeaLevelPressure(float seaLevelPressure)
+{
+	sea_level_pressure_ = seaLevelPressure;
+}
+
+float SPBOX_CONF::getSeaLevelPressure()
+{
+	return sea_level_pressure_;
+}
+
 bool SPBOX_CONF::writeConfToEEPROM()
 {
 	DEBUGLOG("SPBOX_CONF::writeConfToEEPROM()\n");
@@ -135,22 +147,25 @@ bool SPBOX_CONF::writeConfToEEPROM()
 	seq = EEPROM.read(i) + 1;
 	EEPROM.write(i, seq); i++;
 
+	DEBUGLOG("SPBOX_CONF::writeConfToEEPROM(), EEPROM seq %i written\n", seq);
+
 	EEPROM.write(i, wlan_enabled_); i++;
 	EEPROM.write(i, ota_mode_); i++;
 	EEPROM.write(i, ntp_enabled_); i++;
 	EEPROM.write(i, aio_enabled_); i++;
 	EEPROM.write(i, accel_range_scale_); i++;
+	EEPROM.write(i, gyro_range_scale_); i++;
 
-	temp.floatvalue = gyro_range_scale_;
+	temp.floatvalue = sea_level_pressure_;
 	EEPROM.write(i, temp.bytes[0]); i++;
-	EEPROM.write(i, temp.bytes[0]); i++;
-	EEPROM.write(i, temp.bytes[0]); i++;
-	EEPROM.write(i, temp.bytes[0]); i++;
+	EEPROM.write(i, temp.bytes[1]); i++;
+	EEPROM.write(i, temp.bytes[2]); i++;
+	EEPROM.write(i, temp.bytes[3]); i++;
 
 	return EEPROM.commit();
 }
 
-void SPBOX_CONF::readConfFromEEPROM()
+bool SPBOX_CONF::readConfFromEEPROM()
 {
 	DEBUGLOG("SPBOX_CONF::readConfFromEEPROM()\n");
 
@@ -159,24 +174,54 @@ void SPBOX_CONF::readConfFromEEPROM()
 	float_char_conversion temp;
 
 	seq = EEPROM.read(i++);
+	DEBUGLOG("SPBOX_CONF::readConfFromEEPROM(), EEPROM seq %i read\n", seq);
+	if (seq == 0)
+		return false;
+
 	wlan_enabled_ = EEPROM.read(i++);
 	ota_mode_ = (OTAModes_t)EEPROM.read(i++);
 	ntp_enabled_ = EEPROM.read(i++);
 	aio_enabled_ = EEPROM.read(i++);
 	accel_range_scale_ = EEPROM.read(i++);
+	gyro_range_scale_ = EEPROM.read(i++);
 
 	temp.bytes[0] = EEPROM.read(i++);
 	temp.bytes[1] = EEPROM.read(i++);
 	temp.bytes[2] = EEPROM.read(i++);
 	temp.bytes[3] = EEPROM.read(i++);
-	gyro_range_scale_ = temp.floatvalue;
+	sea_level_pressure_ = temp.floatvalue;
+
+	return true;
 }
 
 bool SPBOX_CONF::clearEEPROM(char seq)
 {
 	DEBUGLOG("SPBOX_CONF::clearEEPROM()\n");
-	for (int i = 0; i < 13; i++) { // 12 values + 1 free space
+	for (int i = 0; i < 20; i++) { // 11 values + x free space
 		EEPROM.write(i, 0);
 	}
 	return EEPROM.commit();
+}
+
+void SPBOX_CONF::printEEPROM(uint8_t len)
+{
+	DEBUGLOG("SPBOX_CONF::printEEPROM()\n");
+
+	int i = 0;
+	int seq;
+	float_char_conversion temp;
+	float result;
+	uint8_t readInt;
+
+	for (int i = 0; i < 20; i++) {
+		readInt = EEPROM.read(i);
+		DEBUGLOG("SPBOX_CONF::printEEPROM(), %i: %i\n", i, readInt);
+	}
+
+	//temp.bytes[0] = 128;
+	//temp.bytes[1] = 230;
+	//temp.bytes[2] = 197;
+	//temp.bytes[3] = 71;
+	//result = temp.floatvalue;
+	//DEBUGLOG("SPBOX_CONF::printEEPROM(), sealevel %d\n", (long)result);
 }

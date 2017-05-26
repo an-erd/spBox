@@ -51,7 +51,7 @@ void setup() {
 	Wire.begin();
 	EEPROM.begin(512);
 
-	conf.initialize(false);
+	conf.initialize(true);
 	com.setConf(&conf);
 	com.initialize();
 	com.initializeWlan();
@@ -73,6 +73,9 @@ void setup() {
 	sensors.initializeAccelGyro(conf.getAccelRangeScale(), conf.getGyroRangeScale());
 	sensors.initializeMag();
 	sensors.initializeBarometer();
+	sensors.setFullScaleAccelRange(conf.getAccelRangeScale());
+	sensors.setFullScaleGyroRange(conf.getGyroRangeScale());
+	sensors.setPressureAtSealevel(conf.getSeaLevelPressure());
 
 	sensors.setupUpdateAccelGyroMag();
 	sensors.startUpdateAccelGyroMag();

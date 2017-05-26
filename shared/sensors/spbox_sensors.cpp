@@ -70,7 +70,6 @@ bool SPBOX_SENSORS::initializeMag() {
 }
 bool SPBOX_SENSORS::initializeBarometer() {
 	barometer_.initialize();
-	setPressureAtSealevel();	// todo load from config
 
 	DEBUGLOG("BMP180: connection %s\r\n", (barometer_.testConnection() ? "successful" : "failed"));
 }
