@@ -17,12 +17,12 @@ void LCDML_lcd_menu_display()
 
 				sensors.getAltitude(&altitude);
 				dtostrf(altitude, 1, 0, tempbuf);
-				snprintf(g_LCDML_DISP_lang_table[LCDML.content_id[n]], 20, "Konfig H\224he: %s m", tempbuf);
+				snprintf(g_LCDML_DISP_lang_table[LCDML.content_id[n]], 20, "H\224he: %s m", tempbuf);
 			}
 
 			switch (LCDML.content_id[n]) {
 			default: // static content
-				display.println(g_LCDML_DISP_lang_table[LCDML.content_id[n]]);
+				display.print(LCDML_DISP_getRamContent(n));
 				break;
 			}
 		}
