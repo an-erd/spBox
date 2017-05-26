@@ -39,9 +39,9 @@
 #define	SERIAL_STATUS_OUTPUT
 
 typedef enum imputAltiModes {
-	BUTTON_ALTITUDE = -1,
-	INPUT_ALTITUDE = 0,
-	BUTTON_OK = 4,
+	BUTTON_ALTITUDE = 0,
+	INPUT_ALTITUDE,
+	BUTTON_OK,
 	BUTTON_CANCEL,
 	LAST
 } inputAltiModes_t;
