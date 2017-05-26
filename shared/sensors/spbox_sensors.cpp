@@ -70,6 +70,8 @@ bool SPBOX_SENSORS::initializeMag() {
 }
 bool SPBOX_SENSORS::initializeBarometer() {
 	barometer_.initialize();
+	setPressureAtSealevel();	// todo load from config
+
 	DEBUGLOG("BMP180: connection %s\r\n", (barometer_.testConnection() ? "successful" : "failed"));
 }
 
@@ -337,7 +339,7 @@ void SPBOX_SENSORS::calcAltitude()
 	// calculate absolute altitude in meters based on known pressure
 	// (may pass a second "sea level pressure" parameter here,
 	// otherwise uses the standard value of 101325 Pa)
-	altitude_ = barometer_.getAltitude(pressure_);
+	altitude_ = barometer_.getAltitude(pressure_, pressureAtSealevel_);
 }
 
 void SPBOX_SENSORS::getAccel(float * ax_f, float * ay_f, float * az_f) { *ax_f = ax_f_; *ay_f = ay_f_; *az_f = az_f_; }
@@ -368,6 +370,19 @@ void SPBOX_SENSORS::getMinMaxAccelGyro(minMaxAccelGyroEvent_t *e)
 void SPBOX_SENSORS::getTemperature(float * temperature) { *temperature = temperature_; }
 void SPBOX_SENSORS::getPressure(float * pressure) { *pressure = pressure_; }
 void SPBOX_SENSORS::getAltitude(float * altitude) { *altitude = altitude_; }
+
+// calc pressure at set level with given an absolute altitude according to the BMP085 datasheet, P. 13
+float SPBOX_SENSORS::calcPressureAtSealevel(float altitude)
+{
+	pressureAtSealevel_ = pressure_ / pow((1.0 - altitude / 44330.0), 5.255);
+
+	return pressureAtSealevel_;
+}
+
+void SPBOX_SENSORS::setPressureAtSealevel(float seaLevelPressure)
+{
+	pressureAtSealevel_ = seaLevelPressure;	// according to BMP085 data sheet
+}
 
 void SPBOX_SENSORS::updateVBat() {
 	uint16_t vbatADC;

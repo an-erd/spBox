@@ -60,6 +60,7 @@ SOFTWARE.
 #define DELAY_MS_5HZ	200
 #define DELAY_MS_10HZ	100
 #define DELAY_MS_20HZ	50
+#define DELAY_MS_40HZ	25
 #define DELAY_MS_TWOSEC	2000
 #define DELAY_MS_TENSEC	10000
 #define DELAY_MS_1MIN	60000
@@ -99,7 +100,17 @@ SOFTWARE.
 //#define DEBUG_SENSORS
 //#define DEBUG_SPBOX
 
-typedef enum OTAMode { OTA_OFF = 0, OTA_IDE = 1, OTA_HTTP_SERVER = 2, } OTAModes_t;
+typedef enum OTAMode {
+	OTA_OFF = 0, OTA_IDE = 1, OTA_HTTP_SERVER = 2,
+} OTAModes_t;
+
+typedef enum imputAltiModes {
+	BUTTON_ALTITUDE = 0,
+	INPUT_ALTITUDE,
+	BUTTON_OK,
+	BUTTON_CANCEL,
+	LAST
+} inputAltiModes_t;
 
 // Gimp exported as .png, converter used http://javl.github.io/image2cpp/
 // 'splash'

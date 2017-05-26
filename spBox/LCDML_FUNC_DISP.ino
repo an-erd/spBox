@@ -152,57 +152,145 @@ void LCDML_DISP_loop_end(LCDML_FUNC_status_wlan)
 }
 
 // ############################################################################
-bool	gConfigValueChanged;
-int16_t	gConfigAltitude;
+
+int16_t	gConfigAltitudeSmaller;
+int16_t gConfigAltitudeLarger;
+uint8_t gConfigAltitudeCurrStep;
+bool gConfigAltitudeIncrease;
+int8_t gConfigAltitudePosition;
+inputAltiModes_t gConfigAltitudeMode;
 
 void LCDML_DISP_setup(LCDML_FUNC_config_altitude)
 {
-	gConfigAltitude = 0;
-	//display.updatePrintBufferScr4_speed(gConfigAltitude);
-	display.updatePrintBufferScr4_charmap(gConfigAltitude);
-	display.updateDisplayWithPrintBuffer();
-	gConfigValueChanged = false;
+	float tmpAlt;
 
-	//LCDML_DISP_triggerMenu(DELAY_MS_10HZ);
+	sensors.getAltitude(&tmpAlt);
+
+	gConfigAltitudeSmaller = gConfigAltitudeLarger = (int16_t)tmpAlt;
+
+	gConfigAltitudeMode = BUTTON_ALTITUDE;	// initial fokus on Button
+	gConfigAltitudeCurrStep = 10;			// scroll animation paused
+	gConfigAltitudePosition = 0;			// Value of pos = 10^(3-pos)
+
+	display.updateDisplayScr7(gConfigAltitudeSmaller, gConfigAltitudeLarger, 0, true, 0, gConfigAltitudeMode);
+
+	LCDML_DISP_triggerMenu(DELAY_MS_40HZ);
 }
 
 void LCDML_DISP_loop(LCDML_FUNC_config_altitude)
 {
-	//Serial.println("enter LCDML_FUNC_config_altitude");
 	if (LCDML_BUTTON_checkEnter()) {
-		//Serial.println("checkEnter()");
-		Serial.printf("Layer: %d, Function: %d\n", LCDML.getLayer(), LCDML.getFunction());
-		LCDML_DISP_resetIsTimer();
-		LCDML_DISP_funcend();
+		switch (gConfigAltitudeMode) {
+		case BUTTON_ALTITUDE:
+			gConfigAltitudeMode = INPUT_ALTITUDE;
+			break;
+		case INPUT_ALTITUDE:
+			gConfigAltitudePosition++;
+			if (gConfigAltitudePosition > 3) {
+				gConfigAltitudePosition = 0;
+				gConfigAltitudeMode = BUTTON_OK;
+			}
+			break;
+		case BUTTON_OK:
+			LCDML_BUTTON_resetAll();
+			LCDML_DISP_resetIsTimer();
+			LCDML_DISP_funcend();
+			break;
+		case BUTTON_CANCEL:
+			LCDML_BUTTON_resetAll();
+			LCDML_DISP_resetIsTimer();
+			LCDML_DISP_funcend();
+			break;
+		default:
+			break;
+		}
+
+		display.updateDisplayScr7(gConfigAltitudeSmaller, gConfigAltitudeLarger, gConfigAltitudeCurrStep, gConfigAltitudeIncrease, gConfigAltitudePosition, gConfigAltitudeMode);
 	}
 	else
 	{
 		if (LCDML_BUTTON_checkUp()) {
-			//Serial.println("checkUp()");
-			gConfigAltitude++;
-			gConfigValueChanged = true;
+			switch (gConfigAltitudeMode) {
+			case BUTTON_ALTITUDE:
+				gConfigAltitudeMode = BUTTON_CANCEL;
+				break;
+			case INPUT_ALTITUDE:
+				// input numer -> increase number
+				gConfigAltitudeLarger += pow10(3 - gConfigAltitudePosition);
+				gConfigAltitudeIncrease = true;
+
+				if (gConfigAltitudeLarger > 9999)
+					gConfigAltitudeLarger = 9999;
+
+				if (gConfigAltitudeSmaller < gConfigAltitudeLarger)
+					gConfigAltitudeCurrStep = 0;
+				break;
+			case BUTTON_OK:
+				gConfigAltitudeMode = BUTTON_ALTITUDE;
+				break;
+			case BUTTON_CANCEL:
+				gConfigAltitudeMode = BUTTON_OK;
+				break;
+			}
 		}
 
 		if (LCDML_BUTTON_checkDown()) {
-			//Serial.println("checkDown()");
-			gConfigAltitude--;
-			gConfigValueChanged = true;
-		}
-		if (gConfigValueChanged) {
-			//Serial.printf("LCDML_DISP_loop(LCDML_FUNC_config_altitude): %d\n", gConfigAltitude);
-			gConfigValueChanged = false;
+			switch (gConfigAltitudeMode) {
+			case BUTTON_ALTITUDE:
+				gConfigAltitudeMode = BUTTON_OK;
+				break;
+			case INPUT_ALTITUDE:
+				// in input numer -> decrease number
+				gConfigAltitudeSmaller -= pow10(3 - gConfigAltitudePosition);
+				gConfigAltitudeIncrease = false;
+
+				if (gConfigAltitudeSmaller < 0)
+					gConfigAltitudeSmaller = 0;
+
+				if (gConfigAltitudeSmaller < gConfigAltitudeLarger)
+					gConfigAltitudeCurrStep = 0;
+				break;
+			case BUTTON_OK:
+				gConfigAltitudeMode = BUTTON_CANCEL;
+				break;
+			case BUTTON_CANCEL:
+				gConfigAltitudeMode = BUTTON_ALTITUDE;
+				break;
+			}
 		}
 
-		//display.updatePrintBufferScr4_speed(gConfigAltitude);
-		display.updatePrintBufferScr4_charmap(gConfigAltitude);
-		display.updateDisplayWithPrintBuffer();
+		switch (gConfigAltitudeCurrStep) {
+		case 9: // reinitialize
+			if (gConfigAltitudeIncrease)
+				gConfigAltitudeSmaller = gConfigAltitudeLarger;
+			else
+				gConfigAltitudeLarger = gConfigAltitudeSmaller;
+			gConfigAltitudeCurrStep++;
+			break;
+		case 10: // pause
+			display.updateDisplayScr7(gConfigAltitudeSmaller, gConfigAltitudeLarger, gConfigAltitudeCurrStep, gConfigAltitudeIncrease, gConfigAltitudePosition, gConfigAltitudeMode);
+			break;
+		default: // scrolled text steps 0..8
+			display.updateDisplayScr7(gConfigAltitudeSmaller, gConfigAltitudeLarger, gConfigAltitudeCurrStep, gConfigAltitudeIncrease, gConfigAltitudePosition, gConfigAltitudeMode);
+			gConfigAltitudeCurrStep++;
+			break;
+		}
 	}
-
 	LCDML_BUTTON_resetAll();
+	LCDML_DISP_resetIsTimer();
 }
 
 void LCDML_DISP_loop_end(LCDML_FUNC_config_altitude)
 {
+	float tmpPressure;
+	float tmpAlt;
+
+	if (gConfigAltitudeMode == BUTTON_OK) {
+		tmpPressure = sensors.calcPressureAtSealevel(gConfigAltitudeLarger);	// W12, L.-E. -> 102306@468.0m
+		sensors.calcAltitude();
+		sensors.getAltitude(&tmpAlt);
+		Serial.print("pressure@sealevel: "); Serial.print((long)tmpPressure); ; Serial.print(", alt: "); Serial.println((long)tmpAlt);
+	}
 }
 
 // ############################################################################
