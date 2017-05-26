@@ -11,18 +11,20 @@ void LCDML_lcd_menu_display()
 			}
 			display.setCursor(_LCDML_FONT_W, _LCDML_FONT_H * (n));
 
-			if (LCDML.content_id[n] == LCDML_MENU_ALTITUDE) {
+			switch (LCDML.content_id[n]) {
+			case LCDML_MENU_ALTITUDE:
 				float altitude;
 				char tempbuf[8];
 
 				sensors.getAltitude(&altitude);
 				dtostrf(altitude, 1, 0, tempbuf);
-				snprintf(g_LCDML_DISP_lang_table[LCDML.content_id[n]], 20, "H\224he: %s m", tempbuf);
-			}
+				display.printf("H\224he: %s m", tempbuf);
+				//snprintf(g_LCDML_DISP_lang_table[LCDML.content_id[n]], 20, "H\224he: %s m", tempbuf);	// relevant for _use_ram
+				break;
 
-			switch (LCDML.content_id[n]) {
 			default: // static content
-				display.print(LCDML_DISP_getRamContent(n));
+				//display.print(LCDML_DISP_getRamContent(n));	// relevant for _use_ram
+				display.println(LCDML.content[n]);
 				break;
 			}
 		}

@@ -16,6 +16,7 @@
 #define _LCDML_DISP_cfg_initscreen_time			10000
 #define _LCDML_DISP_cfg_enable_use_ram_mode		1
 
+/*
 #define _LCDML_DISP_cnt    34
 LCDML_DISP_init(_LCDML_DISP_cnt);
 LCDML_DISP_add_use_ram(0, _LCDML_G1, LCDML_root, 1, "Sensor", LCDML_FUNC);
@@ -55,8 +56,8 @@ LCDML_DISP_add_use_ram(32, _LCDML_G1, LCDML_root_4_4, 4, "Zur\201ck", LCDML_FUNC
 LCDML_DISP_add_use_ram(33, _LCDML_G1, LCDML_root_4, 5, "Zur\201ck", LCDML_FUNC_back);
 LCDML_DISP_add_use_ram(34, _LCDML_G7, LCDML_root, 6, "Initscreen", LCDML_FUNC_initscreen); // in g7 => hidden
 LCDML_DISP_createMenu_use_ram(_LCDML_DISP_cnt);
+*/
 
-/*
 // w/o use ram
 #define _LCDML_DISP_cnt    34
 LCDML_DISP_init(_LCDML_DISP_cnt);
@@ -97,7 +98,7 @@ LCDML_DISP_add(32, _LCDML_G1, LCDML_root_4_4, 4, "Zur\201ck", LCDML_FUNC_back);
 LCDML_DISP_add(33, _LCDML_G1, LCDML_root_4, 5, "Zur\201ck", LCDML_FUNC_back);
 LCDML_DISP_add(34, _LCDML_G7, LCDML_root, 6, "Initscreen", LCDML_FUNC_initscreen); // in g7 => hidden
 LCDML_DISP_createMenu(_LCDML_DISP_cnt);
-*/
+
 #define _LCDML_BACK_cnt    1  // last backend function id
 LCDML_BACK_init(_LCDML_BACK_cnt);
 LCDML_BACK_new_timebased_dynamic(0, (20UL), _LCDML_start, LCDML_BACKEND_control);
