@@ -274,6 +274,20 @@ void SPBOX_DISPLAY::updateDisplayScr7(int16_t smallerVal, int16_t largerVal, uin
 	display();
 }
 
+void SPBOX_DISPLAY::updateDisplayScr8(int16_t altitude)
+{
+	snprintf(displaybuffer_[0], 20, "%4dm", altitude);
+
+	clearDisplay();
+	drawBitmap(0, 0, myMountains, 32, 32, WHITE);
+
+	setCursor(36, 8);
+	setTextSize(2);
+	print(displaybuffer_[0]);
+	setTextSize(1);
+	display();
+}
+
 void SPBOX_DISPLAY::updatePrintBufferScr4_speed(long val)
 {
 	snprintf(displaybuffer_[0], 21, "Alt %d", val);

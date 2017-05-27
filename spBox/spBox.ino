@@ -64,12 +64,6 @@ void setup() {
 	display.display();
 	delay(1000);
 
-	//// Test implementation of QR code
-	//display.clearDisplay();
-	//display.drawBitmap(0, 0, myQR_Email_Splash, 128, 32, 1);
-	//display.display();
-	//delay(10000);
-
 	sensors.initializeAccelGyro(conf.getAccelRangeScale(), conf.getGyroRangeScale());
 	sensors.initializeMag();
 	sensors.initializeBarometer();

@@ -100,7 +100,7 @@ void LCDML_DISP_setup(LCDML_FUNC_kompass)
 void LCDML_DISP_loop(LCDML_FUNC_kompass)
 {
 	display.updateDisplayScr4();
-
+	LCDML_DISP_resetIsTimer();
 	if (LCDML_BUTTON_checkAny()) {
 		LCDML_BUTTON_resetAll();
 		LCDML_DISP_resetIsTimer();
@@ -109,6 +109,36 @@ void LCDML_DISP_loop(LCDML_FUNC_kompass)
 }
 
 void LCDML_DISP_loop_end(LCDML_FUNC_kompass)
+{
+}
+
+// ############################################################################
+void LCDML_DISP_setup(LCDML_FUNC_altitude)
+{
+	float tmp;
+
+	sensors.getAltitude(&tmp);
+	display.updateDisplayScr8((long)tmp);
+
+	LCDML_DISP_triggerMenu(DELAY_MS_1HZ);
+}
+
+void LCDML_DISP_loop(LCDML_FUNC_altitude)
+{
+	float tmp;
+
+	sensors.getAltitude(&tmp);
+	display.updateDisplayScr8((long)tmp);
+	LCDML_DISP_resetIsTimer();
+
+	if (LCDML_BUTTON_checkAny()) {
+		LCDML_BUTTON_resetAll();
+		LCDML_DISP_resetIsTimer();
+		LCDML_DISP_funcend();
+	}
+}
+
+void LCDML_DISP_loop_end(LCDML_FUNC_altitude)
 {
 }
 
@@ -358,7 +388,7 @@ void LCDML_DISP_loop(LCDML_FUNC_ownerinformation)
 {
 	if (LCDML_BUTTON_checkAny()) {
 		LCDML_DISP_resetIsTimer();
-		LCDML.goBack();
+		//LCDML.goBack();
 		LCDML_DISP_funcend();
 	}
 }
@@ -379,7 +409,7 @@ void LCDML_DISP_loop(LCDML_FUNC_clock)
 
 	if (LCDML_BUTTON_checkAny()) {
 		LCDML_DISP_resetIsTimer();
-		LCDML.goBack();
+		//LCDML.goBack();
 		LCDML_DISP_funcend();
 	}
 }
