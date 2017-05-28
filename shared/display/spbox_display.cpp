@@ -311,6 +311,44 @@ void SPBOX_DISPLAY::updateDisplayScr9(float absaccel, float maxabsaccel)
 	display();
 }
 
+void SPBOX_DISPLAY::updateDisplayScr10()
+{
+	// Display: x-axis -> NED y-axis, y-axis -> NED x-axis, (slowly) tilt to ground in direction of positive axis gives positive values
+	float accel_x, accel_y, accel_z;
+	int16_t delta_x, delta_y;
+	int8_t bubble_x, bubble_y;
+
+	sensors.getAccel(&accel_x, &accel_y, &accel_z);
+
+	// caution, x/y axis flipped
+	accel_x *= 100; delta_y = -(int16_t)accel_x;
+	accel_y *= 100; delta_x = -(int16_t)accel_y;
+
+	// stay inside/on border of circle
+	float len = sqrt(delta_x*delta_x + delta_y * delta_y);
+	if (len > 15.0) {
+		float factor = 15.0 / len;
+		delta_x = (int16_t)((delta_x + 0.5)*factor);
+		delta_y = (int16_t)((delta_y + 0.5)*factor);
+	}
+
+	bubble_x = 15 + delta_x;
+	bubble_y = 15 - delta_y;
+
+	clearDisplay();
+
+	drawCircle(15, 15, 15, WHITE);
+	drawLine(0, 15, 12, 15, WHITE); drawLine(18, 15, 30, 15, WHITE);
+	drawLine(15, 0, 15, 12, WHITE); drawLine(15, 18, 15, 30, WHITE);
+
+	drawPixel(bubble_x - 2, bubble_y, WHITE); drawPixel(bubble_x - 1, bubble_y, WHITE); drawPixel(bubble_x + 1, bubble_y, WHITE); drawPixel(bubble_x + 2, bubble_y, WHITE);
+	drawPixel(bubble_x, bubble_y - 2, WHITE); drawPixel(bubble_x, bubble_y - 1, WHITE); drawPixel(bubble_x, bubble_y + 1, WHITE); drawPixel(bubble_x, bubble_y + 2, WHITE);
+
+	setCursor(40, 0); print("x: "); printf("% 3i", delta_x);
+	setCursor(40, 8); print("y: "); printf("% 3i", delta_y);
+	display();
+}
+
 void SPBOX_DISPLAY::updatePrintBufferScr4_speed(long val)
 {
 	snprintf(displaybuffer_[0], 21, "Alt %d", val);

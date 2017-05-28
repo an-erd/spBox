@@ -217,6 +217,7 @@ Umlaute can be used using octal values (e.g., \204 for the German "ae")
 	Ü/UE	154		0x9a	\232
 	°/grad	9		0x09	\011
 	abs |	178		0xb2	\262
+(Link: https://forums.adafruit.com/viewtopic.php?f=8&t=51999)
 
 Compass calibration:
 ====================

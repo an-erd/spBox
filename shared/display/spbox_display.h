@@ -46,6 +46,7 @@ public:
 	void updateDisplayScr7(int16_t smallerVal, int16_t largerVal, uint8_t step, bool increase, uint8_t position, int mode);		// Config Altitude
 	void updateDisplayScr8(int16_t altitude); // show Altitude
 	void updateDisplayScr9(float absaccel, float maxabsaccel);
+	void updateDisplayScr10();
 	void updatePrintBufferScr4_speed(long val);
 	void updatePrintBufferScr4_charmap(uint8_t val);
 	void updatePrintBufferScrTest();
