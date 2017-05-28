@@ -70,7 +70,6 @@ bool SPBOX_SENSORS::initializeMag() {
 }
 bool SPBOX_SENSORS::initializeBarometer() {
 	barometer_.initialize();
-	setPressureAtSealevel();	// todo load from config
 
 	DEBUGLOG("BMP180: connection %s\r\n", (barometer_.testConnection() ? "successful" : "failed"));
 }
@@ -132,13 +131,15 @@ void SPBOX_SENSORS::updateAccelGyroMagCB()
 
 bool SPBOX_SENSORS::checkAccelGyroMag()
 {
-	bool change_minmax;
+	bool change_minmax, change_max_abs;
 	if (!do_update_accel_gyro_mag_)
 		return false;
 	do_update_accel_gyro_mag_ = false;
 
 	fetchAccelGyro();
 	change_minmax = updateMinMaxAccelGyro();
+	updateAbsAccel();
+	change_max_abs = updateMaxAbsAccel();
 
 	fetchMag();
 	//float cM1 = calcMag();
@@ -244,6 +245,11 @@ void SPBOX_SENSORS::resetMinMaxAccelGyro()
 	max_gz_f_ = min_gz_f_ = gz_f_;
 }
 
+void SPBOX_SENSORS::resetMaxAbsAccel()
+{
+	max_abs_accel_f_ = 0;
+}
+
 bool SPBOX_SENSORS::updateMinMaxAccelGyro()
 {
 	bool chg = false;
@@ -260,6 +266,23 @@ bool SPBOX_SENSORS::updateMinMaxAccelGyro()
 	if (gx_f_ < min_gx_f_) { min_gx_f_ = gx_f_; chg = true; }
 	if (gy_f_ < min_gy_f_) { min_gy_f_ = gy_f_; chg = true; }
 	if (gz_f_ < min_gz_f_) { min_gz_f_ = gz_f_; chg = true; }
+
+	return chg;
+}
+
+void SPBOX_SENSORS::updateAbsAccel()
+{
+	abs_accel_f_ = sqrt(ax_f_ * ax_f_ + ay_f_ * ay_f_ + az_f_ * az_f_);
+}
+
+bool SPBOX_SENSORS::updateMaxAbsAccel()
+{
+	bool chg = false;
+
+	if (abs_accel_f_ > max_abs_accel_f_) {
+		max_abs_accel_f_ = abs_accel_f_;
+		chg = true;
+	}
 
 	return chg;
 }
@@ -345,6 +368,8 @@ void SPBOX_SENSORS::calcAltitude()
 void SPBOX_SENSORS::getAccel(float * ax_f, float * ay_f, float * az_f) { *ax_f = ax_f_; *ay_f = ay_f_; *az_f = az_f_; }
 void SPBOX_SENSORS::getMaxAccel(float * max_ax, float * max_ay, float * max_az) { *max_ax = max_ax_f_; *max_ay = max_ay_f_; *max_az = max_az_f_; }
 void SPBOX_SENSORS::getMinAccel(float * min_ax, float * min_ay, float * min_az) { *min_ax = min_ax_f_; *min_ay = min_ay_f_; *min_az = min_az_f_; }
+void SPBOX_SENSORS::getAbsAccel(float * abs_accel) { *abs_accel = abs_accel_f_; }
+void SPBOX_SENSORS::getMaxAbsAccel(float * max_abs) { *max_abs = max_abs_accel_f_; }
 
 void SPBOX_SENSORS::getGyro(float * gx_f, float * gy_f, float * gz_f) { *gx_f = gx_f_; *gy_f = gy_f_; *gz_f = gz_f_; }
 void SPBOX_SENSORS::getMaxGyro(float * max_gx, float * max_gy, float * max_gz) { *max_gx = max_gx_f_; *max_gy = max_gy_f_; *max_gz = max_gz_f_; }

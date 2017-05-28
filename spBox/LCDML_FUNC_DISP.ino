@@ -100,7 +100,7 @@ void LCDML_DISP_setup(LCDML_FUNC_kompass)
 void LCDML_DISP_loop(LCDML_FUNC_kompass)
 {
 	display.updateDisplayScr4();
-
+	LCDML_DISP_resetIsTimer();
 	if (LCDML_BUTTON_checkAny()) {
 		LCDML_BUTTON_resetAll();
 		LCDML_DISP_resetIsTimer();
@@ -109,6 +109,75 @@ void LCDML_DISP_loop(LCDML_FUNC_kompass)
 }
 
 void LCDML_DISP_loop_end(LCDML_FUNC_kompass)
+{
+}
+
+// ############################################################################
+void LCDML_DISP_setup(LCDML_FUNC_altitude)
+{
+	float tmp;
+
+	sensors.getAltitude(&tmp);
+	display.updateDisplayScr8((long)tmp);
+
+	LCDML_DISP_triggerMenu(DELAY_MS_1HZ);
+}
+
+void LCDML_DISP_loop(LCDML_FUNC_altitude)
+{
+	float tmp;
+
+	sensors.getAltitude(&tmp);
+	display.updateDisplayScr8((long)tmp);
+	LCDML_DISP_resetIsTimer();
+
+	if (LCDML_BUTTON_checkAny()) {
+		LCDML_BUTTON_resetAll();
+		LCDML_DISP_resetIsTimer();
+		LCDML_DISP_funcend();
+	}
+}
+
+void LCDML_DISP_loop_end(LCDML_FUNC_altitude)
+{
+}
+
+// ############################################################################
+void LCDML_DISP_setup(LCDML_FUNC_max_accel)
+{
+	float absAccel, maxAbsAccel;
+	sensors.getAbsAccel(&absAccel);
+	sensors.getMaxAbsAccel(&maxAbsAccel);
+
+	display.updateDisplayScr9(absAccel, maxAbsAccel);
+
+	LCDML_DISP_triggerMenu(DELAY_MS_5HZ);
+}
+
+void LCDML_DISP_loop(LCDML_FUNC_max_accel)
+{
+	float absAccel, maxAbsAccel;
+
+	if (LCDML_BUTTON_checkLeft()) {
+		LCDML_BUTTON_resetAll();
+		sensors.resetMaxAbsAccel();
+	}
+
+	sensors.getAbsAccel(&absAccel);
+	sensors.getMaxAbsAccel(&maxAbsAccel);
+
+	display.updateDisplayScr9(absAccel, maxAbsAccel);
+
+	LCDML_DISP_resetIsTimer();
+
+	if (LCDML_BUTTON_checkAny()) {
+		LCDML_BUTTON_resetAll();
+		LCDML_DISP_resetIsTimer();
+		LCDML_DISP_funcend();
+	}
+}
+
+void LCDML_DISP_loop_end(LCDML_FUNC_max_accel)
 {
 }
 
@@ -287,10 +356,61 @@ void LCDML_DISP_loop_end(LCDML_FUNC_config_altitude)
 
 	if (gConfigAltitudeMode == BUTTON_OK) {
 		tmpPressure = sensors.calcPressureAtSealevel(gConfigAltitudeLarger);	// W12, L.-E. -> 102306@468.0m
+
+		conf.setSeaLevelPressure(tmpPressure);
+		conf.writeConfToEEPROM();
+
 		sensors.calcAltitude();
 		sensors.getAltitude(&tmpAlt);
 		Serial.print("pressure@sealevel: "); Serial.print((long)tmpPressure); ; Serial.print(", alt: "); Serial.println((long)tmpAlt);
 	}
+}
+
+// ############################################################################
+uint32_t gMillisReset;
+bool gEEPROMResetDone;
+
+void LCDML_DISP_setup(LCDML_FUNC_reset)
+{
+	gMillisReset = millis();
+	gEEPROMResetDone = false;
+
+	display.clearDisplay();
+	display.setCursor(5 * 5, 8); display.print("Ger\204t wird");
+	display.setCursor(5 * 3, 16); display.print("zur\201ckgesetzt!");
+	display.display();
+	LCDML_DISP_triggerMenu(200);
+}
+
+void LCDML_DISP_loop(LCDML_FUNC_reset)
+{
+	if (LCDML_BUTTON_checkAny()) {
+		LCDML_BUTTON_resetAll();
+		return;
+	}
+
+	if (!gEEPROMResetDone) {
+		gEEPROMResetDone = true;
+
+		bool result = conf.clearEEPROM();
+		Serial.printf("reset, clear EERPOM %d\n", result);
+		conf.initialize(false);
+		result = conf.writeConfToEEPROM();
+		Serial.printf("reset, write EERPOM %d\n", result);
+
+		conf.printEEPROM(20);
+	}
+	uint32_t time_diff;
+	time_diff = millis() - gMillisReset;
+	if (time_diff < 3000)
+		return;
+
+	LCDML_DISP_funcend();
+}
+
+void LCDML_DISP_loop_end(LCDML_FUNC_reset)
+{
+	ESP.restart();
 }
 
 // ############################################################################
@@ -307,7 +427,7 @@ void LCDML_DISP_loop(LCDML_FUNC_ownerinformation)
 {
 	if (LCDML_BUTTON_checkAny()) {
 		LCDML_DISP_resetIsTimer();
-		LCDML.goBack();
+		//LCDML.goBack();
 		LCDML_DISP_funcend();
 	}
 }
@@ -328,7 +448,7 @@ void LCDML_DISP_loop(LCDML_FUNC_clock)
 
 	if (LCDML_BUTTON_checkAny()) {
 		LCDML_DISP_resetIsTimer();
-		LCDML.goBack();
+		//LCDML.goBack();
 		LCDML_DISP_funcend();
 	}
 }

@@ -89,7 +89,11 @@ public:
 	bool checkAccelGyroMag();
 	void fetchAccelGyro();		// fetch incl. offset, gain and orientation calculation
 	void resetMinMaxAccelGyro();
+	void resetMaxAbsAccel();
 	bool updateMinMaxAccelGyro();
+	void updateAbsAccel();
+	bool updateMaxAbsAccel();
+
 	void fetchMag();			// fetch incl. calibration, orientation and heading calculation
 	float calcMag();
 	float calcMagCompensated();
@@ -105,6 +109,8 @@ public:
 	void getAccel(float *ax_f, float *ay_f, float *az_f);
 	void getMaxAccel(float *max_ax, float *max_ay, float *max_az);
 	void getMinAccel(float *max_ax, float *max_ay, float *max_az);
+	void getAbsAccel(float *abs_accel);
+	void getMaxAbsAccel(float *max_abs);
 	void getGyro(float *ax_f, float *ay_f, float *az_f);
 	void getMaxGyro(float *max_gx, float *max_gy, float *max_gz);
 	void getMinGyro(float *min_gx, float *min_gy, float *min_gz);
@@ -131,6 +137,7 @@ private:
 
 	float		ax_f_, ay_f_, az_f_;	// accel float values (calculated)
 	float		max_ax_f_, max_ay_f_, max_az_f_, min_ax_f_, min_ay_f_, min_az_f_;
+	float		abs_accel_f_, max_abs_accel_f_;
 
 	float		gx_f_, gy_f_, gz_f_;	// gyro float values (calculated)
 	float		max_gx_f_, max_gy_f_, max_gz_f_, min_gx_f_, min_gy_f_, min_gz_f_;

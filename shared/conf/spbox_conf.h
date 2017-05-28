@@ -52,11 +52,15 @@ public:
 	uint8_t getAccelRangeScale();
 	uint8_t getGyroRangeScale();
 
+	void setSeaLevelPressure(float seaLevelPressure);
+	float getSeaLevelPressure();
+
 	//	void setAccelGyroOrientation(uint8_t accel_gyro_orientation = 0);
 
 	bool writeConfToEEPROM();
-	void readConfFromEEPROM();
+	bool readConfFromEEPROM();
 	bool clearEEPROM(char seq = 0);
+	void printEEPROM(uint8_t len);
 
 private:
 	bool		wlan_enabled_;
@@ -65,10 +69,9 @@ private:
 	bool		aio_enabled_;
 	uint8_t		accel_range_scale_;
 	uint8_t		gyro_range_scale_;
+	float		sea_level_pressure_;
 	//	uint8_t		accel_gyro_orientation_;
 	//	uint8_t		mag_orientation_;
-	//bool		use_configured_sea_level_;
-	//float		sea_level_pressure_;
 protected:
 };
 
