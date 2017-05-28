@@ -281,10 +281,33 @@ void SPBOX_DISPLAY::updateDisplayScr8(int16_t altitude)
 	clearDisplay();
 	drawBitmap(0, 0, myMountains, 32, 32, WHITE);
 
-	setCursor(36, 8);
+	setCursor(40, 8);
 	setTextSize(2);
 	print(displaybuffer_[0]);
 	setTextSize(1);
+	display();
+}
+
+void SPBOX_DISPLAY::updateDisplayScr9(float absaccel, float maxabsaccel)
+{
+	dtostrf(absaccel, 4, 1, tempbuffer_[0]);
+	dtostrf(maxabsaccel, 4, 1, tempbuffer_[1]);
+	snprintf(displaybuffer_[0], 20, "%sg", tempbuffer_[0]);
+	snprintf(displaybuffer_[1], 20, "max = %sg", tempbuffer_[1]);
+
+	clearDisplay();
+	drawBitmap(0, 0, myForce, 32, 32, WHITE);
+
+	setCursor(40, 0);
+	print("\262a\262=");
+	setCursor(40, 8);
+	setTextSize(2);
+	print(displaybuffer_[0]);
+	setTextSize(1);
+
+	setCursor(40, 24);
+	print(displaybuffer_[1]);
+
 	display();
 }
 

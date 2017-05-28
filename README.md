@@ -215,7 +215,8 @@ Umlaute can be used using octal values (e.g., \204 for the German "ae")
 	Ö/OE	153		0x99	\231
 	ü/ue	129		0x81	\201
 	Ü/UE	154		0x9a	\232
-	°/grad	9		0x09	\011	
+	°/grad	9		0x09	\011
+	abs |	178		0xb2	\262
 
 Compass calibration:
 ====================
