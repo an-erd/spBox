@@ -69,3 +69,4 @@
 /spBox.vcxproj.user
 *.filters
 /Docs/Tools/~*.xlsx
+/examples/sensor_display/sensor_display.vcxproj.user
