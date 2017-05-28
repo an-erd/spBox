@@ -22,8 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#ifndef _MISSING_STR_UTIL_h
-#define _MISSING_STR_UTIL_h
+#pragma once
 
 #if defined(ARDUINO) && ARDUINO >= 100
 #include "arduino.h"
@@ -32,5 +31,3 @@ SOFTWARE.
 #endif
 
 char * dtostrf_sign(double number, signed char width, unsigned char prec, char *s);
-
-#endif

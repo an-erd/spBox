@@ -22,8 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#ifndef _SPBOX_COM_h
-#define _SPBOX_COM_h
+#pragma once
 
 #include "arduino.h"
 #include <ESP8266WiFi.h>
@@ -88,4 +87,3 @@ protected:
 };
 
 extern SPBOX_COM com;
-#endif

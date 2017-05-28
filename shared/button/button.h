@@ -22,8 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#ifndef _BUTTON_h
-#define _BUTTON_h
+#pragma once
 
 extern "C" {
 #include "user_interface.h"
@@ -67,4 +66,3 @@ protected:
 };
 
 extern BUTTON button;
-#endif

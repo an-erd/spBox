@@ -22,11 +22,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#ifndef USER_CONFIG_H
-#define USER_CONFIG_H
+#pragma once
 
 #define STRING_VERSION "v0.3"
-#include "spbox_display.h"
 
 // WLAN
 //#define WLAN_SSID		"..."
@@ -104,13 +102,19 @@ typedef enum OTAMode {
 	OTA_OFF = 0, OTA_IDE = 1, OTA_HTTP_SERVER = 2,
 } OTAModes_t;
 
-typedef enum imputAltiModes {
+typedef enum inputAltiModes {
 	BUTTON_ALTITUDE = 0,
 	INPUT_ALTITUDE,
 	BUTTON_OK,
 	BUTTON_CANCEL,
 	LAST
 } inputAltiModes_t;
+
+typedef enum compassModes {
+	ROSE = 0,
+	DIRECTION,
+	BAND,
+} compassModes_t;
 
 // Gimp exported as .png, converter used http://javl.github.io/image2cpp/
 // 'splash'@128x32
@@ -172,4 +176,3 @@ const unsigned char myForce[] = {
 0x04, 0x00, 0x80, 0x00, 0x02, 0x00, 0x00, 0x00, 0x02, 0x84, 0x00, 0x00, 0x03, 0xa0, 0x00, 0x00,
 0x07, 0x80, 0x00, 0x00, 0x07, 0x80, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 };
-#endif //USER_CONFIG_H

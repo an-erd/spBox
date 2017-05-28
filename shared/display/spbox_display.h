@@ -22,8 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#ifndef _SPBOX_DISPLAY_h
-#define _SPBOX_DISPLAY_h
+#pragma once
 
 #include "arduino.h"
 #include <Adafruit_GFX.h>
@@ -43,7 +42,7 @@ public:
 	void updateDisplayScr4();		// Sensor Kompass
 	void updateDisplayScr5();		// Uhrzeit anzeigen
 	void updateDisplayScr6();		// WLAN/Batterie Status anzeigen
-	void updateDisplayScr7(int16_t smallerVal, int16_t largerVal, uint8_t step, bool increase, uint8_t position, int mode);		// Config Altitude
+	void updateDisplayScr7(int16_t smallerVal, int16_t largerVal, uint8_t step, bool increase, uint8_t position, inputAltiModes_t altiMode);		// Config Altitude
 	void updateDisplayScr8(int16_t altitude); // show Altitude
 	void updateDisplayScr9(float absaccel, float maxabsaccel);
 	void updateDisplayScr10();
@@ -71,5 +70,3 @@ protected:
 };
 
 extern SPBOX_DISPLAY display;
-
-#endif

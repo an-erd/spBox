@@ -22,8 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#ifndef _SPBOX_SENSORS_h
-#define _SPBOX_SENSORS_h
+#pragma once
 
 extern "C" {
 #include "user_interface.h"
@@ -164,5 +163,3 @@ protected:
 };
 
 extern SPBOX_SENSORS sensors;
-
-#endif

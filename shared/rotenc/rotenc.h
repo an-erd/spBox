@@ -22,8 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#ifndef _ROTENC_h
-#define _ROTENC_h
+#pragma once
 
 extern "C" {
 #include "user_interface.h"
@@ -88,4 +87,3 @@ protected:
 };
 
 extern ROTENC rotenc;
-#endif

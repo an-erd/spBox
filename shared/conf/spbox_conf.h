@@ -22,8 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#ifndef _SPBOX_CONF_h
-#define _SPBOX_CONF_h
+#pragma once
 
 #include <MPU6050.h>
 #include "myconfig.h"
@@ -76,5 +75,3 @@ protected:
 };
 
 extern SPBOX_CONF conf;
-
-#endif

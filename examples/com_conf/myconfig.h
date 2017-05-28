@@ -22,8 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#ifndef _MYCONFIG_h
-#define _MYCONFIG_h
+#pragma once
 
 // WLAN
 //#define WLAN_SSID		"..."
@@ -56,5 +55,3 @@ SOFTWARE.
 #define	SERIAL_STATUS_OUTPUT
 
 typedef enum OTAMode { OTA_OFF = 0, OTA_IDE = 1, OTA_HTTP_SERVER = 2, } OTAModes_t;
-
-#endif
