@@ -60,13 +60,6 @@
 /examples/sensor_display/Debug
 /spBox/Debug
 /spBox/Release
-/examples/ntpclientlib_example/ntpclientlib_example.ino
-/examples/ntpclientlib_example/ntpclientlib_example.vcxproj
-/examples/ntpclientlib_example/ntpclientlib_example.vcxproj.filters
-/examples/button_rotenc/button_rotenc.vcxproj.user
-/examples/com_conf/com_conf.vcxproj.user
-/spBox/spBox.vcxproj.user
-/spBox.vcxproj.user
 *.filters
-/Docs/Tools/~*.xlsx
-/examples/sensor_display/sensor_display.vcxproj.user
+*.vcxproj.user
+~*.xlsx
