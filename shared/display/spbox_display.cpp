@@ -109,49 +109,97 @@ void SPBOX_DISPLAY::updatePrintBufferScr3()
 	snprintf(displaybuffer_[3], 21, "");
 }
 
-void SPBOX_DISPLAY::updateDisplayScr4()
+void SPBOX_DISPLAY::updateDisplayScr4(compassModes_t mode)
 {
 	// code to draw compass inspired by http://cassiopeia.hk/arduinocompass/
 	float heading_deg, heading_deg_round, angle_rad;
+	int x0, y0, x1, y1, x2, y2, offset, numChar;
 
 	sensors.getHeading(&heading_deg);
 
-	heading_deg_round = round(heading_deg);
+	heading_deg_round = round(heading_deg + 0.5);
 	if (heading_deg_round == 360)
 		heading_deg_round = 0;
 
 	dtostrf(heading_deg_round, 3, 0, tempbuffer_[0]);
+	numChar = 1;
 	if (heading_deg > 337 || heading_deg < 23) snprintf(tempbuffer_[1], 3, "N ");
-	else if (heading_deg > 22 && heading_deg < 68)snprintf(tempbuffer_[1], 3, "NO");
-	else if (heading_deg > 67 && heading_deg < 113)snprintf(tempbuffer_[1], 3, "O ");
-	else if (heading_deg > 112 && heading_deg < 158)snprintf(tempbuffer_[1], 3, "SO");
+	else if (heading_deg > 22 && heading_deg < 68) { snprintf(tempbuffer_[1], 3, "NO"); numChar = 2; }
+	else if (heading_deg > 67 && heading_deg < 113) snprintf(tempbuffer_[1], 3, "O ");
+	else if (heading_deg > 112 && heading_deg < 158) { snprintf(tempbuffer_[1], 3, "SO"); numChar = 2; }
 	else if (heading_deg > 157 && heading_deg < 203)snprintf(tempbuffer_[1], 3, "S ");
-	else if (heading_deg > 202 && heading_deg < 248)snprintf(tempbuffer_[1], 3, "SW");
+	else if (heading_deg > 202 && heading_deg < 248) { snprintf(tempbuffer_[1], 3, "SW"); numChar = 2; }
 	else if (heading_deg > 247 && heading_deg < 293)snprintf(tempbuffer_[1], 3, "W ");
-	else if (heading_deg > 292 && heading_deg < 338)snprintf(tempbuffer_[1], 3, "NW");
+	else if (heading_deg > 292 && heading_deg < 338) { snprintf(tempbuffer_[1], 3, "NW"); numChar = 2; }
 
 	snprintf(displaybuffer_[0], 20, "%s\011 %s", tempbuffer_[0], tempbuffer_[1]);
+	snprintf(displaybuffer_[1], 20, "%s", tempbuffer_[1]);
 
-	angle_rad = PI * (float)heading_deg / 180.0;
-	clearDisplay();
-	setCursor(43, 8);
-	setTextSize(2);
-	println(displaybuffer_[0]);
-	setTextSize(1);
+	switch (mode) {
+	case COMPASS_ROSE:
+		angle_rad = PI * (float)heading_deg / 180.0;
+		clearDisplay();
+		setCursor(43, 8);
+		setTextSize(2);
+		println(displaybuffer_[0]);
+		setTextSize(1);
 
-	int x0 = 15 - sin(angle_rad) * 15; // tip of the arrow on circle
-	int y0 = 15 - cos(angle_rad) * 15;
-	int x1 = 15 - sin(angle_rad + 0.2) * 10; // triangle point
-	int y1 = 15 - cos(angle_rad + 0.2) * 10;
-	int x2 = 15 - sin(angle_rad - 0.2) * 10; // triangle point
-	int y2 = 15 - cos(angle_rad - 0.2) * 10;
+		x0 = 15 - sin(angle_rad) * 15; // tip of the arrow on circle
+		y0 = 15 - cos(angle_rad) * 15;
+		x1 = 15 - sin(angle_rad + 0.2) * 10; // triangle point
+		y1 = 15 - cos(angle_rad + 0.2) * 10;
+		x2 = 15 - sin(angle_rad - 0.2) * 10; // triangle point
+		y2 = 15 - cos(angle_rad - 0.2) * 10;
 
-	drawCircle(15, 15, 15, WHITE);
-	fillCircle(15, 15, 2, WHITE);
-	//drawLine(15, 0, 15, 30, WHITE);
-	drawLine(15, 15, x0, y0, WHITE);
-	fillTriangle(x0, y0, x1, y1, x2, y2, WHITE);
-	//drawLine(127, 0, 127, 31, WHITE);
+		drawCircle(15, 15, 15, WHITE);
+		fillCircle(15, 15, 2, WHITE);
+		//drawLine(15, 0, 15, 30, WHITE);
+		drawLine(15, 15, x0, y0, WHITE);
+		fillTriangle(x0, y0, x1, y1, x2, y2, WHITE);
+		//drawLine(127, 0, 127, 31, WHITE);
+		break;
+	case COMPASS_DIRECTION:
+		clearDisplay();
+		offset = (numChar == 1) ? 5 : 0; // for 1 or 2 char to be centered
+		setCursor(43 + offset, 8);
+		setTextSize(2);
+		println(displaybuffer_[1]);
+		setTextSize(1);
+
+		drawBitmap(0, 0, myCompassArrow, 32, 32, WHITE);
+		setCursor(0, 0);
+		break;
+	case COMPASS_BAND:
+		// display 128px - 3 char a 10px -> space of 3 * 28 px, padding = 2*7
+		// band: (7px) N (28px) O (28px) S (28px) (7px)
+		clearDisplay();
+		Serial.println();
+		setTextSize(2);
+		offset = 64 - 5 - 152.0 * heading_deg_round / 360.0;	// = center - 1/2char - deg (from 360->152(=4*38))
+
+		for (int v = 0; v < 4; v++, offset += 10 + 28) {
+			while (offset < 0) offset += 152;
+			offset %= 152;
+			Serial.printf("%i ", offset);
+			setCursor(offset, 0);
+			if ((offset >= 0) && (offset < 115))
+				switch (v) {
+				case 0: print("N"); break;
+				case 1: print("O"); break;
+				case 2: print("S"); break;
+				case 3: print("W"); break;
+				default: break;
+				}
+		}
+		//drawLine(64, 16, 64, 24, WHITE);
+		setCursor(64 - 5, 17);
+		print("\036");
+		setTextSize(1);
+		break;
+	default:
+		break;
+	}
+
 	display();
 }
 

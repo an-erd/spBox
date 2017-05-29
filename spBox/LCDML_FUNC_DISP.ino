@@ -91,17 +91,37 @@ void LCDML_DISP_loop_end(LCDML_FUNC_sensor_temp_press_alt)
 }
 
 // ############################################################################
+compassModes_t gConfigCompassMode;
 void LCDML_DISP_setup(LCDML_FUNC_kompass)
 {
-	display.updateDisplayScr4();
+	gConfigCompassMode = COMPASS_ROSE;
+
+	display.updateDisplayScr4(gConfigCompassMode);
 	LCDML_DISP_triggerMenu(DELAY_MS_5HZ);
 }
 
 void LCDML_DISP_loop(LCDML_FUNC_kompass)
 {
-	display.updateDisplayScr4();
+	int tmp_mode = (int)gConfigCompassMode;
+	if (LCDML_BUTTON_checkUp()) {
+		LCDML_BUTTON_resetUp();
+
+		tmp_mode -= 1;
+		if (tmp_mode < 0)
+			tmp_mode = COMPASS_LAST - 1;
+	}
+	if (LCDML_BUTTON_checkDown()) {
+		LCDML_BUTTON_resetDown();
+		tmp_mode += 1;
+		tmp_mode %= COMPASS_LAST;
+	}
+	gConfigCompassMode = (compassModes_t)tmp_mode;
+
+	display.updateDisplayScr4(gConfigCompassMode);
+
 	LCDML_DISP_resetIsTimer();
-	if (LCDML_BUTTON_checkAny()) {
+
+	if (LCDML_BUTTON_checkEnter()) {
 		LCDML_BUTTON_resetAll();
 		LCDML_DISP_resetIsTimer();
 		LCDML_DISP_funcend();
