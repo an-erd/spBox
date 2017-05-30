@@ -1,3 +1,7 @@
+uint32_t gMillisTimer;	// used for diverse timer countdown
+bool gSensorReset;
+#define RESET_TIMER	3000
+
 // ############################################################################
 void LCDML_DISP_setup(LCDML_FUNC_back)
 {
@@ -26,9 +30,9 @@ void LCDML_DISP_loop(LCDML_FUNC_sensor_overview)
 {
 	display.updatePrintBufferScr1();
 	display.updateDisplayWithPrintBuffer();
-	if (LCDML_BUTTON_checkAny()) {
+	LCDML_DISP_resetIsTimer();
+	if (LCDML_BUTTON_checkEnter()) {
 		LCDML_BUTTON_resetAll();
-		LCDML_DISP_resetIsTimer();
 		LCDML_DISP_funcend();
 	}
 }
@@ -40,6 +44,7 @@ void LCDML_DISP_loop_end(LCDML_FUNC_sensor_overview)
 // ############################################################################
 void LCDML_DISP_setup(LCDML_FUNC_sensor_min_max)
 {
+	gSensorReset = false;
 	display.updatePrintBufferScr2();
 	display.updateDisplayWithPrintBuffer();
 	LCDML_DISP_triggerMenu(DELAY_MS_2HZ);
@@ -48,17 +53,30 @@ void LCDML_DISP_setup(LCDML_FUNC_sensor_min_max)
 void LCDML_DISP_loop(LCDML_FUNC_sensor_min_max)
 {
 	if (LCDML_BUTTON_checkLeft()) {
+		gMillisTimer = millis();
+		gSensorReset = true;
 		LCDML_BUTTON_resetAll();
-		sensors.resetMinMaxAccelGyro();
 	}
 
-	display.updatePrintBufferScr2();
-	display.updateDisplayWithPrintBuffer();
+	if (gSensorReset) {
+		if ((millis() - gMillisTimer > RESET_TIMER)) {
+			sensors.resetMinMaxAccelGyro();
+			gSensorReset = false;
+		}
+		else {
+			display.updateDisplayScr11();
+		}
+	}
+	else {
+		display.updatePrintBufferScr2();
+		display.updateDisplayWithPrintBuffer();
 
-	if (LCDML_BUTTON_checkAny()) {
-		LCDML_BUTTON_resetAll();
 		LCDML_DISP_resetIsTimer();
-		LCDML_DISP_funcend();
+
+		if (LCDML_BUTTON_checkEnter()) {
+			LCDML_BUTTON_resetAll();
+			LCDML_DISP_funcend();
+		}
 	}
 }
 
@@ -69,8 +87,8 @@ void LCDML_DISP_loop_end(LCDML_FUNC_sensor_min_max)
 // ############################################################################
 void LCDML_DISP_setup(LCDML_FUNC_sensor_temp_press_alt)
 {
-	//display.updatePrintBufferScr3();
-	//display.updateDisplayWithPrintBuffer();
+	display.updatePrintBufferScr3();
+	display.updateDisplayWithPrintBuffer();
 	LCDML_DISP_triggerMenu(DELAY_MS_1HZ);
 }
 
@@ -78,10 +96,10 @@ void LCDML_DISP_loop(LCDML_FUNC_sensor_temp_press_alt)
 {
 	display.updatePrintBufferScr3();
 	display.updateDisplayWithPrintBuffer();
+	LCDML_DISP_resetIsTimer();
 
-	if (LCDML_BUTTON_checkAny()) {
+	if (LCDML_BUTTON_checkEnter()) {
 		LCDML_BUTTON_resetAll();
-		LCDML_DISP_resetIsTimer();
 		LCDML_DISP_funcend();
 	}
 }
@@ -123,7 +141,6 @@ void LCDML_DISP_loop(LCDML_FUNC_kompass)
 
 	if (LCDML_BUTTON_checkEnter()) {
 		LCDML_BUTTON_resetAll();
-		LCDML_DISP_resetIsTimer();
 		LCDML_DISP_funcend();
 	}
 }
@@ -151,9 +168,8 @@ void LCDML_DISP_loop(LCDML_FUNC_altitude)
 	display.updateDisplayScr8((long)tmp);
 	LCDML_DISP_resetIsTimer();
 
-	if (LCDML_BUTTON_checkAny()) {
+	if (LCDML_BUTTON_checkEnter()) {
 		LCDML_BUTTON_resetAll();
-		LCDML_DISP_resetIsTimer();
 		LCDML_DISP_funcend();
 	}
 }
@@ -179,21 +195,32 @@ void LCDML_DISP_loop(LCDML_FUNC_max_accel)
 	float absAccel, maxAbsAccel;
 
 	if (LCDML_BUTTON_checkLeft()) {
+		gMillisTimer = millis();
+		gSensorReset = true;
 		LCDML_BUTTON_resetAll();
-		sensors.resetMaxAbsAccel();
 	}
 
-	sensors.getAbsAccel(&absAccel);
-	sensors.getMaxAbsAccel(&maxAbsAccel);
+	if (gSensorReset) {
+		if ((millis() - gMillisTimer > RESET_TIMER)) {
+			sensors.resetMaxAbsAccel();
+			gSensorReset = false;
+		}
+		else {
+			display.updateDisplayScr11();
+		}
+	}
+	else {
+		sensors.getAbsAccel(&absAccel);
+		sensors.getMaxAbsAccel(&maxAbsAccel);
 
-	display.updateDisplayScr9(absAccel, maxAbsAccel);
+		display.updateDisplayScr9(absAccel, maxAbsAccel);
 
-	LCDML_DISP_resetIsTimer();
-
-	if (LCDML_BUTTON_checkAny()) {
-		LCDML_BUTTON_resetAll();
 		LCDML_DISP_resetIsTimer();
-		LCDML_DISP_funcend();
+
+		if (LCDML_BUTTON_checkEnter()) {
+			LCDML_BUTTON_resetAll();
+			LCDML_DISP_funcend();
+		}
 	}
 }
 
@@ -211,18 +238,12 @@ void LCDML_DISP_setup(LCDML_FUNC_waterbubble)
 
 void LCDML_DISP_loop(LCDML_FUNC_waterbubble)
 {
-	//if (LCDML_BUTTON_checkLeft()) {
-	//	LCDML_BUTTON_resetAll();
-	//	sensors.resetMaxAbsAccel();
-	//}
-
 	display.updateDisplayScr10();
 
 	LCDML_DISP_resetIsTimer();
 
-	if (LCDML_BUTTON_checkAny()) {
+	if (LCDML_BUTTON_checkEnter()) {
 		LCDML_BUTTON_resetAll();
-		LCDML_DISP_resetIsTimer();
 		LCDML_DISP_funcend();
 	}
 }
@@ -258,10 +279,10 @@ void LCDML_DISP_loop(LCDML_FUNC_status_wlan)
 	}
 
 	display.updateDisplayScr6();
+	LCDML_DISP_resetIsTimer();
 
-	if (LCDML_BUTTON_checkAny()) {
+	if (LCDML_BUTTON_checkEnter()) {
 		LCDML_BUTTON_resetAll();
-		LCDML_DISP_resetIsTimer();
 		LCDML_DISP_funcend();
 	}
 }
@@ -417,12 +438,11 @@ void LCDML_DISP_loop_end(LCDML_FUNC_config_altitude)
 }
 
 // ############################################################################
-uint32_t gMillisReset;
 bool gEEPROMResetDone;
 
 void LCDML_DISP_setup(LCDML_FUNC_reset)
 {
-	gMillisReset = millis();
+	gMillisTimer = millis();
 	gEEPROMResetDone = false;
 
 	display.clearDisplay();
@@ -451,7 +471,7 @@ void LCDML_DISP_loop(LCDML_FUNC_reset)
 		conf.printEEPROM(20);
 	}
 	uint32_t time_diff;
-	time_diff = millis() - gMillisReset;
+	time_diff = millis() - gMillisTimer;
 	if (time_diff < 3000)
 		return;
 
@@ -475,9 +495,9 @@ void LCDML_DISP_setup(LCDML_FUNC_ownerinformation)
 
 void LCDML_DISP_loop(LCDML_FUNC_ownerinformation)
 {
-	if (LCDML_BUTTON_checkAny()) {
+	if (LCDML_BUTTON_checkEnter()) {
+		LCDML_BUTTON_resetAll();
 		LCDML_DISP_resetIsTimer();
-		//LCDML.goBack();
 		LCDML_DISP_funcend();
 	}
 }
@@ -495,10 +515,10 @@ void LCDML_DISP_setup(LCDML_FUNC_clock)
 void LCDML_DISP_loop(LCDML_FUNC_clock)
 {
 	display.updateDisplayScr5();
+	LCDML_DISP_resetIsTimer();
 
-	if (LCDML_BUTTON_checkAny()) {
-		LCDML_DISP_resetIsTimer();
-		//LCDML.goBack();
+	if (LCDML_BUTTON_checkEnter()) {
+		LCDML_BUTTON_resetAll();
 		LCDML_DISP_funcend();
 	}
 }
@@ -506,7 +526,76 @@ void LCDML_DISP_loop(LCDML_FUNC_clock)
 void LCDML_DISP_loop_end(LCDML_FUNC_clock)
 {
 }
+// ############################################################################
+void LCDML_DISP_setup(LCDML_FUNC_uptime)
+{
+	LCDML_DISP_triggerMenu(DELAY_MS_1HZ);
+}
 
+void LCDML_DISP_loop(LCDML_FUNC_uptime)
+{
+	display.updateDisplayScr5(true);
+	LCDML_DISP_resetIsTimer();
+
+	if (LCDML_BUTTON_checkEnter()) {
+		LCDML_BUTTON_resetAll();
+		LCDML_DISP_funcend();
+	}
+}
+
+void LCDML_DISP_loop_end(LCDML_FUNC_uptime)
+{
+}
+
+// ############################################################################
+int gIdleLedBlink;		// bckw. cnt
+bool gIdleLedBlinkOn;
+#define IDLE_LED_BLINK_COUNTER	99
+void LCDML_DISP_setup(LCDML_FUNC_initscreen)
+{
+	display.ssd1306_command(SSD1306_DISPLAYOFF);
+
+	gIdleLedBlinkOn = false;
+	gIdleLedBlink = IDLE_LED_BLINK_COUNTER;
+
+	LCDML_DISP_triggerMenu(100);
+}
+
+void LCDML_DISP_loop(LCDML_FUNC_initscreen)
+{
+	if (gIdleLedBlinkOn) {
+		digitalWrite(LED_R, HIGH);	// off
+		gIdleLedBlinkOn = false;
+		gIdleLedBlink = IDLE_LED_BLINK_COUNTER;
+	}
+	else {
+		if (gIdleLedBlink == 0) {
+			digitalWrite(LED_R, LOW);	// on
+			gIdleLedBlinkOn = true;
+			gIdleLedBlink = 0;
+		}
+		else {
+			gIdleLedBlink--;
+		}
+	}
+
+	LCDML_DISP_resetIsTimer();
+	if (LCDML_BUTTON_checkAny()) {
+		LCDML_DISP_funcend();
+	}
+}
+
+void LCDML_DISP_loop_end(LCDML_FUNC_initscreen)
+{
+	display.ssd1306_command(SSD1306_DISPLAYON);
+	digitalWrite(LED_R, HIGH);	// off
+	gIdleLedBlinkOn = false;
+
+	LCDML.goRoot();	// LCDMenuLib_getActiveFuncId()
+}
+
+// ############################################################################
+// Test functions
 // ############################################################################
 long speedcnt;
 void LCDML_DISP_setup(LCDML_FUNC_speed)
@@ -550,54 +639,6 @@ void LCDML_DISP_loop(LCDML_FUNC_test2)
 
 void LCDML_DISP_loop_end(LCDML_FUNC_test2)
 {
-}
-
-// ############################################################################
-int gIdleLedBlink;		// bckw. cnt
-bool gIdleLedBlinkOn;
-#define IDLE_LED_BLINK_COUNTER	99
-// 1 cyle on, 9 cycle off
-void LCDML_DISP_setup(LCDML_FUNC_initscreen)
-{
-	display.ssd1306_command(SSD1306_DISPLAYOFF);
-
-	gIdleLedBlinkOn = false;
-	gIdleLedBlink = IDLE_LED_BLINK_COUNTER;
-
-	LCDML_DISP_triggerMenu(100);
-}
-
-void LCDML_DISP_loop(LCDML_FUNC_initscreen)
-{
-	if (gIdleLedBlinkOn) {
-		digitalWrite(LED_R, HIGH);	// off
-		gIdleLedBlinkOn = false;
-		gIdleLedBlink = IDLE_LED_BLINK_COUNTER;
-	}
-	else {
-		if (gIdleLedBlink == 0) {
-			digitalWrite(LED_R, LOW);	// on
-			gIdleLedBlinkOn = true;
-			gIdleLedBlink = 0;
-		}
-		else {
-			gIdleLedBlink--;
-		}
-	}
-
-	LCDML_DISP_resetIsTimer();
-	if (LCDML_BUTTON_checkAny()) {
-		LCDML_DISP_funcend();
-	}
-}
-
-void LCDML_DISP_loop_end(LCDML_FUNC_initscreen)
-{
-	display.ssd1306_command(SSD1306_DISPLAYON);
-	digitalWrite(LED_R, HIGH);	// off
-	gIdleLedBlinkOn = false;
-
-	LCDML.goRoot();	// LCDMenuLib_getActiveFuncId()
 }
 
 // ############################################################################
