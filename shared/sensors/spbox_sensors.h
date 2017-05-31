@@ -125,6 +125,8 @@ public:
 	void updateVBat();
 	float getVBat();
 
+	bool checkMotionIndicators();
+
 	void		onAccelGyroMagEvent(onAccelGyroMagEvent_t handler);
 	void		onMinMaxAccelGyroEvent(onMinMaxAccelGyroEvent_t handler);
 	void		onTempPressAltiEvent(onTempPressAltiEvent_t    handler);
@@ -150,6 +152,8 @@ private:
 
 	float		pressureAtSealevel_; //
 	float		vbatFloat_;
+
+	bool		zeroDetect_;
 
 	volatile	BMP085UpdateSteps_t _updateStep;
 	volatile	bool do_update_accel_gyro_mag_;

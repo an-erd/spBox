@@ -553,6 +553,7 @@ bool gIdleLedBlinkOn;
 #define IDLE_LED_BLINK_COUNTER	99
 void LCDML_DISP_setup(LCDML_FUNC_initscreen)
 {
+	bool tmp = sensors.checkMotionIndicators();
 	display.ssd1306_command(SSD1306_DISPLAYOFF);
 
 	gIdleLedBlinkOn = false;
@@ -580,7 +581,9 @@ void LCDML_DISP_loop(LCDML_FUNC_initscreen)
 	}
 
 	LCDML_DISP_resetIsTimer();
-	if (LCDML_BUTTON_checkAny()) {
+
+	if (sensors.checkMotionIndicators() || LCDML_BUTTON_checkAny()) {
+		LCDML_BUTTON_resetAll();
 		LCDML_DISP_funcend();
 	}
 }
@@ -594,6 +597,9 @@ void LCDML_DISP_loop_end(LCDML_FUNC_initscreen)
 	LCDML.goRoot();	// LCDMenuLib_getActiveFuncId()
 }
 
+// ############################################################################
+// ############################################################################
+// ############################################################################
 // ############################################################################
 // Test functions
 // ############################################################################

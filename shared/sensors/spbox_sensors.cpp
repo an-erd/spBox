@@ -56,12 +56,23 @@ SPBOX_SENSORS::SPBOX_SENSORS()
 }
 
 bool SPBOX_SENSORS::initializeAccelGyro(uint8_t accel_range, uint8_t gyro_range) {
+	bool TurnOnZI = false;
 	accelgyro_.setI2CMasterModeEnabled(false);
 	accelgyro_.setI2CBypassEnabled(true);
 	accelgyro_.setSleepEnabled(false);
 	accelgyro_.initialize();
 	setFullScaleAccelRange(accel_range);
 	setFullScaleGyroRange(gyro_range);
+
+	// changes for motion detection
+	accelgyro_.setAccelerometerPowerOnDelay(3);
+	accelgyro_.setIntZeroMotionEnabled(TurnOnZI);
+	accelgyro_.setDHPFMode(1);
+	accelgyro_.setMotionDetectionThreshold(2);
+	accelgyro_.setZeroMotionDetectionThreshold(2);
+	accelgyro_.setMotionDetectionDuration(40);
+	accelgyro_.setZeroMotionDetectionDuration(1);
+
 	DEBUGLOG("MPU6050: connection %s\r\n", (accelgyro_.testConnection() ? "successful" : "failed"));
 }
 bool SPBOX_SENSORS::initializeMag() {
@@ -426,6 +437,15 @@ void SPBOX_SENSORS::updateVBat() {
 float SPBOX_SENSORS::getVBat()
 {
 	return vbatFloat_;
+}
+
+bool SPBOX_SENSORS::checkMotionIndicators()
+{
+	zeroDetect_ = accelgyro_.getIntMotionStatus();
+	if (zeroDetect_)
+		DEBUGLOG("MPU6050: motion detected%s\r\n");
+
+	return zeroDetect_;
 }
 
 void SPBOX_SENSORS::onAccelGyroMagEvent(onAccelGyroMagEvent_t handler)
