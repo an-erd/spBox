@@ -1,6 +1,23 @@
+#include "myconfig.h"
+
+void LCDML_DISP_returnFromInitScreen(int func) {
+	if (LCDML.getFunction() != _LCDML_NO_FUNC) {
+		bitSet(LCDML.control, _LCDML_control_funcend);
+		g_lcdml_jump_func = func;
+	}
+	else {
+		LCDML.jumpToElement(func);
+		//LCDML_DISP_update_menu();
+	}
+	LCDML_BUTTON_resetAll();
+}
+
 uint32_t gMillisTimer;	// used for diverse timer countdown
 bool gSensorReset;
 #define RESET_TIMER	3000
+
+initScreen_t gInitScreen;
+uint8_t gInitScreenPrevID;	// ID of function or element, type defined in gInitScreen (!= OFF)
 
 // ############################################################################
 void LCDML_DISP_setup(LCDML_FUNC_back)
@@ -594,7 +611,15 @@ void LCDML_DISP_loop_end(LCDML_FUNC_initscreen)
 	digitalWrite(LED_R, HIGH);	// off
 	gIdleLedBlinkOn = false;
 
-	LCDML.goRoot();	// LCDMenuLib_getActiveFuncId()
+	if (gInitScreenPrevID == 255)
+		LCDML.goRoot();
+	else
+		LCDML.jumpToElement(gInitScreenPrevID);
+
+	//LCDML_DISP_returnFromInitScreen(gInitScreenPrevID);
+	gInitScreen = INITSCREEN_OFF;
+
+	// LCDML_DISP_jumpToFunc(31);
 }
 
 // ############################################################################
@@ -660,6 +685,8 @@ void LCDML_DISP_setup(LCDML_FUNC_scrolltest)
 
 void LCDML_DISP_loop(LCDML_FUNC_scrolltest)
 {
+	g_lcdml_initscreen;
+
 	uint8_t len = 5;
 	unsigned char textA[] = { '1', '2', '3', '.', '5', };
 	unsigned char textB[] = { '2', '3', '4', '.', '6', };

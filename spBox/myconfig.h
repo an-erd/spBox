@@ -117,6 +117,12 @@ typedef enum compassModes {
 	COMPASS_LAST,
 } compassModes_t;
 
+typedef enum initScreen {
+	INITSCREEN_OFF = 0,
+	INITSCREEN_FUNCTION,
+	INITSCREEN_MENU,
+} initScreen_t;
+
 // Gimp exported as .png, converter used http://javl.github.io/image2cpp/
 // 'splash'@128x32
 const unsigned char mySplash[] = {

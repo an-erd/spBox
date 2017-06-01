@@ -36,6 +36,9 @@ SOFTWARE.
 #include "button.h"
 #include "LCDML_DEFS.h"
 
+extern initScreen_t gInitScreen;
+extern uint8_t gInitScreenPrevID;
+
 void initialize_GPIO() {
 	// red and green knob leds
 	pinMode(LED_R, OUTPUT);
@@ -59,6 +62,7 @@ void setup() {
 	com.initializeMQTT();
 	initialize_GPIO();
 
+	gInitScreen = INITSCREEN_OFF;
 	display.initializeDisplay();
 	display.drawBitmap(0, 0, mySplash, 128, 32, 1);
 	display.display();
@@ -129,12 +133,21 @@ void loop() {
 	com.checkMqtt();
 	//com.checkOta();
 
-	// display init screen
+	// check/display init screen
 	if ((millis() - g_lcdml_initscreen) >= _LCDML_DISP_cfg_initscreen_time) {
 		g_lcdml_initscreen = millis();
+		gInitScreenPrevID = LCDML.getFunction();
+
+		if (LCDML.getFunction() == _LCDML_NO_FUNC)
+			gInitScreen = INITSCREEN_MENU; // not only simple menu item
+		else
+			gInitScreen = INITSCREEN_FUNCTION; // stupid menu item
+
+		Serial.printf("start initscreen: %s, id %i\n", (gInitScreen == INITSCREEN_MENU) ? "MENU" : "FUNCTION", gInitScreenPrevID);
 
 		LCDML_DISP_jumpToFunc(LCDML_FUNC_initscreen);
 	}
+
 	yield();
 
 	LCDML_run(_LCDML_priority);
