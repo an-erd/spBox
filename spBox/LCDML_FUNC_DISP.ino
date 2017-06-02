@@ -6,8 +6,13 @@ void LCDML_DISP_returnFromInitScreen(int func) {
 		g_lcdml_jump_func = func;
 	}
 	else {
-		LCDML.jumpToElement(func);
-		//LCDML_DISP_update_menu();
+		if (func == 255) {
+			LCDML.goRoot();
+		}
+		else {
+			LCDML.jumpToElement(func);
+		}
+		LCDML_DISP_update_menu();
 	}
 	LCDML_BUTTON_resetAll();
 }
@@ -611,15 +616,23 @@ void LCDML_DISP_loop_end(LCDML_FUNC_initscreen)
 	digitalWrite(LED_R, HIGH);	// off
 	gIdleLedBlinkOn = false;
 
+	Serial.printf("return from initscreen: PrevID = %i\n", gInitScreenPrevID);
 	if (gInitScreenPrevID == 255)
 		LCDML.goRoot();
 	else
-		LCDML.jumpToElement(gInitScreenPrevID);
+		switch (gInitScreen) {
+		case INITSCREEN_FUNCTION:
+			//LCDML_DISP_jumpToFunc(LCDML_FUNC_clock);
+			LCDML_DISP_returnFromInitScreen(gInitScreenPrevID);
+			break;
+		case INITSCREEN_MENU:
+			LCDML.jumpToElement(gInitScreenPrevID);
+			break;
+		default:
+			break;
+		}
 
-	//LCDML_DISP_returnFromInitScreen(gInitScreenPrevID);
 	gInitScreen = INITSCREEN_OFF;
-
-	// LCDML_DISP_jumpToFunc(31);
 }
 
 // ############################################################################

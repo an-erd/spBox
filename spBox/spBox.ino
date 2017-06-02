@@ -136,14 +136,15 @@ void loop() {
 	// check/display init screen
 	if ((millis() - g_lcdml_initscreen) >= _LCDML_DISP_cfg_initscreen_time) {
 		g_lcdml_initscreen = millis();
-		gInitScreenPrevID = LCDML.getFunction();
 
 		if (LCDML.getFunction() == _LCDML_NO_FUNC)
 			gInitScreen = INITSCREEN_MENU; // not only simple menu item
-		else
+		else {
 			gInitScreen = INITSCREEN_FUNCTION; // stupid menu item
+			gInitScreenPrevID = LCDML.getFunction();
+		}
 
-		Serial.printf("start initscreen: %s, id %i\n", (gInitScreen == INITSCREEN_MENU) ? "MENU" : "FUNCTION", gInitScreenPrevID);
+		//Serial.printf("start initscreen: %s, id %i\n", (gInitScreen == INITSCREEN_MENU) ? "MENU" : "FUNCTION", gInitScreenPrevID);
 
 		LCDML_DISP_jumpToFunc(LCDML_FUNC_initscreen);
 	}

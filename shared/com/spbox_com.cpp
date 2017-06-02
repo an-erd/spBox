@@ -300,29 +300,16 @@ void SPBOX_COM::checkMqtt()
 		return;
 	}
 
-	Serial.println("updateMqtt: ");
+	//Serial.println("updateMqtt: ");
 	uint16_t vbatADC;
 	char text[7];
 
 	vbatADC = analogRead(VBAT_PIN);
-	Serial.println(vbatADC);
+	//Serial.println(vbatADC);
 	snprintf(text, 7, "%d", vbatADC);
 
 	mqttClient.publish("andreaserd/feeds/battery", 0, true, text);
-	Serial.println("Publishing at QoS 0");
-
-	//updateVbat();
-//	if (!battery.publish(g_vbatADC)) {
-//#ifdef SERIAL_STATUS_OUTPUT
-//		Serial.println(F("Update vbat Failed."));
-//#endif
-//	}
-//	else {
-//#ifdef SERIAL_STATUS_OUTPUT
-//		Serial.println(F("Update vbat Success!"));
-//#endif
-//	}
-//}
+	//Serial.println("Publishing at QoS 0");
 }
 
 void SPBOX_COM::setMqttAvailable(bool avail)

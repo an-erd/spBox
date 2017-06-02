@@ -1,3 +1,5 @@
+extern uint8_t gInitScreenPrevID;
+
 void LCDML_lcd_menu_display()
 {
 	if (LCDML_DISP_update()) {
@@ -8,6 +10,8 @@ void LCDML_lcd_menu_display()
 			if (n == LCDML.getCursorPos()) {
 				display.setCursor(0, _LCDML_FONT_H * (n));
 				display.write(0x10);
+				//Serial.printf("lcdmenu: LCDML.getCursorPos() = %i, content_id[] = %i, layer = %i\n", LCDML.getCursorPos(), LCDML.content_id[n], LCDML.getLayer());
+				gInitScreenPrevID = (LCDML.getLayer()) ? LCDML.content_id[n] : 255;
 			}
 			display.setCursor(_LCDML_FONT_W, _LCDML_FONT_H * (n));
 
