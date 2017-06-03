@@ -51,6 +51,7 @@ SOFTWARE.
 
 // Threshold
 #define THRESHOLD		7		// rot enc and button debounce threshold (milliseconds)
+#define RESET_TIMER	3000
 
 // Timer delay constants in milliseconds(MS)
 #define DELAY_MS_1HZ	1000
@@ -133,6 +134,8 @@ typedef enum inputPin {
 	PIN_CORRECT,
 	PIN_LAST,
 } inputPin_t;
+
+#define LCDML_DISP_isGroupEnabled(g)	bitRead(LCDML.group_en, g)
 
 // Gimp exported as .png, converter used http://javl.github.io/image2cpp/
 // 'splash'@128x32

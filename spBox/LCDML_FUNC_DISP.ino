@@ -19,7 +19,6 @@ void LCDML_DISP_returnFromInitScreen(int func) {
 
 uint32_t gMillisTimer;	// used for diverse timer countdown
 bool gSensorReset;
-#define RESET_TIMER	3000
 
 initScreen_t gInitScreen;
 uint8_t gInitScreenPrevID;	// ID of function or element, type defined in gInitScreen (!= OFF)
@@ -69,24 +68,33 @@ void LCDML_DISP_setup(LCDML_FUNC_sensor_min_max)
 	gSensorReset = false;
 	display.updatePrintBufferScr2();
 	display.updateDisplayWithPrintBuffer();
-	LCDML_DISP_triggerMenu(DELAY_MS_2HZ);
+	LCDML_DISP_triggerMenu(DELAY_MS_10HZ);
 }
 
 void LCDML_DISP_loop(LCDML_FUNC_sensor_min_max)
 {
+	int16_t timeToGo;
+	static bool ledOn;
+
 	if (LCDML_BUTTON_checkLeft()) {
 		gMillisTimer = millis();
 		gSensorReset = true;
+		ledOn = true;  digitalWrite(LED_R, !ledOn);
 		LCDML_BUTTON_resetAll();
 	}
 
 	if (gSensorReset) {
-		if ((millis() - gMillisTimer > RESET_TIMER)) {
+		timeToGo = RESET_TIMER - (millis() - gMillisTimer);
+		if (timeToGo <= 0) {
 			sensors.resetMinMaxAccelGyro();
 			gSensorReset = false;
+			digitalWrite(LED_R, HIGH); // off
 		}
 		else {
-			display.updateDisplayScr11();
+			display.updateDisplayScr11(timeToGo);
+			if (timeToGo < 1000) {
+				ledOn = !ledOn; digitalWrite(LED_R, !ledOn);
+			}
 		}
 	}
 	else {
@@ -104,6 +112,7 @@ void LCDML_DISP_loop(LCDML_FUNC_sensor_min_max)
 
 void LCDML_DISP_loop_end(LCDML_FUNC_sensor_min_max)
 {
+	digitalWrite(LED_R, HIGH); // off
 }
 
 // ############################################################################
@@ -206,29 +215,39 @@ void LCDML_DISP_setup(LCDML_FUNC_max_accel)
 	float absAccel, maxAbsAccel;
 	sensors.getAbsAccel(&absAccel);
 	sensors.getMaxAbsAccel(&maxAbsAccel);
+	gSensorReset = false;
 
 	display.updateDisplayScr9(absAccel, maxAbsAccel);
 
-	LCDML_DISP_triggerMenu(DELAY_MS_5HZ);
+	LCDML_DISP_triggerMenu(DELAY_MS_10HZ);
 }
 
 void LCDML_DISP_loop(LCDML_FUNC_max_accel)
 {
 	float absAccel, maxAbsAccel;
+	int16_t timeToGo;
+	static bool ledOn;
 
 	if (LCDML_BUTTON_checkLeft()) {
 		gMillisTimer = millis();
 		gSensorReset = true;
+		ledOn = true;  digitalWrite(LED_R, !ledOn);
 		LCDML_BUTTON_resetAll();
 	}
 
 	if (gSensorReset) {
-		if ((millis() - gMillisTimer > RESET_TIMER)) {
+		timeToGo = RESET_TIMER - (millis() - gMillisTimer);
+		if (timeToGo <= 0) {
 			sensors.resetMaxAbsAccel();
 			gSensorReset = false;
+			digitalWrite(LED_R, HIGH); // off
 		}
 		else {
-			display.updateDisplayScr11();
+			display.updateDisplayScr11(timeToGo);
+			if (timeToGo < 1000) {
+				ledOn = !ledOn;
+				digitalWrite(LED_R, !ledOn);
+			}
 		}
 	}
 	else {
@@ -248,6 +267,7 @@ void LCDML_DISP_loop(LCDML_FUNC_max_accel)
 
 void LCDML_DISP_loop_end(LCDML_FUNC_max_accel)
 {
+	digitalWrite(LED_R, HIGH); // off
 }
 
 // ############################################################################
@@ -573,7 +593,7 @@ void LCDML_DISP_loop_end(LCDML_FUNC_uptime)
 // ############################################################################
 int gIdleLedBlink;		// bckw. cnt
 bool gIdleLedBlinkOn;
-#define IDLE_LED_BLINK_COUNTER	99
+#define IDLE_LED_BLINK_COUNTER	49
 void LCDML_DISP_setup(LCDML_FUNC_initscreen)
 {
 	bool tmp = sensors.checkMotionIndicators();
@@ -588,13 +608,13 @@ void LCDML_DISP_setup(LCDML_FUNC_initscreen)
 void LCDML_DISP_loop(LCDML_FUNC_initscreen)
 {
 	if (gIdleLedBlinkOn) {
-		digitalWrite(LED_R, HIGH);	// off
+		digitalWrite((LCDML_DISP_isGroupEnabled(_LCDML_G1)) ? LED_G : LED_R, HIGH); // off
 		gIdleLedBlinkOn = false;
 		gIdleLedBlink = IDLE_LED_BLINK_COUNTER;
 	}
 	else {
 		if (gIdleLedBlink == 0) {
-			digitalWrite(LED_R, LOW);	// on
+			digitalWrite((LCDML_DISP_isGroupEnabled(_LCDML_G1)) ? LED_G : LED_R, LOW);	// on
 			gIdleLedBlinkOn = true;
 			gIdleLedBlink = 0;
 		}
@@ -614,7 +634,7 @@ void LCDML_DISP_loop(LCDML_FUNC_initscreen)
 void LCDML_DISP_loop_end(LCDML_FUNC_initscreen)
 {
 	display.ssd1306_command(SSD1306_DISPLAYON);
-	digitalWrite(LED_R, HIGH);	// off
+	digitalWrite((LCDML_DISP_isGroupEnabled(_LCDML_G1)) ? LED_G : LED_R, HIGH); // off
 	gIdleLedBlinkOn = false;
 
 	//Serial.printf("return from initscreen: PrevID = %i\n", gInitScreenPrevID);

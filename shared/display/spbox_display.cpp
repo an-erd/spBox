@@ -28,6 +28,7 @@ SOFTWARE.
 #include "spbox_display.h"
 #include "spbox_sensors.h"
 #include "glcdfont.c"
+#include "myconfig.h"
 
 SPBOX_DISPLAY display;
 
@@ -411,12 +412,23 @@ void SPBOX_DISPLAY::updateDisplayScr10()
 	display();
 }
 
-void SPBOX_DISPLAY::updateDisplayScr11()
+void SPBOX_DISPLAY::updateDisplayScr11(int16_t timeToGo)
 {
+	int barWidth;
+
+	if (timeToGo != -999)
+		barWidth = 128 * ((float)timeToGo / (float)RESET_TIMER);
+
 	clearDisplay();
-	setCursor(0, 0);
-	println("spBox hinlegen");
-	println("Reset Counddown!");
+
+	setCursor(19, 0); print("spBox hinlegen,");
+	setCursor(16, 8); print("Reset Countdown!");
+
+	if (timeToGo != -999) {
+		//Serial.printf("countdown: %i, barWidth: %i\n", timeToGo, barWidth);
+		drawRect(0, 20, 128, 8, WHITE);
+		fillRect(0, 20, barWidth, 8, WHITE);
+	}
 	display();
 }
 
