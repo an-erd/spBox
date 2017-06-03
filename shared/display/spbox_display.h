@@ -42,11 +42,12 @@ public:
 	void updateDisplayScr4(compassModes_t mode);		// Sensor Kompass
 	void updateDisplayScr5(bool fullUptime = false);		// Uhrzeit anzeigen
 	void updateDisplayScr6();		// WLAN/Batterie Status anzeigen
-	void updateDisplayScr7(int16_t smallerVal, int16_t largerVal, uint8_t step, bool increase, uint8_t position, inputAltiModes_t altiMode);		// Config Altitude
+	void updateDisplayScr7(int16_t smallerVal, int16_t largerVal, uint8_t step, bool increase, uint8_t position, inputAltiModes_t altiMode);	// Config Altitude
 	void updateDisplayScr8(int16_t altitude); // show Altitude
 	void updateDisplayScr9(float absaccel, float maxabsaccel);
 	void updateDisplayScr10();
 	void updateDisplayScr11();
+	void updateDisplayScr12(int16_t smallerVal, int16_t largerVal, uint8_t step, bool increase, uint8_t position, inputPin_t inputMode);		// PIN
 	void updatePrintBufferScr4_speed(long val);
 	void updatePrintBufferScr4_charmap(uint8_t val);
 	void updatePrintBufferScrTest();

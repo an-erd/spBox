@@ -7,6 +7,9 @@
 #define DELAY_MS_2HZ	500
 #define DELAY_MS_5HZ	200
 #define DELAY_MS_10HZ	100
+#define DELAY_MS_20HZ	50
+#define DELAY_MS_40HZ	25
+#define DELAY_MS_100HZ	10
 #define DELAY_MS_TWOSEC	2000
 #define DELAY_MS_TENSEC	10000
 #define DELAY_MS_1MIN	60000
@@ -52,6 +55,16 @@ typedef enum compassModes {
 	COMPASS_BAND,
 	COMPASS_LAST,
 } compassModes_t;
+
+typedef enum inputPin {
+	PIN_BUTTON_INPUT = 0,
+	PIN_INPUT,
+	PIN_BUTTON_OK,
+	PIN_BUTTON_CANCEL,
+	PIN_WRONG,
+	PIN_CORRECT,
+	PIN_LAST,
+} inputPin_t;
 
 // 'mountains'@32x32, v2
 const unsigned char myMountains[] = {

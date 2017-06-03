@@ -31,3 +31,8 @@ SOFTWARE.
 #endif
 
 char * dtostrf_sign(double number, signed char width, unsigned char prec, char *s);
+
+// increase/decrease a single digit of num by +diff
+// if allowOverflow = true, the single digit "digit" will overflow but not other digits
+// if allowOverflow = false, 9+1 -> 9 and 0-1 ->0
+int16_t changeSingleDigit(int16_t num, uint8_t digit, int8_t diff, bool allowOverflow = false);

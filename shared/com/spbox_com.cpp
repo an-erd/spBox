@@ -41,8 +41,8 @@ void updateMQtt_CB(void *arc) { com.updateMqttCB(); }
 AsyncMqttClient mqttClient;
 
 void onMqttConnect(bool sessionPresent) {
-	Serial.println("** Connected to the broker **");
-	Serial.print("Session present: ");
+	//Serial.println("** Connected to the broker **");
+	//Serial.print("Session present: ");
 	Serial.println(sessionPresent);
 	com.setMqttAvailable(true);
 
@@ -63,8 +63,8 @@ void onMqttConnect(bool sessionPresent) {
 }
 
 void onMqttDisconnect(AsyncMqttClientDisconnectReason reason) {
-	Serial.println("** Disconnected from the broker **");
-	Serial.print("Reason: "); Serial.println((int)reason);
+	//Serial.println("** Disconnected from the broker **");
+	//Serial.print("Reason: "); Serial.println((int)reason);
 	com.setMqttAvailable(false);
 	//Serial.println("Reconnecting to MQTT...");
 	//mqttClient.connect();
@@ -255,12 +255,12 @@ void SPBOX_COM::setInternetAvailable(u16_t total_sent, u16_t total_recv, u32_t t
 		return;
 
 	if (internetAvail) {
-		Serial.println("Inet available");
+		//Serial.println("Inet available");
 		NTP.begin("pool.ntp.org", 1, true);
 		mqttClient.connect();
 	}
 	else {
-		Serial.println("Inet not available");
+		//Serial.println("Inet not available");
 		NTP.stop(); // NTP sync can be disabled to avoid sync errors
 		mqttClient.disconnect();
 	}

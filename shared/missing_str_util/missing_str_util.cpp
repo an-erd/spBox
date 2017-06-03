@@ -22,10 +22,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-//
-// dtostre() function experimental
-//
-
 #include "missing_str_util.h"
 
 char * dtostrf_sign(double number, signed char width, unsigned char prec, char *s) {
@@ -107,4 +103,28 @@ char * dtostrf_sign(double number, signed char width, unsigned char prec, char *
 	// make sure the string is terminated
 	*out = 0;
 	return s;
+}
+
+int16_t changeSingleDigit(int16_t num, uint8_t digit, int8_t diff, bool allowOverflow) {
+	char tempText[6];
+	int8_t temp;
+
+	snprintf((char*)tempText, 6, "%04d", num);
+
+	//Serial.printf("num= %i, digit= %i, diff= %i, overfl=%i -> string: %s\n", num, digit, diff, allowOverflow, tempText);
+	if (allowOverflow) {
+		temp = (tempText[digit] - '0' + diff + 10) % 10;
+		//Serial.printf("   tempText[] = %i -> %i\n", tempText[digit], temp);
+	}
+	else {
+		temp = tempText[digit] - '0' + diff;
+		if (temp > 9) temp = 9;
+		if (temp < 0)temp = 0;
+		//Serial.printf("   tempText[] = %i -> %i\n", tempText[digit], temp);
+	};
+
+	tempText[digit] = temp + '0';
+	//Serial.printf("   -> %s = %i\n", tempText, atoi(tempText));
+
+	return atoi(tempText);
 }

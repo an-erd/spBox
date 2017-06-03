@@ -59,6 +59,7 @@ SOFTWARE.
 #define DELAY_MS_10HZ	100
 #define DELAY_MS_20HZ	50
 #define DELAY_MS_40HZ	25
+#define DELAY_MS_100HZ	10
 #define DELAY_MS_TWOSEC	2000
 #define DELAY_MS_TENSEC	10000
 #define DELAY_MS_1MIN	60000
@@ -122,6 +123,16 @@ typedef enum initScreen {
 	INITSCREEN_FUNCTION,
 	INITSCREEN_MENU,
 } initScreen_t;
+
+typedef enum inputPin {
+	PIN_BUTTON_INPUT = 0,
+	PIN_INPUT,
+	PIN_BUTTON_OK,
+	PIN_BUTTON_CANCEL,
+	PIN_WRONG,
+	PIN_CORRECT,
+	PIN_LAST,
+} inputPin_t;
 
 // Gimp exported as .png, converter used http://javl.github.io/image2cpp/
 // 'splash'@128x32

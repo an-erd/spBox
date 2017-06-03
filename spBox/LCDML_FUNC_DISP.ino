@@ -548,6 +548,7 @@ void LCDML_DISP_loop(LCDML_FUNC_clock)
 void LCDML_DISP_loop_end(LCDML_FUNC_clock)
 {
 }
+
 // ############################################################################
 void LCDML_DISP_setup(LCDML_FUNC_uptime)
 {
@@ -616,7 +617,7 @@ void LCDML_DISP_loop_end(LCDML_FUNC_initscreen)
 	digitalWrite(LED_R, HIGH);	// off
 	gIdleLedBlinkOn = false;
 
-	Serial.printf("return from initscreen: PrevID = %i\n", gInitScreenPrevID);
+	//Serial.printf("return from initscreen: PrevID = %i\n", gInitScreenPrevID);
 	if (gInitScreenPrevID == 255)
 		LCDML.goRoot();
 	else
@@ -633,6 +634,165 @@ void LCDML_DISP_loop_end(LCDML_FUNC_initscreen)
 		}
 
 	gInitScreen = INITSCREEN_OFF;
+}
+
+// ############################################################################
+int16_t	gInputPinSmaller;
+int16_t gInputPinLarger;
+uint8_t gInputPinCurrStep;
+bool gInputPinIncrease;
+int8_t gInputPinPosition;
+inputPin_t gInputPinMode;
+bool gInputPinUnlock;
+
+void LCDML_DISP_setup(LCDML_FUNC_unlock)
+{
+	gInputPinSmaller = gInputPinLarger = 0;
+	gInputPinCurrStep = 10; // animation paused
+	gInputPinPosition = 0;	// value of pos = 10^(3-pos)
+	gInputPinMode = PIN_BUTTON_INPUT;
+	gInputPinUnlock = false;
+
+	display.updateDisplayScr12(gInputPinSmaller, gInputPinLarger, 0, true, 0, gInputPinMode);
+
+	LCDML_DISP_triggerMenu(DELAY_MS_20HZ);
+}
+
+void LCDML_DISP_loop(LCDML_FUNC_unlock)
+{
+	if (LCDML_BUTTON_checkEnter()) {
+		switch (gInputPinMode) {
+		case PIN_BUTTON_INPUT:
+			gInputPinMode = PIN_INPUT;
+			break;
+		case PIN_INPUT:
+			gInputPinPosition++;
+			if (gInputPinPosition > 3) {
+				gInputPinPosition = 0;
+				gInputPinMode = PIN_BUTTON_OK;
+			}
+			break;
+		case PIN_BUTTON_OK:
+			if (gInputPinLarger == SPBOX_PIN)
+				gInputPinUnlock = true;
+
+			if (gInputPinUnlock) {
+				LCDML_BUTTON_resetAll();
+				LCDML_DISP_resetIsTimer();
+				LCDML_DISP_funcend();
+			}
+
+			//Serial.printf("PIN entered: %i, unlock: %i\n", gInputPinLarger, gInputPinUnlock);
+			break;
+		case PIN_BUTTON_CANCEL:
+			LCDML_BUTTON_resetAll();
+			LCDML_DISP_resetIsTimer();
+			LCDML_DISP_funcend();
+			break;
+		default:
+			break;
+		}
+
+		display.updateDisplayScr12(gInputPinSmaller, gInputPinLarger, gInputPinCurrStep, gInputPinIncrease, gInputPinPosition, gInputPinMode);
+	}
+	else
+	{
+		if (LCDML_BUTTON_checkUp()) {
+			switch (gInputPinMode) {
+			case PIN_BUTTON_INPUT:
+				gInputPinMode = PIN_BUTTON_CANCEL;
+				break;
+			case PIN_INPUT:
+				gInputPinLarger = changeSingleDigit(gInputPinLarger, gInputPinPosition, +1, false);
+				gInputPinIncrease = true;
+
+				if (gInputPinSmaller < gInputPinLarger)
+					if (gInputPinCurrStep > 6)
+						gInputPinCurrStep = 0;
+				//Serial.printf("pin, checkUp:\t<%i >%i, pos %i\n", gInputPinSmaller, gInputPinLarger, gInputPinPosition);
+				break;
+			case PIN_BUTTON_OK:
+				gInputPinMode = PIN_BUTTON_INPUT;
+				break;
+			case PIN_BUTTON_CANCEL:
+				gInputPinMode = PIN_BUTTON_OK;
+				break;
+			}
+		}
+
+		if (LCDML_BUTTON_checkDown()) {
+			switch (gInputPinMode) {
+			case PIN_BUTTON_INPUT:
+				gInputPinMode = PIN_BUTTON_OK;
+				break;
+			case PIN_INPUT:
+				gInputPinSmaller = changeSingleDigit(gInputPinSmaller, gInputPinPosition, -1);
+				gInputPinIncrease = false;
+
+				if (gInputPinSmaller < gInputPinLarger)
+					if (gInputPinCurrStep > 6)
+						gInputPinCurrStep = 0;
+				//Serial.printf("pin, checkDown:\t<%i >%i, pos %i\n", gInputPinSmaller, gInputPinLarger, gInputPinPosition);
+				break;
+			case PIN_BUTTON_OK:
+				gInputPinMode = PIN_BUTTON_CANCEL;
+				break;
+			case PIN_BUTTON_CANCEL:
+				gInputPinMode = PIN_BUTTON_INPUT;
+				break;
+			}
+		}
+
+		switch (gInputPinCurrStep) {
+		case 9: // reinitialize
+			if (gInputPinIncrease)
+				gInputPinSmaller = gInputPinLarger;
+			else
+				gInputPinLarger = gInputPinSmaller;
+			gInputPinCurrStep++;
+			break;
+		case 10: // pause
+			display.updateDisplayScr12(gInputPinSmaller, gInputPinLarger, gInputPinCurrStep, gInputPinIncrease, gInputPinPosition, gInputPinMode);
+			break;
+		default: // scrolled text steps 0..8
+			display.updateDisplayScr12(gInputPinSmaller, gInputPinLarger, gInputPinCurrStep, gInputPinIncrease, gInputPinPosition, gInputPinMode);
+			gInputPinCurrStep++;
+			break;
+		}
+	}
+	LCDML_BUTTON_resetAll();
+}
+
+void LCDML_DISP_loop_end(LCDML_FUNC_unlock)
+{
+	if (gInputPinUnlock) {
+		LCDML_DISP_groupEnable(_LCDML_G1);
+		LCDML_DISP_groupDisable(_LCDML_G2);
+
+		LCDML_DISP_resetIsTimer();
+		LCDML.goRoot();
+	}
+}
+
+// ############################################################################
+void LCDML_DISP_setup(LCDML_FUNC_lock)
+{
+	LCDML_DISP_triggerMenu(DELAY_MS_10HZ);
+}
+
+void LCDML_DISP_loop(LCDML_FUNC_lock)
+{
+	display.clearDisplay();
+	LCDML_BUTTON_resetAll();
+	LCDML_DISP_funcend();
+}
+
+void LCDML_DISP_loop_end(LCDML_FUNC_lock)
+{
+	LCDML_DISP_resetIsTimer();
+	LCDML_DISP_groupEnable(_LCDML_G2);
+	LCDML_DISP_groupDisable(_LCDML_G1);
+	LCDML.goRoot();
 }
 
 // ############################################################################

@@ -113,7 +113,7 @@ void setup() {
 			break;
 		}
 	});
-	LCDML_DISP_groupEnable(_LCDML_G1);
+	LCDML_DISP_groupEnable(_LCDML_G1); // use "_G1" if unlocked or "_G2" if locked when switched on
 	LCDML_setup(_LCDML_BACK_cnt);
 	LCDML_DISP_resetIsTimer();
 }

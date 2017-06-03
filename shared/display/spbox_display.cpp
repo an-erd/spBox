@@ -420,6 +420,54 @@ void SPBOX_DISPLAY::updateDisplayScr11()
 	display();
 }
 
+// Enter PIN (e.g. to unlock), similar to config altitude
+void SPBOX_DISPLAY::updateDisplayScr12(int16_t smallerVal, int16_t largerVal, uint8_t step, bool increase, uint8_t position, inputPin_t inputMode)
+{
+	unsigned char textA[6];
+	unsigned char textB[6];
+	bool skip[] = { false, false, false, false, false, false, };
+	uint8_t tmpStep = (step > 8) ? 8 : step;	// i.e. only update position marker
+
+	snprintf((char*)textA, 5, "%04d", smallerVal);
+	snprintf((char*)textB, 5, "%04d", largerVal);
+	for (int i = 0; i < 4; i++)
+		skip[i] = textA[i] == textB[i];
+
+	clearDisplay();
+
+	setCursor(6, 4); print("PIN: ");
+	drawScrolledText(5 * 6, 4, 5, textA, textB, skip, (increase ? step : 8 - step));
+
+	// Position marker
+	if (inputMode == PIN_INPUT) {
+		drawLine((5 + position) * 6, 2, (5 + position) * 6 + 4, 2, WHITE);
+		drawLine((5 + position) * 6, 12, (5 + position) * 6 + 4, 12, WHITE);
+	}
+
+	setCursor(6, 16); print("OK");
+	setCursor(6, 24); print("Abbruch");
+
+	//draw cursor to show active item
+	switch (inputMode) {
+	case PIN_BUTTON_INPUT:
+		setCursor(0, 4);
+		write(0x10);
+		break;
+	case PIN_BUTTON_OK:
+		setCursor(0, 16);
+		write(0x10);
+		break;
+	case PIN_BUTTON_CANCEL:
+		setCursor(0, 24);
+		write(0x10);
+		break;
+	default:
+		break;
+	}
+
+	display();
+}
+
 void SPBOX_DISPLAY::updatePrintBufferScr4_speed(long val)
 {
 	snprintf(displaybuffer_[0], 21, "Alt %d", val);
