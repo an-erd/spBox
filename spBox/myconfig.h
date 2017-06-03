@@ -135,6 +135,12 @@ typedef enum inputPin {
 	PIN_LAST,
 } inputPin_t;
 
+typedef enum clockModes {
+	CLOCK_WALL = 0,
+	CLOCK_UPTIME,
+	CLOCK_LAST,
+} clockModes_t;
+
 #define LCDML_DISP_isGroupEnabled(g)	bitRead(LCDML.group_en, g)
 
 // Gimp exported as .png, converter used http://javl.github.io/image2cpp/

@@ -549,14 +549,33 @@ void LCDML_DISP_loop_end(LCDML_FUNC_ownerinformation)
 }
 
 // ############################################################################
+clockModes_t gConfigClockMode;
 void LCDML_DISP_setup(LCDML_FUNC_clock)
 {
+	gConfigClockMode = CLOCK_WALL;
+	display.updateDisplayScr5(gConfigClockMode);
 	LCDML_DISP_triggerMenu(DELAY_MS_1HZ);
 }
 
 void LCDML_DISP_loop(LCDML_FUNC_clock)
 {
-	display.updateDisplayScr5();
+	int tmp_mode = (int)gConfigClockMode;
+
+	if (LCDML_BUTTON_checkUp()) {
+		LCDML_BUTTON_resetUp();
+
+		tmp_mode -= 1;
+		if (tmp_mode < 0)
+			tmp_mode = CLOCK_LAST - 1;
+	}
+	if (LCDML_BUTTON_checkDown()) {
+		LCDML_BUTTON_resetDown();
+		tmp_mode += 1;
+		tmp_mode %= CLOCK_LAST;
+	}
+	gConfigClockMode = (clockModes_t)tmp_mode;
+
+	display.updateDisplayScr5(gConfigClockMode);
 	LCDML_DISP_resetIsTimer();
 
 	if (LCDML_BUTTON_checkEnter()) {
@@ -566,27 +585,6 @@ void LCDML_DISP_loop(LCDML_FUNC_clock)
 }
 
 void LCDML_DISP_loop_end(LCDML_FUNC_clock)
-{
-}
-
-// ############################################################################
-void LCDML_DISP_setup(LCDML_FUNC_uptime)
-{
-	LCDML_DISP_triggerMenu(DELAY_MS_1HZ);
-}
-
-void LCDML_DISP_loop(LCDML_FUNC_uptime)
-{
-	display.updateDisplayScr5(true);
-	LCDML_DISP_resetIsTimer();
-
-	if (LCDML_BUTTON_checkEnter()) {
-		LCDML_BUTTON_resetAll();
-		LCDML_DISP_funcend();
-	}
-}
-
-void LCDML_DISP_loop_end(LCDML_FUNC_uptime)
 {
 }
 

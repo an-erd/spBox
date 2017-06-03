@@ -39,8 +39,8 @@ public:
 	void updatePrintBufferScr1();	// Sensor overview
 	void updatePrintBufferScr2();	// Sensor Accel/Gyro min/max
 	void updatePrintBufferScr3();	// Sensor Temp/Press/Alti
-	void updateDisplayScr4(compassModes_t mode);		// Sensor Kompass
-	void updateDisplayScr5(bool fullUptime = false);		// Uhrzeit anzeigen
+	void updateDisplayScr4(compassModes_t mode);	// Sensor Kompass
+	void updateDisplayScr5(clockModes_t mode);		// Uhrzeit anzeigen
 	void updateDisplayScr6();		// WLAN/Batterie Status anzeigen
 	void updateDisplayScr7(int16_t smallerVal, int16_t largerVal, uint8_t step, bool increase, uint8_t position, inputAltiModes_t altiMode);	// Config Altitude
 	void updateDisplayScr8(int16_t altitude); // show Altitude

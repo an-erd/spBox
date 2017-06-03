@@ -204,16 +204,10 @@ void SPBOX_DISPLAY::updateDisplayScr4(compassModes_t mode)
 	display();
 }
 
-void SPBOX_DISPLAY::updateDisplayScr5(bool fullUptime)
+void SPBOX_DISPLAY::updateDisplayScr5(clockModes_t mode)
 {
-	if (fullUptime) {
-		snprintf(displaybuffer_[0], 21, "%s", NTP.getTimeDateString().c_str());
-		snprintf(displaybuffer_[1], 21, "Up %s, since %s", NTP.getUptimeString().c_str(), NTP.getTimeDateString(NTP.getFirstSync()).c_str());
-		snprintf(displaybuffer_[2], 21, "Since %s", NTP.getTimeDateString(NTP.getFirstSync()).c_str());
-		snprintf(displaybuffer_[3], 21, "Last %s", NTP.getTimeDateString(NTP.getLastNTPSync()).c_str());
-		updateDisplayWithPrintBuffer();
-	}
-	else {
+	switch (mode) {
+	case CLOCK_WALL:
 		snprintf(displaybuffer_[0], 21, "%s", NTP.getTimeStr().c_str());
 		snprintf(displaybuffer_[1], 21, "%s", NTP.getDateStr().c_str());
 		clearDisplay();
@@ -225,6 +219,14 @@ void SPBOX_DISPLAY::updateDisplayScr5(bool fullUptime)
 		setCursor(33, 22);	// 128 - 10 * 6 /2 -1 = 33
 		println(displaybuffer_[1]);
 		display();
+		break;
+	case CLOCK_UPTIME:
+		snprintf(displaybuffer_[0], 21, "%s", NTP.getTimeDateString().c_str());
+		snprintf(displaybuffer_[1], 21, "Up %s, since %s", NTP.getUptimeString().c_str(), NTP.getTimeDateString(NTP.getFirstSync()).c_str());
+		snprintf(displaybuffer_[2], 21, "Since %s", NTP.getTimeDateString(NTP.getFirstSync()).c_str());
+		snprintf(displaybuffer_[3], 21, "Last %s", NTP.getTimeDateString(NTP.getLastNTPSync()).c_str());
+		updateDisplayWithPrintBuffer();
+		break;
 	}
 }
 

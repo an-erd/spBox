@@ -68,6 +68,12 @@ typedef enum inputPin {
 	PIN_LAST,
 } inputPin_t;
 
+typedef enum clockModes {
+	CLOCK_WALL = 0,
+	CLOCK_UPTIME,
+	CLOCK_LAST,
+} clockModes_t;
+
 // 'mountains'@32x32, v2
 const unsigned char myMountains[] = {
 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00,
