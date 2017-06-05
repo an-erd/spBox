@@ -23,6 +23,7 @@ SOFTWARE.
 */
 
 #pragma once
+#include "credentials.h"
 
 #define STRING_VERSION "v0.3"
 
@@ -30,12 +31,17 @@ SOFTWARE.
 //#define WLAN_SSID		"..."
 //#define WLAN_PASSWORD	"..."
 
+// own Mosquitto server
+#define W12_SERVER		"192.168.2.137"
+#define W12_SERVERPORT	1883
+//#define W12_USERNAME	"..."
+//#define W12_KEY			"..."
+
 // ADAFRUIT IO
 #define AIO_SERVER      "io.adafruit.com"
 #define AIO_SERVERPORT  1883
 //#define AIO_USERNAME  "..."
 //#define AIO_KEY		"..."
-#define AIO_ENABLED		1
 
 // Measure battery
 #define VBAT_PIN		A0
@@ -142,6 +148,20 @@ typedef enum clockModes {
 } clockModes_t;
 
 #define LCDML_DISP_isGroupEnabled(g)	bitRead(LCDML.group_en, g)
+
+typedef struct {
+	char *name;
+	int port;
+	char *uid;
+	char *key;
+} mqttConfig_t;
+
+#define NUM_MQTT_CONFIG	2
+const mqttConfig_t mqttConfigs[] = {
+	{W12_SERVER, W12_SERVERPORT, W12_USERNAME, W12_KEY},
+	{AIO_SERVER, AIO_SERVERPORT, AIO_USERNAME, AIO_KEY},
+	{"n/a", 0, "n/a", "n/a"}
+};
 
 // Gimp exported as .png, converter used http://javl.github.io/image2cpp/
 // 'splash'@128x32

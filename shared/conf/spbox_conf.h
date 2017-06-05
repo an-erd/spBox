@@ -53,6 +53,8 @@ public:
 
 	void setSeaLevelPressure(float seaLevelPressure);
 	float getSeaLevelPressure();
+	void setMqttConfigNr(uint8_t nr);
+	uint8_t getMqttConfigNr();
 
 	//	void setAccelGyroOrientation(uint8_t accel_gyro_orientation = 0);
 
@@ -69,6 +71,7 @@ private:
 	uint8_t		accel_range_scale_;
 	uint8_t		gyro_range_scale_;
 	float		sea_level_pressure_;
+	uint8_t		mqtt_config_nr_;
 	//	uint8_t		accel_gyro_orientation_;
 	//	uint8_t		mag_orientation_;
 protected:

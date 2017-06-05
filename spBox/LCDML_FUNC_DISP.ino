@@ -23,6 +23,11 @@ bool gSensorReset;
 initScreen_t gInitScreen;
 uint8_t gInitScreenPrevID;	// ID of function or element, type defined in gInitScreen (!= OFF)
 
+int8_t gSelectedMenu;
+int8_t gPrevSelectedEntry;
+int8_t gSelectedEntry;
+int8_t gMenuConfirm;
+
 // ############################################################################
 void LCDML_DISP_setup(LCDML_FUNC_back)
 {
@@ -405,7 +410,8 @@ void LCDML_DISP_loop(LCDML_FUNC_config_altitude)
 					gConfigAltitudeLarger = 9999;
 
 				if (gConfigAltitudeSmaller < gConfigAltitudeLarger)
-					gConfigAltitudeCurrStep = 0;
+					if (gConfigAltitudeCurrStep > 6)
+						gConfigAltitudeCurrStep = 0;
 				break;
 			case BUTTON_OK:
 				gConfigAltitudeMode = BUTTON_ALTITUDE;
@@ -811,6 +817,116 @@ void LCDML_DISP_loop_end(LCDML_FUNC_lock)
 	LCDML_DISP_groupEnable(_LCDML_G2);
 	LCDML_DISP_groupDisable(_LCDML_G1);
 	LCDML.goRoot();
+}
+
+// ############################################################################
+void LCDML_DISP_setup(LCDML_FUNC_config_mqtt)
+{
+	LCDML_DISP_triggerMenu(DELAY_MS_10HZ);
+}
+
+void LCDML_DISP_loop(LCDML_FUNC_config_mqtt)
+{
+	LCDML_BUTTON_resetAll();
+	LCDML_DISP_funcend();
+}
+
+void LCDML_DISP_loop_end(LCDML_FUNC_config_mqtt)
+{
+	LCDML_DISP_resetIsTimer();
+	LCDML.goRoot();
+}
+
+// ############################################################################
+
+void LCDML_DISP_setup(LCDML_FUNC_select_mqtt)
+{
+	gSelectedMenu = gPrevSelectedEntry = gSelectedEntry = conf.getMqttConfigNr();
+	gMenuConfirm = false;
+
+	display.updateDisplayScr14(mqttConfigs, gPrevSelectedEntry, gSelectedMenu, gMenuConfirm, mqttConfigs[gSelectedMenu].name);
+
+	LCDML_DISP_triggerMenu(DELAY_MS_1HZ);
+}
+
+void LCDML_DISP_loop(LCDML_FUNC_select_mqtt)
+{
+	if (!gMenuConfirm) {
+		if (LCDML_BUTTON_checkEnter())
+		{
+			if (gSelectedMenu == NUM_MQTT_CONFIG) {		// "back" button
+				LCDML_BUTTON_resetAll();
+				LCDML_DISP_resetIsTimer();
+				LCDML_DISP_funcend();
+			}
+			else {
+				LCDML_BUTTON_resetEnter();
+				LCDML_DISP_resetIsTimer();
+				gSelectedEntry = gSelectedMenu;
+				gSelectedMenu = 0;
+				gMenuConfirm = true;
+			}
+		}
+		if (LCDML_BUTTON_checkUp()) {
+			LCDML_BUTTON_resetUp();
+			gSelectedMenu--;
+			if (gSelectedMenu < 0)
+				gSelectedMenu = NUM_MQTT_CONFIG;
+		}
+		if (LCDML_BUTTON_checkDown()) {
+			LCDML_BUTTON_resetDown();
+			gSelectedMenu++;
+			if (gSelectedMenu > NUM_MQTT_CONFIG)
+				gSelectedMenu = 0;
+		}
+	}
+	else {
+		if (LCDML_BUTTON_checkEnter())
+		{
+			if (gSelectedMenu == 0) {
+				// new entry confirmed
+				LCDML_BUTTON_resetAll();
+				LCDML_DISP_funcend();
+			}
+			else
+			{
+				LCDML_BUTTON_resetAll();
+				gPrevSelectedEntry = gSelectedEntry = conf.getMqttConfigNr();
+				gSelectedMenu = 0;
+				gMenuConfirm = false;
+			}
+		}
+		if (LCDML_BUTTON_checkUp() || LCDML_BUTTON_checkDown()) {
+			LCDML_BUTTON_resetAll();
+			if (gSelectedMenu != 0)
+				gSelectedMenu = 0;
+			else
+				gSelectedMenu = 1;
+		}
+	}
+	display.updateDisplayScr14(mqttConfigs, gPrevSelectedEntry, gSelectedMenu, gMenuConfirm, mqttConfigs[gSelectedEntry].name);
+
+	LCDML_BUTTON_resetAll();
+	LCDML_DISP_resetIsTimer();
+}
+
+void LCDML_DISP_loop_end(LCDML_FUNC_select_mqtt)
+{
+	bool result;
+	Serial.printf("select mqtt: confirmed %i, prev: %i, new: %i, name: %s\n", gMenuConfirm, gPrevSelectedEntry, gSelectedEntry, mqttConfigs[gSelectedEntry].name);
+
+	if (gMenuConfirm && (gPrevSelectedEntry != gSelectedEntry)) {
+		conf.setMqttConfigNr(gSelectedEntry);
+		result = conf.writeConfToEEPROM();
+		Serial.printf("mqtt: new entry: %i, eeprom write result: %i\n", gSelectedEntry, result);
+		com.changeMqttBroker();
+	}
+	else
+	{
+		Serial.print("mqtt: no new broker selected, config unchanged\n");
+	}
+	LCDML_DISP_resetIsTimer();
+	//LCDML.goBack();
 }
 
 // ############################################################################

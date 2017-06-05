@@ -62,6 +62,7 @@ public:
 	void checkMqtt();
 	void setMqttAvailable(bool avail);
 	bool getMqttAvailable();
+	bool changeMqttBroker();
 private:
 	WiFiClient				client_;
 	WiFiEventHandler		gotIpEventHandler_;
@@ -72,7 +73,6 @@ private:
 	SPBOX_CONF				*conf_;
 	bool					wlan_initialized_;
 	bool					ota_initialized_;
-	//bool					mqtt_initialized_;
 	bool					doPing_;
 	bool					internetAvailable_;
 	bool					internetChanged_;

@@ -22,6 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+#include <AsyncMqttClient.h>
 #include <ESP8266WiFi.h>
 #include <NtpClientLib.h>
 #include "missing_str_util.h"
@@ -31,6 +32,7 @@ SOFTWARE.
 #include "myconfig.h"
 
 SPBOX_DISPLAY display;
+extern AsyncMqttClient mqttClient;
 
 void SPBOX_DISPLAY::initializeDisplay() {
 	begin(SSD1306_SWITCHCAPVCC, 0x3C);
@@ -478,6 +480,49 @@ void SPBOX_DISPLAY::updateDisplayScr12(int16_t smallerVal, int16_t largerVal, ui
 	default:
 		break;
 	}
+
+	display();
+}
+
+void SPBOX_DISPLAY::updateDisplayScr13()
+{
+	mqttClient.connected();
+
+	/*mqttClient;*/
+	//connected
+	//subscriptions (topic + QoS)
+	//last keep alive
+	//count published
+	//count received
+}
+
+void SPBOX_DISPLAY::updateDisplayScr14(const mqttConfig_t *configs, int8_t curPosition, int8_t newPosition, bool confirm, char* confirmMqttConfig)
+{
+	clearDisplay();
+
+	if (!confirm) {
+		// max. 4 lines: <=3 configs and "back"
+		for (uint8_t n = 0; n < NUM_MQTT_CONFIG; n++) {
+			setCursor(6, 8 * (n));
+			printf("%-19s", configs[n].name);
+			if (n == curPosition)
+				print("\017");
+		}
+		setCursor(6, 8 * (NUM_MQTT_CONFIG));
+		print("Zur\201ck");
+	}
+	else
+	{
+		snprintf(displaybuffer_[0], 21, "Best\204tigen: %s", confirmMqttConfig);
+		setCursor(6, 0);
+		print(displaybuffer_[0]);
+
+		setCursor(6, 8);
+		print("Abbruch");
+	}
+
+	setCursor(0, 8 * (newPosition));
+	write(0x10);
 
 	display();
 }

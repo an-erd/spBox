@@ -41,14 +41,14 @@ void updateMQtt_CB(void *arc) { com.updateMqttCB(); }
 AsyncMqttClient mqttClient;
 
 void onMqttConnect(bool sessionPresent) {
-	//Serial.println("** Connected to the broker **");
-	//Serial.print("Session present: ");
+	Serial.println("** Connected to the broker **");
+	Serial.print("Session present: ");
 	Serial.println(sessionPresent);
 	com.setMqttAvailable(true);
 
-	//uint16_t packetIdSub = mqttClient.subscribe("andreaserd/feeds/battery", 2);
-	//Serial.print("Subscribing at QoS 2, packetId: ");
-	//Serial.println(packetIdSub);
+	uint16_t packetIdSub = mqttClient.subscribe("andreaserd/feeds/battery", 2);
+	Serial.print("Subscribing at QoS 2, packetId: ");
+	Serial.println(packetIdSub);
 
 	//mqttClient.publish("/feeds/battery", 0, true, "111");
 	//Serial.println("Publishing at QoS 0");
@@ -63,11 +63,11 @@ void onMqttConnect(bool sessionPresent) {
 }
 
 void onMqttDisconnect(AsyncMqttClientDisconnectReason reason) {
-	//Serial.println("** Disconnected from the broker **");
-	//Serial.print("Reason: "); Serial.println((int)reason);
+	Serial.println("** Disconnected from the broker **");
+	Serial.print("Reason: "); Serial.println((int)reason);
 	com.setMqttAvailable(false);
-	//Serial.println("Reconnecting to MQTT...");
-	//mqttClient.connect();
+	Serial.println("Reconnecting to MQTT...");
+	mqttClient.connect();
 }
 void onMqttSubscribe(uint16_t packetId, uint8_t qos) {
 	Serial.println("** Subscribe acknowledged **");
@@ -97,6 +97,7 @@ void onMqttMessage(char* topic, char* payload, AsyncMqttClientMessageProperties 
 	Serial.println(index);
 	Serial.print("  total: ");
 	Serial.println(total);
+	Serial.printf("  payload: %s\n", payload);
 }
 void onMqttPublish(uint16_t packetId) {
 	Serial.println("** Publish acknowledged **");
@@ -322,6 +323,20 @@ bool SPBOX_COM::getMqttAvailable()
 	return mqttAvailable_;
 }
 
+bool SPBOX_COM::changeMqttBroker()
+{
+	bool wasConnected = mqttClient.connected();
+	bool result = false;
+
+	mqttClient.disconnect();
+	mqttClient.setServer(mqttConfigs[conf.getMqttConfigNr()].name, mqttConfigs[conf.getMqttConfigNr()].port);
+	mqttClient.setKeepAlive(15).setCleanSession(false).setCredentials(mqttConfigs[conf.getMqttConfigNr()].uid, mqttConfigs[conf.getMqttConfigNr()].key);
+	if (wasConnected)
+		mqttClient.connect();
+
+	return result;
+}
+
 void SPBOX_COM::onSTAGotIP(WiFiEventStationModeGotIP ipInfo)
 {
 	DEBUGLOG("Got IP: %s\r\n", ipInfo.ip.toString().c_str());
@@ -355,7 +370,7 @@ void SPBOX_COM::onNTPSyncEvent(NTPSyncEvent_t event)
 			Serial.println("NTP server not reachable");
 		else if (event == invalidAddress)
 			Serial.println("Invalid NTP server address");
-	}
+}
 	else {
 		Serial.print("Got NTP time: ");
 		Serial.println(NTP.getTimeDateString(NTP.getLastNTPSync()));

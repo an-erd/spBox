@@ -74,6 +74,20 @@ typedef enum clockModes {
 	CLOCK_LAST,
 } clockModes_t;
 
+typedef struct {
+	char *name;
+	int port;
+	char *uid;
+	char *key;
+} mqttConfig_t;
+
+#define NUM_MQTT_CONFIG	2
+const mqttConfig_t mqttConfigs[] = {
+	{W12_SERVER, W12_SERVERPORT, W12_USERNAME, W12_KEY},
+	{AIO_SERVER, AIO_SERVERPORT, AIO_USERNAME, AIO_KEY},
+	{"n/a", 0, "n/a", "n/a"}
+};
+
 // 'mountains'@32x32, v2
 const unsigned char myMountains[] = {
 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00,

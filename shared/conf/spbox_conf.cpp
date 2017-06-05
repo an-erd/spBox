@@ -60,6 +60,7 @@ void SPBOX_CONF::initialize(bool from_eeprom)
 		accel_range_scale_ = MPU6050_ACCEL_FS_16;
 		gyro_range_scale_ = MPU6050_GYRO_FS_2000;
 		sea_level_pressure_ = 101325;
+		mqtt_config_nr_ = 0;
 		//accel_gyro_orientation_ = 0;	// TODO
 		//mag_orientation_ = 0;		// TODO
 	}
@@ -136,6 +137,16 @@ float SPBOX_CONF::getSeaLevelPressure()
 	return sea_level_pressure_;
 }
 
+void SPBOX_CONF::setMqttConfigNr(uint8_t nr)
+{
+	mqtt_config_nr_ = nr;
+}
+
+uint8_t SPBOX_CONF::getMqttConfigNr()
+{
+	return mqtt_config_nr_;
+}
+
 bool SPBOX_CONF::writeConfToEEPROM()
 {
 	DEBUGLOG("SPBOX_CONF::writeConfToEEPROM()\n");
@@ -161,6 +172,8 @@ bool SPBOX_CONF::writeConfToEEPROM()
 	EEPROM.write(i, temp.bytes[1]); i++;
 	EEPROM.write(i, temp.bytes[2]); i++;
 	EEPROM.write(i, temp.bytes[3]); i++;
+
+	EEPROM.write(i, mqtt_config_nr_); i++;
 
 	return EEPROM.commit();
 }
@@ -191,6 +204,7 @@ bool SPBOX_CONF::readConfFromEEPROM()
 	temp.bytes[3] = EEPROM.read(i++);
 	sea_level_pressure_ = temp.floatvalue;
 
+	mqtt_config_nr_ = EEPROM.read(i++);
 	return true;
 }
 
