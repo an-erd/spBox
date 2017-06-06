@@ -56,11 +56,12 @@ void SPBOX_CONF::initialize(bool from_eeprom)
 		wlan_enabled_ = true;
 		ota_mode_ = OTA_IDE;
 		ntp_enabled_ = true;
-		aio_enabled_ = true;
+		mqtt_enabled_ = true;
 		accel_range_scale_ = MPU6050_ACCEL_FS_16;
 		gyro_range_scale_ = MPU6050_GYRO_FS_2000;
 		sea_level_pressure_ = 101325;
 		mqtt_config_nr_ = 0;
+		mqtt_send_healthdata_ = true;
 		//accel_gyro_orientation_ = 0;	// TODO
 		//mag_orientation_ = 0;		// TODO
 	}
@@ -97,14 +98,24 @@ bool SPBOX_CONF::getNtpEnabled()
 	return ntp_enabled_;
 }
 
-void SPBOX_CONF::setAioEnabled(bool aio_enabled)
+void SPBOX_CONF::setMQTTEnabled(bool mqtt_enabled)
 {
-	aio_enabled_ = aio_enabled;
+	mqtt_enabled_ = mqtt_enabled;
 }
 
-bool SPBOX_CONF::getAioEnabled()
+bool SPBOX_CONF::getMQTTEnabled()
 {
-	return aio_enabled_;
+	return mqtt_enabled_;
+}
+
+void SPBOX_CONF::setMQTTHealthdata(bool mqtt_healthdata)
+{
+	mqtt_send_healthdata_ = mqtt_healthdata;
+}
+
+bool SPBOX_CONF::getMQTTHealthdata()
+{
+	return mqtt_send_healthdata_;
 }
 
 void SPBOX_CONF::setAccelRangeScale(uint8_t accel_range_scale)
@@ -163,7 +174,7 @@ bool SPBOX_CONF::writeConfToEEPROM()
 	EEPROM.write(i, wlan_enabled_); i++;
 	EEPROM.write(i, ota_mode_); i++;
 	EEPROM.write(i, ntp_enabled_); i++;
-	EEPROM.write(i, aio_enabled_); i++;
+	EEPROM.write(i, mqtt_enabled_); i++;
 	EEPROM.write(i, accel_range_scale_); i++;
 	EEPROM.write(i, gyro_range_scale_); i++;
 
@@ -174,6 +185,7 @@ bool SPBOX_CONF::writeConfToEEPROM()
 	EEPROM.write(i, temp.bytes[3]); i++;
 
 	EEPROM.write(i, mqtt_config_nr_); i++;
+	EEPROM.write(i, mqtt_send_healthdata_); i++;
 
 	return EEPROM.commit();
 }
@@ -194,7 +206,7 @@ bool SPBOX_CONF::readConfFromEEPROM()
 	wlan_enabled_ = EEPROM.read(i++);
 	ota_mode_ = (OTAModes_t)EEPROM.read(i++);
 	ntp_enabled_ = EEPROM.read(i++);
-	aio_enabled_ = EEPROM.read(i++);
+	mqtt_enabled_ = EEPROM.read(i++);
 	accel_range_scale_ = EEPROM.read(i++);
 	gyro_range_scale_ = EEPROM.read(i++);
 
@@ -205,6 +217,8 @@ bool SPBOX_CONF::readConfFromEEPROM()
 	sea_level_pressure_ = temp.floatvalue;
 
 	mqtt_config_nr_ = EEPROM.read(i++);
+	mqtt_send_healthdata_ = EEPROM.read(i++);
+
 	return true;
 }
 

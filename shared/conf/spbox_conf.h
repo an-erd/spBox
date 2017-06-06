@@ -43,8 +43,11 @@ public:
 	void setNtpEnabled(bool ntp_enabled = true);
 	bool getNtpEnabled();
 
-	void setAioEnabled(bool aio_enabled = true);
-	bool getAioEnabled();
+	void setMQTTEnabled(bool mqtt_enabled = true);
+	bool getMQTTEnabled();
+
+	void setMQTTHealthdata(bool mqtt_healthdata = true);
+	bool getMQTTHealthdata();
 
 	void setAccelRangeScale(uint8_t accel_range_scale = MPU6050_ACCEL_FS_16);
 	void setGyroRangeScale(float gyro_range_scale = MPU6050_GYRO_FS_2000);
@@ -67,7 +70,8 @@ private:
 	bool		wlan_enabled_;
 	OTAModes_t	ota_mode_;
 	bool		ntp_enabled_;
-	bool		aio_enabled_;
+	bool		mqtt_enabled_;
+	bool		mqtt_send_healthdata_;
 	uint8_t		accel_range_scale_;
 	uint8_t		gyro_range_scale_;
 	float		sea_level_pressure_;

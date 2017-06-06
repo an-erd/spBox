@@ -820,23 +820,46 @@ void LCDML_DISP_loop_end(LCDML_FUNC_lock)
 }
 
 // ############################################################################
-void LCDML_DISP_setup(LCDML_FUNC_config_mqtt)
+void LCDML_DISP_setup(LCDML_FUNC_toggle_mqtt)
 {
 	LCDML_DISP_triggerMenu(DELAY_MS_10HZ);
 }
 
-void LCDML_DISP_loop(LCDML_FUNC_config_mqtt)
+void LCDML_DISP_loop(LCDML_FUNC_toggle_mqtt)
 {
 	LCDML_BUTTON_resetAll();
 	LCDML_DISP_funcend();
 }
 
-void LCDML_DISP_loop_end(LCDML_FUNC_config_mqtt)
+void LCDML_DISP_loop_end(LCDML_FUNC_toggle_mqtt)
 {
+	bool result;
+	conf.setMQTTEnabled(!conf.getMQTTEnabled());
+	result = conf.writeConfToEEPROM();
+
 	LCDML_DISP_resetIsTimer();
-	LCDML.goRoot();
 }
 
+// ############################################################################
+void LCDML_DISP_setup(LCDML_FUNC_toggle_mqtthealth)
+{
+	LCDML_DISP_triggerMenu(DELAY_MS_10HZ);
+}
+
+void LCDML_DISP_loop(LCDML_FUNC_toggle_mqtthealth)
+{
+	LCDML_BUTTON_resetAll();
+	LCDML_DISP_funcend();
+}
+
+void LCDML_DISP_loop_end(LCDML_FUNC_toggle_mqtthealth)
+{
+	bool result;
+	conf.setMQTTHealthdata(!conf.getMQTTHealthdata());
+	result = conf.writeConfToEEPROM();
+
+	LCDML_DISP_resetIsTimer();
+}
 // ############################################################################
 
 void LCDML_DISP_setup(LCDML_FUNC_select_mqtt)

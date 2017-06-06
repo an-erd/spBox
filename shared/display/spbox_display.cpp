@@ -260,13 +260,14 @@ void SPBOX_DISPLAY::updateDisplayScr6() {
 	case WL_CONNECTED:
 		print(WiFi.SSID());
 		if (manageInternetAvailable_) {
-			if (internetAvailable_) {
+			if (internetAvailable_)
 				print(", Inet");
-				if (setMqttAvailable_)
-					print(", MQTT");
-			}
-			else { print(", no Inet"); }
+			else
+				print(", no Inet");
 		}
+		if (setMqttAvailable_)
+			print(", MQTT");
+
 		break;
 	case WL_CONNECT_FAILED:
 		print("Connect Failed");

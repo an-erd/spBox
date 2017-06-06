@@ -25,6 +25,12 @@ void LCDML_lcd_menu_display()
 				display.printf("H\224he: %s m", tempbuf);
 				//snprintf(g_LCDML_DISP_lang_table[LCDML.content_id[n]], 20, "H\224he: %s m", tempbuf);	// relevant for _use_ram
 				break;
+			case LCDML_MENU_MQTT_TOGGLE:
+				display.printf(LCDML.content[n], (conf.getMQTTEnabled() ? "Y" : "N"));
+				break;
+			case LCDML_MENU_MQTT_HEALTHDATA:
+				display.printf(LCDML.content[n], (conf.getMQTTHealthdata() ? "Y" : "N"));
+				break;
 
 			default: // static content
 				//display.print(LCDML_DISP_getRamContent(n));	// relevant for _use_ram

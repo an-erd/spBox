@@ -46,29 +46,42 @@ public:
 	SPBOX_COM();
 
 	void setConf(SPBOX_CONF *conf);
+
 	void initialize();
+
 	void initializeWlan();
 	void disableWlan();
 	void enableWlan();
+
 	void initializeOta(OTAModes_t ota_mode = OTA_IDE);
 	void checkOta();
+
 	void initializeMQTT();
-	void updatePingCB();
-	void checkPing();
-	void setInternetAvailable(u16_t total_sent, u16_t total_recv, u32_t total_time);
-	bool getInternetAvailable();
-	bool getAndClearInternetChanged();
 	void updateMqttCB();
 	void checkMqtt();
 	void setMqttAvailable(bool avail);
 	bool getMqttAvailable();
+	void disableMqtt();
+	void enableMqtt();
 	bool changeMqttBroker();
+
+	void updatePingCB();
+	void checkPing();
+
+	void setInternetAvailable(u16_t total_sent, u16_t total_recv, u32_t total_time);
+	bool getInternetAvailable();
+	bool getAndClearInternetChanged();
+
+	void setLocalnetAvailable(u16_t total_sent, u16_t total_recv, u32_t total_time);
+	bool getLocalnetAvailable();
+	bool getAndClearLocalnetChanged();
+
 private:
 	WiFiClient				client_;
 	WiFiEventHandler		gotIpEventHandler_;
 	WiFiEventHandler		disconnectedEventHandler_;
-	AsyncPing				ping_;
-	IPAddress				pingAddress_;
+	AsyncPing				pingInet_, pingLocal_;
+	IPAddress				pingAddressInet_, pingAddressLocal_;
 
 	SPBOX_CONF				*conf_;
 	bool					wlan_initialized_;
@@ -76,12 +89,22 @@ private:
 	bool					doPing_;
 	bool					internetAvailable_;
 	bool					internetChanged_;
+	bool					localnetAvailable_;
+	bool					localnetChanged_;
 	bool					doUpdateMqtt_;
 	bool					mqttAvailable_;
 
 	void onSTAGotIP(WiFiEventStationModeGotIP ipInfo);
 	void onSTADisconnected(WiFiEventStationModeDisconnected event_info);
 	void onNTPSyncEvent(NTPSyncEvent_t event);
+	void onMqttConnect(bool sessionPresent);
+	void onMqttDisconnect(AsyncMqttClientDisconnectReason reason);
+	void onMqttSubscribe(uint16_t packetId, uint8_t qos);
+	void onMqttUnsubscribe(uint16_t packetId);
+	void onMqttMessage(char* topic, char* payload, AsyncMqttClientMessageProperties properties, size_t len, size_t index, size_t total);
+	void onMqttPublish(uint16_t packetId);
+	bool onPingInternet(const AsyncPingResponse& response);
+	bool onPingLocalnet(const AsyncPingResponse& response);
 
 protected:
 };

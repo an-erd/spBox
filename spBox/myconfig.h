@@ -58,6 +58,8 @@ SOFTWARE.
 // Threshold
 #define THRESHOLD		7		// rot enc and button debounce threshold (milliseconds)
 #define RESET_TIMER	3000
+#define MQTT_CONNECT_INTERVALL		5000
+#define MQTT_HEALTHDATA_INTERVALL	10000
 
 // Timer delay constants in milliseconds(MS)
 #define DELAY_MS_1HZ	1000
@@ -154,12 +156,13 @@ typedef struct {
 	int port;
 	char *uid;
 	char *key;
+	bool inet;
 } mqttConfig_t;
 
 #define NUM_MQTT_CONFIG	2
 const mqttConfig_t mqttConfigs[] = {
-	{W12_SERVER, W12_SERVERPORT, W12_USERNAME, W12_KEY},
-	{AIO_SERVER, AIO_SERVERPORT, AIO_USERNAME, AIO_KEY},
+	{W12_SERVER, W12_SERVERPORT, W12_USERNAME, W12_KEY, 0},
+	{AIO_SERVER, AIO_SERVERPORT, AIO_USERNAME, AIO_KEY, 1},
 	{"n/a", 0, "n/a", "n/a"}
 };
 
