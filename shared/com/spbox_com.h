@@ -80,8 +80,8 @@ private:
 	WiFiClient				client_;
 	WiFiEventHandler		gotIpEventHandler_;
 	WiFiEventHandler		disconnectedEventHandler_;
-	AsyncPing				pingInet_, pingLocal_;
 	IPAddress				pingAddressInet_, pingAddressLocal_;
+	AsyncPing				pingInet_, pingLocal_;
 
 	SPBOX_CONF				*conf_;
 	bool					wlan_initialized_;

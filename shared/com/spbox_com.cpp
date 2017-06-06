@@ -24,6 +24,9 @@ SOFTWARE.
 
 #include "spbox_com.h"
 
+#define DBG_PORT Serial
+#define DEBUG_COM
+
 #ifdef DEBUG_COM
 #define DEBUGLOG(...) DBG_PORT.printf(__VA_ARGS__)
 #else
@@ -54,6 +57,9 @@ void SPBOX_COM::initialize()
 	os_timer_setfn(&timerUpdateMqtt, (os_timer_func_t *)updateMQtt_CB, (void *)0);
 	os_timer_arm(&timerUpdateMqtt, DELAY_MS_TWOSEC, true);
 
+	// WLAN
+	gotIpEventHandler_ = WiFi.onStationModeGotIP(std::bind(&SPBOX_COM::onSTAGotIP, this, std::placeholders::_1));
+	disconnectedEventHandler_ = WiFi.onStationModeDisconnected(std::bind(&SPBOX_COM::onSTADisconnected, this, std::placeholders::_1));
 	// NTP
 	NTP.onNTPSyncEvent(std::bind(&SPBOX_COM::onNTPSyncEvent, this, std::placeholders::_1));
 
@@ -62,17 +68,8 @@ void SPBOX_COM::initialize()
 	IPAddress addr_Local(192, 168, 2, 137);	// local MQTT (Mosquitto) broker
 	pingAddressInet_ = addr_Inet;
 	pingAddressLocal_ = addr_Local;
-
-	pingInet_.on(std::bind(&SPBOX_COM::onPingInternet, this, std::placeholders::_1));	// todo bool mode
-
-	false, [](const AsyncPingResponse& response) {
-		com.setInternetAvailable(response.total_sent, response.total_recv, response.total_time);
-		return true;
-	});
-	pingLocal_.on(false, [](const AsyncPingResponse& response) {
-		com.setLocalnetAvailable(response.total_sent, response.total_recv, response.total_time);
-		return true;
-	});
+	pingInet_.on(false, std::bind(&SPBOX_COM::onPingInternet, this, std::placeholders::_1));
+	pingLocal_.on(false, std::bind(&SPBOX_COM::onPingLocalnet, this, std::placeholders::_1));
 
 	// MQTT
 	mqttClient.onConnect(std::bind(&SPBOX_COM::onMqttConnect, this, std::placeholders::_1));
@@ -95,12 +92,6 @@ void SPBOX_COM::initializeWlan()
 	if (conf_->getWlanEnabled()) {
 		WiFi.mode(WIFI_STA);
 		WiFi.begin(WLAN_SSID, WLAN_PASSWORD);
-
-		gotIpEventHandler_ = WiFi.onStationModeGotIP(
-			std::bind(&SPBOX_COM::onSTAGotIP, this, std::placeholders::_1));
-
-		disconnectedEventHandler_ = WiFi.onStationModeDisconnected(
-			std::bind(&SPBOX_COM::onSTADisconnected, this, std::placeholders::_1));
 	}
 
 	wlan_initialized_ = true;
@@ -272,16 +263,19 @@ void SPBOX_COM::checkPing()
 void SPBOX_COM::setInternetAvailable(u16_t total_sent, u16_t total_recv, u32_t total_time)
 {
 	bool internetAvail = total_sent == total_recv;
+
+	//DEBUGLOG("ping inet send %i, recv %i, %i time\n", total_sent, total_recv, total_time);
+
 	if (internetAvail == internetAvailable_)
 		return;
 
 	if (internetAvail) {
-		//Serial.println("Inet available");
+		DEBUGLOG("Inet available, time %d\n", total_time);
 		NTP.begin("pool.ntp.org", 1, true);
 		mqttClient.connect();	// todo
 	}
 	else {
-		//Serial.println("Inet not available");
+		DEBUGLOG("Inet not available\n");
 		NTP.stop(); // NTP sync can be disabled to avoid sync errors
 		mqttClient.disconnect();	// todo
 	}
@@ -311,11 +305,11 @@ void SPBOX_COM::setLocalnetAvailable(u16_t total_sent, u16_t total_recv, u32_t t
 		return;
 
 	if (localnetAvail) {
-		//Serial.println("Localnet available");
+		DEBUGLOG("Localnet available, time %d\n", total_time);
 		mqttClient.connect();	// todo
 	}
 	else {
-		//Serial.println("Localnet not available");
+		DEBUGLOG("Localnet not available\n");
 		mqttClient.disconnect();	// todo
 	}
 
@@ -395,8 +389,8 @@ void SPBOX_COM::onMqttDisconnect(AsyncMqttClientDisconnectReason reason) {
 	Serial.println("** Disconnected from the broker **");
 	Serial.print("Reason: "); Serial.println((int)reason);
 	com.setMqttAvailable(false);
-	Serial.println("Reconnecting to MQTT...");
-	mqttClient.connect();
+	/*Serial.println("Reconnecting to MQTT...");
+	mqttClient.connect();*/
 }
 void SPBOX_COM::onMqttSubscribe(uint16_t packetId, uint8_t qos) {
 	Serial.println("** Subscribe acknowledged **");
@@ -439,71 +433,5 @@ bool SPBOX_COM::onPingInternet(const AsyncPingResponse& response) {
 bool SPBOX_COM::onPingLocalnet(const AsyncPingResponse& response) {
 	setLocalnetAvailable(response.total_sent, response.total_recv, response.total_time);
 }
-
-/*
-void onMqttConnect(bool sessionPresent) {
-	Serial.println("** Connected to the broker **");
-	Serial.print("Session present: ");
-	Serial.println(sessionPresent);
-	com.setMqttAvailable(true);
-
-	//uint16_t packetIdSub = mqttClient.subscribe("andreaserd/feeds/battery", 2);
-	//Serial.print("Subscribing at QoS 2, packetId: ");
-	//Serial.println(packetIdSub);
-
-	//mqttClient.publish("/feeds/battery", 0, true, "111");
-	//Serial.println("Publishing at QoS 0");
-
-	//uint16_t packetIdPub1 = mqttClient.publish("/feeds/battery", 1, true, "222");
-	//Serial.print("Publishing at QoS 1, packetId: ");
-	//Serial.println(packetIdPub1);
-
-	//uint16_t packetIdPub2 = mqttClient.publish("/feeds/battery", 2, true, "333");
-	//Serial.print("Publishing at QoS 2, packetId: ");
-	//Serial.println(packetIdPub2);
-}
-void onMqttDisconnect(AsyncMqttClientDisconnectReason reason) {
-	Serial.println("** Disconnected from the broker **");
-	Serial.print("Reason: "); Serial.println((int)reason);
-	com.setMqttAvailable(false);
-	Serial.println("Reconnecting to MQTT...");
-	mqttClient.connect();
-}
-void onMqttSubscribe(uint16_t packetId, uint8_t qos) {
-	Serial.println("** Subscribe acknowledged **");
-	Serial.print("  packetId: ");
-	Serial.println(packetId);
-	Serial.print("  qos: ");
-	Serial.println(qos);
-}
-void onMqttUnsubscribe(uint16_t packetId) {
-	Serial.println("** Unsubscribe acknowledged **");
-	Serial.print("  packetId: ");
-	Serial.println(packetId);
-}
-void onMqttMessage(char* topic, char* payload, AsyncMqttClientMessageProperties properties, size_t len, size_t index, size_t total) {
-	Serial.println("** Publish received **");
-	Serial.print("  topic: ");
-	Serial.println(topic);
-	Serial.print("  qos: ");
-	Serial.println(properties.qos);
-	Serial.print("  dup: ");
-	Serial.println(properties.dup);
-	Serial.print("  retain: ");
-	Serial.println(properties.retain);
-	Serial.print("  len: ");
-	Serial.println(len);
-	Serial.print("  index: ");
-	Serial.println(index);
-	Serial.print("  total: ");
-	Serial.println(total);
-	Serial.printf("  payload: %s\n", payload);
-}
-void onMqttPublish(uint16_t packetId) {
-	Serial.println("** Publish acknowledged **");
-	Serial.print("  packetId: ");
-	Serial.println(packetId);
-}
-*/
 
 SPBOX_COM com;

@@ -116,8 +116,6 @@ void setup() {
 	LCDML_DISP_groupEnable(_LCDML_G1); // use "_G1" if unlocked or "_G2" if locked when switched on
 	LCDML_setup(_LCDML_BACK_cnt);
 	LCDML_DISP_resetIsTimer();
-
-	Serial.printf("MQTTconfig[0]= %s %i %s %s\n", mqttConfigs[0].name, mqttConfigs[0].port, mqttConfigs[0].uid, mqttConfigs[0].key);
 }
 
 void loop() {
