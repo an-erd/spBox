@@ -159,9 +159,14 @@ void SPBOX_COM::checkOta()
 void SPBOX_COM::initializeMQTT()
 {
 	DEBUGLOG("Initialize MQTT\r\n");
+
+	cntMqttSent_ = cntMqttRecv_ = 0;
+
 	mqttClient.setServer(mqttConfigs[conf.getMqttConfigNr()].name, mqttConfigs[conf.getMqttConfigNr()].port);
 	mqttClient.setKeepAlive(15).setCleanSession(false).setCredentials(mqttConfigs[conf.getMqttConfigNr()].uid, mqttConfigs[conf.getMqttConfigNr()].key);
-	mqttClient.disconnect();
+	//mqttClient.setWill();
+	//mqttLastWillSet_ = true;
+
 	DEBUGLOG("Initialize MQTT done\r\n");
 }
 
@@ -188,6 +193,7 @@ void SPBOX_COM::checkMqttContent()
 		DEBUGLOG("checkMqttContent, send healthdata, vbat:  %d\n", vbatADC);
 		snprintf(text, 7, "%d", vbatADC);
 		mqttClient.publish("andreaserd/feeds/battery", 0, true, text);
+		cntMqttSent_++;
 	}
 }
 
@@ -378,7 +384,13 @@ void SPBOX_COM::onNTPSyncEvent(NTPSyncEvent_t event)
 void SPBOX_COM::onMqttConnect(bool sessionPresent)
 {
 	DEBUGLOG("MQTT, connected to broker, session present %i\r\n", sessionPresent);
-	com.setMqttAvailable(true);
+	setMqttAvailable(true);
+	cntMqttSubscribed_ = 0;
+	mqttConnSince_ = NTP.getTimeDateString();
+
+	uint16_t packetIdSub = mqttClient.subscribe("andreaserd/feeds/battery", 0);
+	Serial.print("Subscribing at QoS 0, packetId: ");
+	Serial.println(packetIdSub);
 
 	//uint16_t packetIdSub = mqttClient.subscribe("andreaserd/feeds/battery", 2);
 	//Serial.print("Subscribing at QoS 2, packetId: ");
@@ -397,20 +409,27 @@ void SPBOX_COM::onMqttConnect(bool sessionPresent)
 }
 void SPBOX_COM::onMqttDisconnect(AsyncMqttClientDisconnectReason reason) {
 	DEBUGLOG("MQTT, disconnected from broker, reason %i\r\n", (int)reason);
-	com.setMqttAvailable(false);
+	setMqttAvailable(false);
+	cntMqttSubscribed_ = 0;
+	mqttConnSince_ = "---";
 }
 void SPBOX_COM::onMqttSubscribe(uint16_t packetId, uint8_t qos) {
 	DEBUGLOG("MQTT, Subscribe acknowledged, packetId: %i, qos: %i\n", packetId, qos);
+	cntMqttSubscribed_++;
 }
 void SPBOX_COM::onMqttUnsubscribe(uint16_t packetId) {
 	DEBUGLOG("MQTT, Unsubscribe acknowledged, packetId: %i\n", packetId);
+	cntMqttSubscribed_--;
 }
 void SPBOX_COM::onMqttMessage(char* topic, char* payload, AsyncMqttClientMessageProperties properties, size_t len, size_t index, size_t total) {
 	DEBUGLOG("MQTT, Publish received, topic %i, qos %i, dup %i, retain %i, len %i, index %i, total %i, payload %s\n",
 		topic, properties.qos, properties.dup, properties.retain, len, index, total, payload);
+
+	cntMqttRecv_++;
 }
 void SPBOX_COM::onMqttPublish(uint16_t packetId) {
 	DEBUGLOG("MQTT, Publish acknowledged, packetId: %i\n", packetId);
+	cntMqttSent_++;
 }
 bool SPBOX_COM::onPingInternet(const AsyncPingResponse& response) {
 	//DEBUGLOG("ping inet,  send %i, recv %i, time %i\n", response.total_sent, response.total_recv, response.total_time);

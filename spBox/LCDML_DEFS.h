@@ -30,7 +30,7 @@ LCDML_DISP_add(7, _LCDML_G1, LCDML_root_1, 7, "Wasserwaage", LCDML_FUNC_waterbub
 LCDML_DISP_add(8, _LCDML_G1, LCDML_root_1, 8, "Zur\201ck", LCDML_FUNC_back);
 LCDML_DISP_add(9, _LCDML_G1, LCDML_root, 2, "Status", LCDML_FUNC);
 LCDML_DISP_add(10, _LCDML_G1, LCDML_root_2, 1, "WLAN/Batterie", LCDML_FUNC_status_wlan);
-LCDML_DISP_add(11, _LCDML_G7, LCDML_root_2, 2, "MQTT", LCDML_FUNC);
+LCDML_DISP_add(11, _LCDML_G1, LCDML_root_2, 2, "MQTT", LCDML_FUNC_status_mqtt);
 LCDML_DISP_add(12, _LCDML_G1, LCDML_root_2, 3, "Zur\201ck", LCDML_FUNC_back);
 LCDML_DISP_add(13, _LCDML_G1, LCDML_root, 3, "Konfiguration", LCDML_FUNC);
 LCDML_DISP_add(14, _LCDML_G7, LCDML_root_3, 1, "WLAN", LCDML_FUNC);
@@ -59,7 +59,7 @@ LCDML_DISP_add(33, _LCDML_G1, LCDML_root_3, 5, "Zur\201ck", LCDML_FUNC_back);
 LCDML_DISP_add(34, _LCDML_G1, LCDML_root, 4, "Information", LCDML_FUNC);
 LCDML_DISP_add(35, _LCDML_G1, LCDML_root_4, 1, "Zeit", LCDML_FUNC_clock);
 LCDML_DISP_add(36, _LCDML_G1, LCDML_root_4, 2, "Besitzer", LCDML_FUNC_ownerinformation);
-LCDML_DISP_add(37, _LCDML_G1, LCDML_root_4, 3, "Sensor-Ausrichtung", LCDML_FUNC);
+LCDML_DISP_add(37, _LCDML_G7, LCDML_root_4, 3, "Sensor-Ausrichtung", LCDML_FUNC);
 LCDML_DISP_add(38, _LCDML_G1, LCDML_root_4_3, 1, "Accel", LCDML_FUNC_scrolltest);
 LCDML_DISP_add(39, _LCDML_G1, LCDML_root_4_3, 2, "Gyro", LCDML_FUNC);
 LCDML_DISP_add(40, _LCDML_G1, LCDML_root_4_3, 3, "Kompass", LCDML_FUNC);

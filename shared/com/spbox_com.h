@@ -64,8 +64,12 @@ public:
 	void disableMqtt();
 	void enableMqtt();
 	void checkMqttConnection(bool now = false);
-
 	void changeMqttBroker();
+	uint16_t getMqttSent() { return cntMqttSent_; };
+	uint16_t getMqttRevc() { return cntMqttRecv_; };
+	int8_t getMqttSubscribed() { return cntMqttSubscribed_; };
+	String getMqttConnSince() { return mqttConnSince_; };
+	bool getMqttLWTSet() { return mqttLastWillSet_; };
 
 	void updatePingCB();
 	void checkPing();
@@ -95,6 +99,12 @@ private:
 	bool					localnetChanged_;
 	bool					doUpdateMqtt_;
 	bool					mqttAvailable_;
+
+	uint16_t				cntMqttSent_;
+	uint16_t				cntMqttRecv_;
+	int8_t					cntMqttSubscribed_;
+	bool					mqttLastWillSet_;
+	String					mqttConnSince_;
 
 	void onSTAGotIP(WiFiEventStationModeGotIP ipInfo);
 	void onSTADisconnected(WiFiEventStationModeDisconnected event_info);

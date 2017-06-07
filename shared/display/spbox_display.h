@@ -39,6 +39,7 @@ public:
 	void updatePrintBufferScr1();	// Sensor overview
 	void updatePrintBufferScr2();	// Sensor Accel/Gyro min/max
 	void updatePrintBufferScr3();	// Sensor Temp/Press/Alti
+	void updatePrintBufferScr5();	// MQTT status
 	void updateDisplayScr4(compassModes_t mode);	// Sensor Kompass
 	void updateDisplayScr5(clockModes_t mode);		// Uhrzeit anzeigen
 	void updateDisplayScr6();		// WLAN/Batterie Status anzeigen

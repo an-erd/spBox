@@ -28,6 +28,7 @@ SOFTWARE.
 #include "missing_str_util.h"
 #include "spbox_display.h"
 #include "spbox_sensors.h"
+#include "spbox_conf.h"
 #include "glcdfont.c"
 #include "myconfig.h"
 
@@ -112,6 +113,14 @@ void SPBOX_DISPLAY::updatePrintBufferScr3()
 	snprintf(displaybuffer_[3], 21, "");
 }
 
+void SPBOX_DISPLAY::updatePrintBufferScr5()
+{
+	snprintf(displaybuffer_[0], 21, "MQTT: %s", (mqttClient.connected() ? mqttConfigs[conf.getMqttConfigNr()].name : "---"));
+	snprintf(displaybuffer_[1], 21, "\036%4i \037%4i Subs %i", com.getMqttSent(), com.getMqttRevc(), com.getMqttSubscribed());
+	snprintf(displaybuffer_[2], 21, "LWT %s", (com.getMqttLWTSet() ? "Y" : "N"));
+	snprintf(displaybuffer_[3], 21, "since %s", com.getMqttConnSince().c_str());
+}
+
 void SPBOX_DISPLAY::updateDisplayScr4(compassModes_t mode)
 {
 	// code to draw compass inspired by http://cassiopeia.hk/arduinocompass/
@@ -176,14 +185,12 @@ void SPBOX_DISPLAY::updateDisplayScr4(compassModes_t mode)
 		// display 128px - 3 char a 10px -> space of 3 * 28 px, padding = 2*7
 		// band: (7px) N (28px) O (28px) S (28px) (7px)
 		clearDisplay();
-		Serial.println();
 		setTextSize(2);
 		offset = 64 - 5 - 152.0 * heading_deg_round / 360.0;	// = center - 1/2char - deg (from 360->152(=4*38))
 
 		for (int v = 0; v < 4; v++, offset += 10 + 28) {
 			while (offset < 0) offset += 152;
 			offset %= 152;
-			Serial.printf("%i ", offset);
 			setCursor(offset, 0);
 			if ((offset >= 0) && (offset < 115))
 				switch (v) {

@@ -339,6 +339,38 @@ void LCDML_DISP_loop_end(LCDML_FUNC_status_wlan)
 }
 
 // ############################################################################
+void LCDML_DISP_setup(LCDML_FUNC_status_mqtt)
+{
+	display.updatePrintBufferScr5();
+	display.updateDisplayWithPrintBuffer();
+	LCDML_DISP_triggerMenu(DELAY_MS_5HZ);
+}
+
+void LCDML_DISP_loop(LCDML_FUNC_status_mqtt)
+{
+	if (LCDML_BUTTON_checkLeft()) {
+		LCDML_BUTTON_resetAll();
+		if (conf.getMQTTEnabled())
+			com.disableMqtt();
+		else
+			com.enableMqtt();
+	}
+
+	display.updatePrintBufferScr5();
+	display.updateDisplayWithPrintBuffer();
+	LCDML_DISP_resetIsTimer();
+
+	if (LCDML_BUTTON_checkEnter()) {
+		LCDML_BUTTON_resetAll();
+		LCDML_DISP_funcend();
+	}
+}
+
+void LCDML_DISP_loop_end(LCDML_FUNC_status_mqtt)
+{
+}
+
+// ############################################################################
 
 int16_t	gConfigAltitudeSmaller;
 int16_t gConfigAltitudeLarger;
