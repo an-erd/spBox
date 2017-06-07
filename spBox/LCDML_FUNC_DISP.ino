@@ -399,7 +399,7 @@ void LCDML_DISP_loop(LCDML_FUNC_config_altitude)
 		if (LCDML_BUTTON_checkUp()) {
 			switch (gConfigAltitudeMode) {
 			case BUTTON_ALTITUDE:
-				gConfigAltitudeMode = BUTTON_CANCEL;
+				// no wraparound
 				break;
 			case INPUT_ALTITUDE:
 				// input numer -> increase number
@@ -442,7 +442,7 @@ void LCDML_DISP_loop(LCDML_FUNC_config_altitude)
 				gConfigAltitudeMode = BUTTON_CANCEL;
 				break;
 			case BUTTON_CANCEL:
-				gConfigAltitudeMode = BUTTON_ALTITUDE;
+				// no wraparound
 				break;
 			}
 		}
@@ -724,7 +724,7 @@ void LCDML_DISP_loop(LCDML_FUNC_unlock)
 		if (LCDML_BUTTON_checkUp()) {
 			switch (gInputPinMode) {
 			case PIN_BUTTON_INPUT:
-				gInputPinMode = PIN_BUTTON_CANCEL;
+				// no wraparound
 				break;
 			case PIN_INPUT:
 				gInputPinLarger = changeSingleDigit(gInputPinLarger, gInputPinPosition, +1, false);
@@ -762,7 +762,7 @@ void LCDML_DISP_loop(LCDML_FUNC_unlock)
 				gInputPinMode = PIN_BUTTON_CANCEL;
 				break;
 			case PIN_BUTTON_CANCEL:
-				gInputPinMode = PIN_BUTTON_INPUT;
+				// no wraparound
 				break;
 			}
 		}
@@ -892,15 +892,13 @@ void LCDML_DISP_loop(LCDML_FUNC_select_mqtt)
 		}
 		if (LCDML_BUTTON_checkUp()) {
 			LCDML_BUTTON_resetUp();
-			gSelectedMenu--;
-			if (gSelectedMenu < 0)
-				gSelectedMenu = NUM_MQTT_CONFIG;
+			if (gSelectedMenu)
+				gSelectedMenu--;
 		}
 		if (LCDML_BUTTON_checkDown()) {
 			LCDML_BUTTON_resetDown();
-			gSelectedMenu++;
-			if (gSelectedMenu > NUM_MQTT_CONFIG)
-				gSelectedMenu = 0;
+			if (gSelectedMenu < NUM_MQTT_CONFIG)
+				gSelectedMenu++;
 		}
 	}
 	else {
