@@ -130,7 +130,8 @@ void loop() {
 		display.setInternetAvailable(com.getInternetAvailable());
 	}
 	display.setMqttAvailable(com.getMqttAvailable());
-	com.checkMqtt();
+	com.checkMqttConnection();
+	com.checkMqttContent();
 	//com.checkOta();
 
 	// check/display init screen

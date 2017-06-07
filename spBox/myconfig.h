@@ -56,10 +56,9 @@ SOFTWARE.
 #define LED_G			2		// rot enc led green (and huzzah led blue)
 
 // Threshold
-#define THRESHOLD		7		// rot enc and button debounce threshold (milliseconds)
-#define RESET_TIMER	3000
-#define MQTT_CONNECT_INTERVALL		5000
-#define MQTT_HEALTHDATA_INTERVALL	10000
+#define THRESHOLD					7		// rot enc and button debounce threshold (milliseconds)
+#define RESET_TIMER					3000
+#define MQTT_CONNECT_INTERVALL		3000
 
 // Timer delay constants in milliseconds(MS)
 #define DELAY_MS_1HZ	1000

@@ -58,12 +58,14 @@ public:
 
 	void initializeMQTT();
 	void updateMqttCB();
-	void checkMqtt();
+	void checkMqttContent();
 	void setMqttAvailable(bool avail);
 	bool getMqttAvailable();
 	void disableMqtt();
 	void enableMqtt();
-	bool changeMqttBroker();
+	void checkMqttConnection(bool now = false);
+
+	void changeMqttBroker();
 
 	void updatePingCB();
 	void checkPing();
