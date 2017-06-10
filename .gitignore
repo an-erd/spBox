@@ -63,3 +63,4 @@
 *.filters
 *.vcxproj.user
 ~*.xlsx
+/spBox/board.txt

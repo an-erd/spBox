@@ -136,7 +136,7 @@ void SPBOX_COM::initializeOta(OTAModes_t ota_mode)
 	if (conf_->getOtaMode() == OTA_IDE) {
 		// ArduinoOTA.setPort(8266);
 		// ArduinoOTA.setHostname("esp8266-XXX");
-		// ArduinoOTA.setPassword((const char *)"123");
+		ArduinoOTA.setPassword((const char *)OTA_PASSWORD);
 
 		ArduinoOTA.onStart(std::bind(&SPBOX_COM::onOtaStart, this));
 		ArduinoOTA.onEnd(std::bind(&SPBOX_COM::onOtaEnd, this));
@@ -472,8 +472,9 @@ void SPBOX_COM::onOtaProgress(unsigned int progress, unsigned int total)
 
 void SPBOX_COM::onOtaError(ota_error_t error)
 {
-	DEBUGLOG("Arduino OTA Error[%u]: ", otaErrorNames[error]);
-	otaUpdate_.otaUpdateError_ = false;
+	display.ssd1306_command(SSD1306_DISPLAYON);
+	DEBUGLOG("Arduino OTA Error[%u]: %s\n", error, otaErrorNames[error]);
+	otaUpdate_.otaUpdateError_ = true;
 	otaUpdate_.otaUpdateErrorNr_ = error;
 	display.updateDisplayScr15(com.getOtaUpdate(), true);
 }
