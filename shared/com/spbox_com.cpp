@@ -23,6 +23,7 @@ SOFTWARE.
 */
 
 #include "spbox_com.h"
+#include "spbox_display.h"
 
 //#define DBG_PORT Serial
 //#define DEBUG_COM
@@ -32,6 +33,14 @@ SOFTWARE.
 #else
 #define DEBUGLOG(...)
 #endif
+
+const char* otaErrorNames[] = {
+	"Auth Failed",		// OTA_AUTH_ERROR
+	"Begin Failed",		// OTA_BEGIN_ERROR
+	"Connect Failed",	// OTA_CONNECT_ERROR
+	"Receive Failed",	// OTA_RECEIVE_ERROR
+	"End Failed",		// OTA_END_ERROR
+};
 
 // regular ping to check availale internet connection
 LOCAL os_timer_t timerPing;
@@ -55,7 +64,7 @@ void SPBOX_COM::initialize()
 
 	os_timer_disarm(&timerUpdateMqtt);
 	os_timer_setfn(&timerUpdateMqtt, (os_timer_func_t *)updateMQtt_CB, (void *)0);
-	os_timer_arm(&timerUpdateMqtt, DELAY_MS_1MIN, true);
+	os_timer_arm(&timerUpdateMqtt, MQTT_HEALTHDATA_INTERVALL, true);
 
 	// WLAN
 	gotIpEventHandler_ = WiFi.onStationModeGotIP(std::bind(&SPBOX_COM::onSTAGotIP, this, std::placeholders::_1));
@@ -129,28 +138,19 @@ void SPBOX_COM::initializeOta(OTAModes_t ota_mode)
 		// ArduinoOTA.setHostname("esp8266-XXX");
 		// ArduinoOTA.setPassword((const char *)"123");
 
-#ifdef DEBUG_COM
-		ArduinoOTA.onStart([]() { Serial.println("Arduino OTA Start"); });
-		ArduinoOTA.onEnd([]() { Serial.println("\nArduino OTA End"); });
-		ArduinoOTA.onProgress([](unsigned int progress, unsigned int total) {
-			Serial.printf("Progress: %u%%\r", (progress / (total / 100))); });
-		ArduinoOTA.onError([](ota_error_t error) {
-			Serial.printf("Arduino OTA Error[%u]: ", error);
-			if (error == OTA_AUTH_ERROR) Serial.println("Auth Failed");
-			else if (error == OTA_BEGIN_ERROR) Serial.println("Begin Failed");
-			else if (error == OTA_CONNECT_ERROR) Serial.println("Connect Failed");
-			else if (error == OTA_RECEIVE_ERROR) Serial.println("Receive Failed");
-			else if (error == OTA_END_ERROR) Serial.println("End Failed");
-		});
-#endif
+		ArduinoOTA.onStart(std::bind(&SPBOX_COM::onOtaStart, this));
+		ArduinoOTA.onEnd(std::bind(&SPBOX_COM::onOtaEnd, this));
+		ArduinoOTA.onProgress(std::bind(&SPBOX_COM::onOtaProgress, this, std::placeholders::_1, std::placeholders::_2));
+		ArduinoOTA.onError(std::bind(&SPBOX_COM::onOtaError, this, std::placeholders::_1));
+
 		ArduinoOTA.begin();
 		ota_initialized_ = true;
+		otaUpdate_.otaUpdateStarted_ = false;
 	}
 }
 
 void SPBOX_COM::checkOta()
 {
-	DEBUGLOG("checkOta()\r\n");
 	if (conf_->getOtaMode() == OTA_IDE) {
 		ArduinoOTA.handle();
 	}
@@ -438,6 +438,44 @@ bool SPBOX_COM::onPingInternet(const AsyncPingResponse& response) {
 bool SPBOX_COM::onPingLocalnet(const AsyncPingResponse& response) {
 	//DEBUGLOG("ping local, send %i, recv %i, time %i\n", response.total_sent, response.total_recv, response.total_time);
 	setLocalnetAvailable(response.total_sent, response.total_recv, response.total_time);
+}
+
+void SPBOX_COM::onOtaStart()
+{
+	display.ssd1306_command(SSD1306_DISPLAYON);
+	DEBUGLOG("OTA, onOtaStart()\n");
+
+	otaUpdate_.otaUpdateStarted_ = true;
+	otaUpdate_.otaUpdateEnd_ = false;
+	otaUpdate_.otaUpdateError_ = false;
+	otaUpdate_.otaUpdateProgress_ = 0;
+	display.updateDisplayScr15(com.getOtaUpdate(), true);
+}
+
+void SPBOX_COM::onOtaEnd()
+{
+	DEBUGLOG("OTA, onOtaEnd()\n");
+	otaUpdate_.otaUpdateEnd_ = true;
+	display.updateDisplayScr15(com.getOtaUpdate(), true);
+}
+
+void SPBOX_COM::onOtaProgress(unsigned int progress, unsigned int total)
+{
+	unsigned int length = (progress / (total / 127));		// width of progress bar = 128 px
+
+	otaUpdate_.otaUpdateProgress_ = length;
+
+	DEBUGLOG("Progress: progress: %u, total: %u, length: %u\n", progress, total, otaUpdate_.otaUpdateProgress_);
+
+	display.updateDisplayScr15(com.getOtaUpdate(), false);
+}
+
+void SPBOX_COM::onOtaError(ota_error_t error)
+{
+	DEBUGLOG("Arduino OTA Error[%u]: ", otaErrorNames[error]);
+	otaUpdate_.otaUpdateError_ = false;
+	otaUpdate_.otaUpdateErrorNr_ = error;
+	display.updateDisplayScr15(com.getOtaUpdate(), true);
 }
 
 SPBOX_COM com;

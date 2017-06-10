@@ -55,6 +55,9 @@ public:
 
 	void initializeOta(OTAModes_t ota_mode = OTA_IDE);
 	void checkOta();
+	bool getOtaUpdateStarted() { return otaUpdate_.otaUpdateStarted_; };
+	void setOtaUpdateStarted(bool val) { otaUpdate_.otaUpdateStarted_ = val; };
+	otaUpdate_t getOtaUpdate() { return otaUpdate_; };
 
 	void initializeMQTT();
 	void updateMqttCB();
@@ -91,7 +94,10 @@ private:
 
 	SPBOX_CONF				*conf_;
 	bool					wlan_initialized_;
+
 	bool					ota_initialized_;
+	otaUpdate_t				otaUpdate_;
+
 	bool					doPing_;
 	bool					internetAvailable_;
 	bool					internetChanged_;
@@ -117,7 +123,10 @@ private:
 	void onMqttPublish(uint16_t packetId);
 	bool onPingInternet(const AsyncPingResponse& response);
 	bool onPingLocalnet(const AsyncPingResponse& response);
-
+	void onOtaStart();
+	void onOtaEnd();
+	void onOtaProgress(unsigned int progress, unsigned int total);
+	void onOtaError(ota_error_t error);
 protected:
 };
 

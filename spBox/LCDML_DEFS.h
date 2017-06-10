@@ -65,9 +65,9 @@ LCDML_DISP_add(39, _LCDML_G1, LCDML_root_4_3, 2, "Gyro", LCDML_FUNC);
 LCDML_DISP_add(40, _LCDML_G1, LCDML_root_4_3, 3, "Kompass", LCDML_FUNC);
 LCDML_DISP_add(41, _LCDML_G1, LCDML_root_4_3, 4, "Zur\201ck", LCDML_FUNC_back);
 LCDML_DISP_add(42, _LCDML_G1, LCDML_root_4, 4, "Zur\201ck", LCDML_FUNC_back);
-LCDML_DISP_add(43, _LCDML_G7, LCDML_root, 5, "Initscreen", LCDML_FUNC_initscreen); // in g7 => hidden
-LCDML_DISP_add(44, _LCDML_G2, LCDML_root, 6, "Entsperren", LCDML_FUNC_unlock);
-LCDML_DISP_add(45, _LCDML_G1, LCDML_root, 7, "Sperren", LCDML_FUNC_lock);
+LCDML_DISP_add(43, _LCDML_G2, LCDML_root, 5, "Entsperren", LCDML_FUNC_unlock);
+LCDML_DISP_add(44, _LCDML_G1, LCDML_root, 6, "Sperren", LCDML_FUNC_lock);
+LCDML_DISP_add(45, _LCDML_G7, LCDML_root, 7, "Initscreen", LCDML_FUNC_initscreen); // in g7 => hidden
 LCDML_DISP_createMenu(_LCDML_DISP_cnt);
 
 #define _LCDML_BACK_cnt    1  // last backend function id

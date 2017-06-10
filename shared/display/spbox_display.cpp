@@ -34,6 +34,7 @@ SOFTWARE.
 
 SPBOX_DISPLAY display;
 extern AsyncMqttClient mqttClient;
+extern const char* otaErrorNames[];
 
 void SPBOX_DISPLAY::initializeDisplay() {
 	begin(SSD1306_SWITCHCAPVCC, 0x3C);
@@ -532,6 +533,27 @@ void SPBOX_DISPLAY::updateDisplayScr14(const mqttConfig_t *configs, int8_t curPo
 	setCursor(0, 8 * (newPosition));
 	write(0x10);
 
+	display();
+}
+
+void SPBOX_DISPLAY::updateDisplayScr15(otaUpdate_t otaUpdate, bool clearScreen)
+{
+	if (clearScreen)
+		clearDisplay();
+
+	setCursor(34, 0); print("OTA Update");
+
+	if (otaUpdate.otaUpdateError_) {
+		setCursor(0, 8); printf("Error: %s", otaErrorNames[otaUpdate.otaUpdateErrorNr_]);
+	}
+	else if (otaUpdate.otaUpdateEnd_) {
+		setCursor(0, 8); printf("Fertig - Reboot folgt");
+	}
+	else {
+		if (clearScreen)
+			drawRect(0, 20, 127, 8, WHITE);
+		fillRect(0, 20, otaUpdate.otaUpdateProgress_, 8, WHITE);
+	}
 	display();
 }
 

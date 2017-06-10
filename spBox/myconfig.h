@@ -23,6 +23,7 @@ SOFTWARE.
 */
 
 #pragma once
+#include <stdint.h>
 #include "credentials.h"
 
 #define STRING_VERSION "v0.3"
@@ -59,6 +60,7 @@ SOFTWARE.
 #define THRESHOLD					7		// rot enc and button debounce threshold (milliseconds)
 #define RESET_TIMER					3000
 #define MQTT_CONNECT_INTERVALL		3000
+#define MQTT_HEALTHDATA_INTERVALL	10000
 
 // Timer delay constants in milliseconds(MS)
 #define DELAY_MS_1HZ	1000
@@ -164,6 +166,15 @@ const mqttConfig_t mqttConfigs[] = {
 	{AIO_SERVER, AIO_SERVERPORT, AIO_USERNAME, AIO_KEY, 1},
 	{"n/a", 0, "n/a", "n/a"}
 };
+
+typedef struct {
+	bool		chg_;
+	bool		otaUpdateStarted_;
+	bool		otaUpdateEnd_;
+	unsigned int otaUpdateProgress_;
+	bool		otaUpdateError_;
+	int			otaUpdateErrorNr_;
+} otaUpdate_t;
 
 // Gimp exported as .png, converter used http://javl.github.io/image2cpp/
 // 'splash'@128x32

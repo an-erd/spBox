@@ -58,7 +58,7 @@ void setup() {
 	com.setConf(&conf);
 	com.initialize();
 	com.initializeWlan();
-	com.initializeOta();
+	com.initializeOta(OTA_IDE);
 	com.initializeMQTT();
 	initialize_GPIO();
 
@@ -129,10 +129,16 @@ void loop() {
 	if (com.getAndClearInternetChanged()) {
 		display.setInternetAvailable(com.getInternetAvailable());
 	}
+
 	display.setMqttAvailable(com.getMqttAvailable());
 	com.checkMqttConnection();
 	com.checkMqttContent();
-	//com.checkOta();
+
+	com.checkOta();
+
+	if (gInitScreen == INITSCREEN_OFF)
+		if (sensors.checkMotionIndicators())
+			LCDML_DISP_resetIsTimer();
 
 	// check/display init screen
 	if ((millis() - g_lcdml_initscreen) >= _LCDML_DISP_cfg_initscreen_time) {
