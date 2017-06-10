@@ -22,6 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+#include <FunctionalInterrupt.h>
 #include "rotenc.h"
 
 #ifdef DEBUG_ROTENC
@@ -29,10 +30,6 @@ SOFTWARE.
 #else
 #define DEBUGLOG(...)
 #endif
-
-// ISR wrapper functions
-void rotencInt0() { rotenc.isrInt0(); }
-void rotencInt1() { rotenc.isrInt1(); }
 
 ROTENC rotenc;
 
@@ -50,8 +47,10 @@ void ROTENC::initialize()
 
 void ROTENC::start()
 {
-	attachInterrupt(digitalPinToInterrupt(ENCODER_PIN_A), rotencInt0, CHANGE);
-	attachInterrupt(digitalPinToInterrupt(ENCODER_PIN_B), rotencInt1, CHANGE);
+	attachInterrupt(digitalPinToInterrupt(ENCODER_PIN_A), std::bind(&ROTENC::isrInt0, &rotenc), CHANGE);
+	attachInterrupt(digitalPinToInterrupt(ENCODER_PIN_B), std::bind(&ROTENC::isrInt1, &rotenc), CHANGE);
+
+	//attachInterrupt(digitalPinToInterrupt(ENCODER_PIN_B), rotencInt1, CHANGE);
 	int0_signal_ = digitalRead(ENCODER_PIN_A);
 	int0_history_ = int0_signal_;
 	int1_signal_ = digitalRead(ENCODER_PIN_B);
