@@ -60,6 +60,8 @@ void SPBOX_COM::initialize()
 {
 	// Timer
 	os_timer_disarm(&timerPing);
+	//os_timer_setfn(&timerPing, (os_timer_func_t *)&std::bind(&SPBOX_COM::updatePingCB, &com, std::placeholders::_1));
+	//os_timer_setfn(&timerPing, (os_timer_func_t *)std::bind(&SPBOX_COM::updatePingCB, &com), (void *)0); // does not work TODO
 	os_timer_setfn(&timerPing, (os_timer_func_t *)updatePing_CB, (void *)0);
 
 	os_timer_disarm(&timerUpdateMqtt);

@@ -264,3 +264,8 @@ https://github.com/javl/image2cpp
 Copy/paste to myconfig.h -> const unsigned char mySplash[] = {...};
 Another way is to save in Gimp as .h, but then use display.drawXBitmap() (with
 reversed bit order left to right is  LSB..MSB). 
+
+Calculate Voltage out of measured digital PIN read
+==================================================
+- Maximum value masured 941 (0..1023), which is 4,22 V
+- mV per LSB from 1000 mV/1023 gives V/LSB = 0.97751
