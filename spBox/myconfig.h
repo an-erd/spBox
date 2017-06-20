@@ -24,25 +24,26 @@ SOFTWARE.
 
 #pragma once
 #include <stdint.h>
+#include <ESP8266WiFiMulti.h>
 #include "credentials.h"
 
 #define STRING_VERSION "v0.3"
 
 // WLAN
-//#define WLAN_SSID		"..."
-//#define WLAN_PASSWORD	"..."
+//#define WLAN_SSID_W12		"..."
+//#define WLAN_PASSWORD_W12	"..."
 
 // own Mosquitto server
-#define W12_SERVER		"192.168.2.137"
-#define W12_SERVERPORT	1883
-//#define W12_USERNAME	"..."
-//#define W12_KEY			"..."
+#define MQTT_SERVER_W12		"192.168.2.137"
+#define MQTT_SERVERPORT_W12	1883
+//#define MQTT_USERNAME_W12	"..."
+//#define MQTT_KEY_W12			"..."
 
 // ADAFRUIT IO
-#define AIO_SERVER      "io.adafruit.com"
-#define AIO_SERVERPORT  1883
-//#define AIO_USERNAME  "..."
-//#define AIO_KEY		"..."
+#define MQTT_SERVER_AIO      "io.adafruit.com"
+#define MQTT_SERVERPORT_AIO  1883
+//#define MQTT_USERNAME_AIO  "..."
+//#define MQTT_KEY_AIO		"..."
 
 // Measure battery
 #define VBAT_PIN		A0
@@ -61,6 +62,7 @@ SOFTWARE.
 #define RESET_TIMER					3000
 #define MQTT_CONNECT_INTERVALL		3000
 #define MQTT_HEALTHDATA_INTERVALL	10000
+#define WLAN_CHECK_INTERVALL		30000
 
 // Timer delay constants in milliseconds(MS)
 #define DELAY_MS_1HZ	1000
@@ -101,7 +103,7 @@ SOFTWARE.
 #define	SERIAL_STATUS_OUTPUT
 
 //#define DEBUG_BUTTON
-//#define DEBUG_COM
+#define DEBUG_COM
 //#define DEBUG_CONF
 //#define DEBUG_DISPLAY
 //#define DEBUG_LCDML
@@ -162,9 +164,22 @@ typedef struct {
 
 #define NUM_MQTT_CONFIG	2
 const mqttConfig_t mqttConfigs[] = {
-	{W12_SERVER, W12_SERVERPORT, W12_USERNAME, W12_KEY, 0},
-	{AIO_SERVER, AIO_SERVERPORT, AIO_USERNAME, AIO_KEY, 1},
+	{MQTT_SERVER_W12, MQTT_SERVERPORT_W12, MQTT_USERNAME_W12, MQTT_KEY_W12, 0},
+	{MQTT_SERVER_AIO, MQTT_SERVERPORT_AIO, MQTT_USERNAME_AIO, MQTT_KEY_AIO, 1},
 	{"n/a", 0, "n/a", "n/a"}
+};
+
+typedef struct {
+	char *ssid;
+	char *password;
+	WifiAPProfile_t profile;
+} wifiConfig_t;
+
+#define NUM_WIFI_CONFIG 3
+const wifiConfig_t wifiConfigs[] = {
+	{WLAN_SSID_W12, WLAN_PASSWORD_W12, PRIVATE},
+	{WLAN_SSID_HOTSPOT, WLAN_PASSWORD_HOTSPOT, PUBLIC},
+	{WLAN_SSID_IPHONE, WLAN_PASSWORD_IPHONE, PUBLIC},
 };
 
 typedef struct {

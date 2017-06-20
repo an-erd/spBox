@@ -26,6 +26,7 @@ SOFTWARE.
 
 #include "arduino.h"
 #include <ESP8266WiFi.h>
+#include <ESP8266WiFiMulti.h>
 #include <ESP8266mDNS.h>
 #include <WiFiUdp.h>
 #include <ArduinoOTA.h>
@@ -39,6 +40,7 @@ SOFTWARE.
 
 class SPBOX_CONF; // forward decl
 extern AsyncMqttClient mqttClient;
+extern ESP8266WiFiMulti wifiMulti;
 
 class SPBOX_COM
 {
@@ -52,6 +54,7 @@ public:
 	void initializeWlan();
 	void disableWlan();
 	void enableWlan();
+	void checkWlan();
 
 	void initializeOta(OTAModes_t ota_mode = OTA_IDE);
 	void checkOta();

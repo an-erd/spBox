@@ -269,3 +269,49 @@ Calculate Voltage out of measured digital PIN read
 ==================================================
 - Maximum value masured 941 (0..1023), which is 4,22 V
 - mV per LSB from 1000 mV/1023 gives V/LSB = 0.97751
+
+
+/// stack trace
+Decoding 51 results
+0x40106402: interrupt_handler at C:\Users\AKAEM\Documents\Arduino\hardware\esp8266com\esp8266\cores\esp8266/core_esp8266_wiring_digital.c line 128
+0x40100ec2: pp_post at ?? line ?
+0x401033c3: lmacRecycleMPDU at ?? line ?
+0x401063c8: interrupt_handler at C:\Users\AKAEM\Documents\Arduino\hardware\esp8266com\esp8266\cores\esp8266/core_esp8266_wiring_digital.c line 122
+0x4024e130: sleep_reset_analog_rtcreg_8266 at ?? line ?
+0x401063c8: interrupt_handler at C:\Users\AKAEM\Documents\Arduino\hardware\esp8266com\esp8266\cores\esp8266/core_esp8266_wiring_digital.c line 122
+0x4021c4a2: _svfprintf_r at /Users/igrokhotkov/e/newlib-xtensa/xtensa-lx106-elf/newlib/libc/stdio/../../../.././newlib/libc/stdio/nano-vfprintf.c line 505
+0x4021a095: _vsnprintf_r at /Users/igrokhotkov/e/newlib-xtensa/xtensa-lx106-elf/newlib/libc/stdio/../../../.././newlib/libc/stdio/vsnprintf.c line 73
+0x401063c8: interrupt_handler at C:\Users\AKAEM\Documents\Arduino\hardware\esp8266com\esp8266\cores\esp8266/core_esp8266_wiring_digital.c line 122
+0x402104b5: ROTENC::isrInt1() at C:\Users\AKAEM\AppData\Local\Temp\VMBuilds\spBox\esp8266com_huzzah\Debug/rotenc.cpp line 67
+0x40106376: millis at C:\Users\AKAEM\Documents\Arduino\hardware\esp8266com\esp8266\cores\esp8266/core_esp8266_wiring.c line 67
+0x40216e03: std::_Function_handler    (ROTENC*)> >::_M_invoke(std::_Any_data const&) at C:\Users\AKAEM\AppData\Local\Temp\VMBuilds\spBox\esp8266com_huzzah\Debug/rotenc.cpp line 67
+0x40214752: interruptFunctional(void*) at C:\Users\AKAEM\Documents\Arduino\hardware\esp8266com\esp8266\cores\esp8266/FunctionalInterrupt.cpp line 18
+0x401052a3: flash_gd25q32c_read_status at ?? line ?
+0x4024e130: sleep_reset_analog_rtcreg_8266 at ?? line ?
+0x40105514: spi_flash_erase_sector at ?? line ?
+0x40106788: pvPortZalloc at C:\Users\AKAEM\Documents\Arduino\hardware\esp8266com\esp8266\cores\esp8266/heap.c line 68
+0x402411f8: wifi_param_save_protect_with_check at ?? line ?
+0x402411e1: wifi_param_save_protect_with_check at ?? line ?
+0x402412cb: system_param_save_with_protect at ?? line ?
+0x402412ae: system_param_save_with_protect at ?? line ?
+0x402415fd: wifi_station_ap_number_set at ?? line ?
+0x402415b0: wifi_station_ap_number_set at ?? line ?
+0x40207a68: ESP8266WiFiSTAClass::begin(char const*, char const*, int, unsigned char const*, bool) at C:\Users\AKAEM\Documents\Arduino\hardware\esp8266com\esp8266\libraries\ESP8266WiFi\src/ESP8266WiFiSTA.cpp line 516
+0x402079a3: ESP8266WiFiSTAClass::begin(char const*, char const*, int, unsigned char const*, bool) at C:\Users\AKAEM\Documents\Arduino\hardware\esp8266com\esp8266\libraries\ESP8266WiFi\src/ESP8266WiFiSTA.cpp line 516
+0x4020d7b4: EEPROMClass::commit() at C:\Users\AKAEM\Documents\Arduino\hardware\esp8266com\esp8266\libraries\EEPROM/EEPROM.cpp line 132
+0x402172f0: Print::write(unsigned char const*, unsigned int) at C:\Users\AKAEM\Documents\Arduino\hardware\esp8266com\esp8266\cores\esp8266/Print.cpp line 38
+0x40214bd9: Print::write(char const*) at C:\Users\AKAEM\Documents\Arduino\hardware\esp8266com\esp8266\cores\esp8266/Print.cpp line 211
+0x40240f1a: wifi_get_opmode at ?? line ?
+0x4024203b: wifi_station_get_connect_status at ?? line ?
+0x40214d8c: Print::println() at C:\Users\AKAEM\Documents\Arduino\hardware\esp8266com\esp8266\cores\esp8266/Print.cpp line 211
+0x4021e21c: __ieee754_atan2 at /Users/igrokhotkov/e/newlib-xtensa/xtensa-lx106-elf/newlib/libm/math/../../../.././newlib/libm/math/e_atan2.c line 116
+0x40103aae: lmacProcessCollision at ?? line ?
+0x4021438c: esp_yield at C:\Users\AKAEM\Documents\Arduino\hardware\esp8266com\esp8266\cores\esp8266/core_esp8266_main.cpp line 57
+0x40207b08: ESP8266WiFiSTAClass::begin(char*, char*, int, unsigned char const*, bool) at C:\Users\AKAEM\Documents\Arduino\hardware\esp8266com\esp8266\libraries\ESP8266WiFi\src/ESP8266WiFiSTA.cpp line 516
+0x4020738f: ESP8266WiFiMulti::run(WifiAPProfile_t) at C:\Users\AKAEM\Documents\Arduino\hardware\esp8266com\esp8266\libraries\ESP8266WiFi\src/ESP8266WiFiMulti.cpp line 124
+0x4020fd9d: TwoWire::available() at C:\Users\AKAEM\Documents\Arduino\hardware\esp8266com\esp8266\libraries\Wire/Wire.cpp line 252
+0x402110d7: SPBOX_COM::enableWlan() at C:\Users\AKAEM\AppData\Local\Temp\VMBuilds\spBox\esp8266com_huzzah\Debug/spbox_com.cpp line 234
+0x40211159: SPBOX_COM::checkWlan() at C:\Users\AKAEM\AppData\Local\Temp\VMBuilds\spBox\esp8266com_huzzah\Debug/spbox_com.cpp line 234
+0x40205176: loop at C:\Users\AKAEM\AppData\Local\Temp\VMBuilds\spBox\esp8266com_huzzah\Debug/spBox.cpp line 1422
+0x402143d8: loop_wrapper at C:\Users\AKAEM\Documents\Arduino\hardware\esp8266com\esp8266\cores\esp8266/core_esp8266_main.cpp line 57
+0x4010070c: cont_norm at C:\Users\AKAEM\Documents\Arduino\hardware\esp8266com\esp8266\cores\esp8266/cont.S line 109

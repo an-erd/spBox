@@ -102,8 +102,15 @@ void SPBOX_COM::initializeWlan()
 	}
 
 	if (conf_->getWlanEnabled()) {
-		WiFi.mode(WIFI_STA);
-		WiFi.begin(WLAN_SSID, WLAN_PASSWORD);
+
+		for (int i = 0; i < NUM_WIFI_CONFIG; i++)
+			wifiMulti.addAP(wifiConfigs[i].ssid, wifiConfigs[i].password, wifiConfigs[i].profile);
+		DEBUGLOG("Added %i WiFi configs to WiFiMulti\n", NUM_WIFI_CONFIG);
+
+		//WiFi.mode(WIFI_STA);
+		//WiFi.begin(WLAN_SSID_W12, WLAN_PASSWORD_W12);
+		DEBUGLOG("Running wifiMulti.run()\n");
+		wifiMulti.run(ANY);
 	}
 
 	wlan_initialized_ = true;
@@ -112,9 +119,13 @@ void SPBOX_COM::initializeWlan()
 
 void SPBOX_COM::disableWlan()
 {
-	WiFi.mode(WIFI_OFF);
-	DEBUGLOG("WLAN disabled\r\n");
-	conf_->setWlanEnabled(false);
+	if (WiFi.getMode() != WIFI_OFF) {
+		WiFi.disconnect();
+		WiFi.mode(WIFI_OFF);
+		DEBUGLOG("WLAN disabled\r\n");
+		if (conf_->getWlanEnabled())
+			conf_->setWlanEnabled(false);
+	}
 }
 
 void SPBOX_COM::enableWlan()
@@ -123,10 +134,29 @@ void SPBOX_COM::enableWlan()
 		initializeWlan();
 	}
 	else {
-		WiFi.mode(WIFI_STA);
-		WiFi.begin();
+		//WiFi.mode(WIFI_STA);
+		//WiFi.begin();
+		DEBUGLOG("Running wifiMulti.run()\n");
+		wifiMulti.run(ANY);
 		DEBUGLOG("WLAN enabled\r\n");
 		conf_->setWlanEnabled(true);
+	}
+}
+
+void SPBOX_COM::checkWlan()
+{
+	static uint16_t lastMillis = millis();
+	uint16_t diff = millis() - lastMillis;
+	if (diff < WLAN_CHECK_INTERVALL)
+		return;
+
+	lastMillis = millis();
+	
+	if (conf.getWlanEnabled()) {
+		com.enableWlan();
+	}
+	else {
+		com.disableWlan();
 	}
 }
 
@@ -380,7 +410,7 @@ void SPBOX_COM::onNTPSyncEvent(NTPSyncEvent_t event)
 	else {
 		Serial.print("Got NTP time: ");
 		Serial.println(NTP.getTimeDateString(NTP.getLastNTPSync()));
-	}
+}
 #endif
 }
 void SPBOX_COM::onMqttConnect(bool sessionPresent)
@@ -481,4 +511,5 @@ void SPBOX_COM::onOtaError(ota_error_t error)
 	display.updateDisplayScr15(com.getOtaUpdate(), true);
 }
 
-SPBOX_COM com;
+SPBOX_COM			com;
+ESP8266WiFiMulti	wifiMulti;

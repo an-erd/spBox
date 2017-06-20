@@ -57,13 +57,17 @@ void setup() {
 	conf.initialize(true);
 	com.setConf(&conf);
 	com.initialize();
+
 	com.initializeWlan();
+
 	com.initializeOta(OTA_IDE);
 	com.initializeMQTT();
 	initialize_GPIO();
 
 	gInitScreen = INITSCREEN_OFF;
 	display.initializeDisplay();
+	display.ssd1306_command(SSD1306_DISPLAYON);
+
 	display.drawBitmap(0, 0, mySplash, 128, 32, 1);
 	display.display();
 	delay(1000);
@@ -129,6 +133,8 @@ void loop() {
 	if (com.getAndClearInternetChanged()) {
 		display.setInternetAvailable(com.getInternetAvailable());
 	}
+
+	com.checkWlan();
 
 	display.setMqttAvailable(com.getMqttAvailable());
 	com.checkMqttConnection();
