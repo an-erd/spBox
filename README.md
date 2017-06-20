@@ -271,7 +271,12 @@ Calculate Voltage out of measured digital PIN read
 - mV per LSB from 1000 mV/1023 gives V/LSB = 0.97751
 
 
-/// stack trace
+Useful stuff on stack traces and exceptions
+===========================================
+https://github.com/esp8266/Arduino/blob/master/doc/faq/a02-my-esp-crashes.rst
+
+
+/// stack trace 19.06.2017 - I
 Decoding 51 results
 0x40106402: interrupt_handler at C:\Users\AKAEM\Documents\Arduino\hardware\esp8266com\esp8266\cores\esp8266/core_esp8266_wiring_digital.c line 128
 0x40100ec2: pp_post at ?? line ?
@@ -310,6 +315,132 @@ Decoding 51 results
 0x40207b08: ESP8266WiFiSTAClass::begin(char*, char*, int, unsigned char const*, bool) at C:\Users\AKAEM\Documents\Arduino\hardware\esp8266com\esp8266\libraries\ESP8266WiFi\src/ESP8266WiFiSTA.cpp line 516
 0x4020738f: ESP8266WiFiMulti::run(WifiAPProfile_t) at C:\Users\AKAEM\Documents\Arduino\hardware\esp8266com\esp8266\libraries\ESP8266WiFi\src/ESP8266WiFiMulti.cpp line 124
 0x4020fd9d: TwoWire::available() at C:\Users\AKAEM\Documents\Arduino\hardware\esp8266com\esp8266\libraries\Wire/Wire.cpp line 252
+0x402110d7: SPBOX_COM::enableWlan() at C:\Users\AKAEM\AppData\Local\Temp\VMBuilds\spBox\esp8266com_huzzah\Debug/spbox_com.cpp line 234
+0x40211159: SPBOX_COM::checkWlan() at C:\Users\AKAEM\AppData\Local\Temp\VMBuilds\spBox\esp8266com_huzzah\Debug/spbox_com.cpp line 234
+0x40205176: loop at C:\Users\AKAEM\AppData\Local\Temp\VMBuilds\spBox\esp8266com_huzzah\Debug/spBox.cpp line 1422
+0x402143d8: loop_wrapper at C:\Users\AKAEM\Documents\Arduino\hardware\esp8266com\esp8266\cores\esp8266/core_esp8266_main.cpp line 57
+0x4010070c: cont_norm at C:\Users\AKAEM\Documents\Arduino\hardware\esp8266com\esp8266\cores\esp8266/cont.S line 109
+
+/// stack trace 19.06.2017 - II
+
+Exception (0):
+epc1=0x40214740 epc2=0x00000000 epc3=0x00000000 excvaddr=0x00000000 depc=0x00000000
+
+ctx: cont
+sp: 3fff2120 end: 3fff26a0 offset: 01a0
+
+>>>stack>>>
+3fff22c0:  40106402 3fffc6fc 00000001 00000000
+3fff22d0:  e0030035 ffffffff 00000020 401064fa
+3fff22e0:  00000000 00000000 0000001f 00000022
+3fff22f0:  3fffc200 401063c8 3fffc258 4000050c
+3fff2300:  400043df 00000030 00000016 ffffffff
+3fff2310:  400044ab 3fffc718 3fff2400 08000000
+3fff2320:  60000200 08000000 00000003 00000000
+3fff2330:  0000ffff 00042035 00002035 003fd000
+3fff2340:  4024e130 00000494 003fd000 00000030
+3fff2350:  e0035025 00000000 0000001f 00000022
+3fff2360:  3fffc200 401063c8 3fffc258 00000022
+3fff2370:  3fffc200 401063c8 3fffc258 4000050c
+3fff2380:  402015a0 00000030 0000001c ffffffff
+3fff2390:  402016ce 00000013 0000000a 60000318
+3fff23a0:  e0035025 000002b2 3fff0e90 401064fa
+3fff23b0:  000000f0 3fffc6fc 3fff0ef0 401064fa
+3fff23c0:  3ffe8778 3fff0eb4 3fff0ef0 401064fa
+3fff23d0:  00000000 00000000 3fff0ef0 40210466
+3fff23e0:  00000000 4000444e 00000000 40216e03
+3fff23f0:  00000002 401052a3 00000001 60000200
+3fff2400:  00000002 4000410f 00001001 00000205
+3fff2410:  3fffc718 40004a3c 000003fd 4024e130
+3fff2420:  3fffc718 40105514 000003fd 40106788
+3fff2430:  000003fd 402411f8 3fffc258 402411e1
+3fff2440:  3fff4814 402412cb 3fff437c 00000494
+3fff2450:  000003fd 00000004 3fff437c 402412ae
+3fff2460:  ffffff00 55aa55aa 0000001c 00000020
+3fff2470:  00000020 00000069 00000053 aa55aa55
+3fff2480:  000003ff 402415fd 00000002 3fff437c
+3fff2490:  3fff25e4 bf85c9cf 6583a200 402415b0
+3fff24a0:  40207a68 3fff3e44 3fff353c 402079a3
+3fff24b0:  40000500 000000f8 feefeffe feefeffe
+3fff24c0:  4020d7b4 00000001 3ffe9edd 402172f0
+3fff24d0:  3fff1600 00000014 3ffe9490 00000000
+3fff24e0:  3fff26e8 00000015 3fff26e8 40214bd9
+3fff24f0:  40240f1a 3fff0f3c 3fff0c80 00000001
+3fff2500:  4024203b 00000001 3fff26e8 40214d8c
+3fff2510:  6b08ec00 573aae8a 00003231 002e0000
+3fff2520:  00000226 00000020 3fff1288 3fff166c
+3fff2530:  00000010 45ff25d0 48366f59 52713476
+3fff2540:  3150374f 4170534a 48435a71 56477636
+3fff2550:  7a774850 4f57526e 49494944 31646864
+3fff2560:  656b4270 69594357 6e6b3065 4f703162
+3fff2570:  32743951 01006363 8a6b08ec 40103aae
+3fff2580:  00000001 3fff0c80 00000001 3fff0c80
+3fff2590:  3fff353c 3fff3e44 4021438c 3fff3e44
+3fff25a0:  3fff353c 3fff0c80 00000000 40207b08
+3fff25b0:  3fff0c80 3fff0c80 00000000 4020738f
+3fff25c0:  3fff25dc 3fff25f4 00000000 3fff1288
+3fff25d0:  00000000 00000000 00000000 00000006
+3fff25e0:  000003e8 8a6b08ec 3fff3aae 3fff444c
+3fff25f0:  ffffffb3 3fff0700 00000008 40205e81
+3fff2600:  3fff353c ffffffb9 3fff3e44 3fff0f3c
+3fff2610:  00000000 00000001 00000004 00000001
+3fff2620:  3fff25d0 00000000 3fff2600 3fff2630
+3fff2630:  bd380000 3f9a1000 3fff0ef0 3fff138c
+3fff2640:  3fffdad0 3fff26e8 3fff0f48 402110d7
+3fff2650:  3fff307c 3fff10c0 3fff0f3a 40211159
+3fff2660:  3fffdad0 3fff1288 3fff0f48 40205176
+3fff2670:  00000000 00000000 00000001 3fff1678
+3fff2680:  3fffdad0 00000000 3fff1670 402143d8
+3fff2690:  feefeffe feefeffe 3fff1680 4010070c
+<<<stack<<<
+
+ets Jan  8 2013,rst cause:2, boot mode:(3,7)
+
+load 0x4010f000, len 1384, room 16
+tail 8
+chksum 0x2d
+csum 0x2d
+v00000000
+~ld
+
+
+Decoding 49 results
+0x40106402: interrupt_handler at C:\Users\AKAEM\Documents\Arduino\hardware\esp8266com\esp8266\cores\esp8266/core_esp8266_wiring_digital.c line 128
+0x401064fa: __digitalRead at C:\Users\AKAEM\Documents\Arduino\hardware\esp8266com\esp8266\cores\esp8266/core_esp8266_wiring_digital.c line 95
+0x401063c8: interrupt_handler at C:\Users\AKAEM\Documents\Arduino\hardware\esp8266com\esp8266\cores\esp8266/core_esp8266_wiring_digital.c line 122
+0x4024e130: sleep_reset_analog_rtcreg_8266 at ?? line ?
+0x401063c8: interrupt_handler at C:\Users\AKAEM\Documents\Arduino\hardware\esp8266com\esp8266\cores\esp8266/core_esp8266_wiring_digital.c line 122
+0x401063c8: interrupt_handler at C:\Users\AKAEM\Documents\Arduino\hardware\esp8266com\esp8266\cores\esp8266/core_esp8266_wiring_digital.c line 122
+0x402015a0: twi_delay at C:\Users\AKAEM\Documents\Arduino\hardware\esp8266com\esp8266\cores\esp8266/core_esp8266_si2c.c line 81
+0x402016ce: twi_write_bit at C:\Users\AKAEM\Documents\Arduino\hardware\esp8266com\esp8266\cores\esp8266/core_esp8266_si2c.c line 81
+0x401064fa: __digitalRead at C:\Users\AKAEM\Documents\Arduino\hardware\esp8266com\esp8266\cores\esp8266/core_esp8266_wiring_digital.c line 95
+0x401064fa: __digitalRead at C:\Users\AKAEM\Documents\Arduino\hardware\esp8266com\esp8266\cores\esp8266/core_esp8266_wiring_digital.c line 95
+0x401064fa: __digitalRead at C:\Users\AKAEM\Documents\Arduino\hardware\esp8266com\esp8266\cores\esp8266/core_esp8266_wiring_digital.c line 95
+0x40210466: ROTENC::isrInt0() at C:\Users\AKAEM\AppData\Local\Temp\VMBuilds\spBox\esp8266com_huzzah\Debug/rotenc.cpp line 67
+0x40216e03: std::_Function_handler    (ROTENC*)> >::_M_invoke(std::_Any_data const&) at C:\Users\AKAEM\AppData\Local\Temp\VMBuilds\spBox\esp8266com_huzzah\Debug/rotenc.cpp line 67
+0x401052a3: flash_gd25q32c_read_status at ?? line ?
+0x4024e130: sleep_reset_analog_rtcreg_8266 at ?? line ?
+0x40105514: spi_flash_erase_sector at ?? line ?
+0x40106788: pvPortZalloc at C:\Users\AKAEM\Documents\Arduino\hardware\esp8266com\esp8266\cores\esp8266/heap.c line 68
+0x402411f8: wifi_param_save_protect_with_check at ?? line ?
+0x402411e1: wifi_param_save_protect_with_check at ?? line ?
+0x402412cb: system_param_save_with_protect at ?? line ?
+0x402412ae: system_param_save_with_protect at ?? line ?
+0x402415fd: wifi_station_ap_number_set at ?? line ?
+0x402415b0: wifi_station_ap_number_set at ?? line ?
+0x40207a68: ESP8266WiFiSTAClass::begin(char const*, char const*, int, unsigned char const*, bool) at C:\Users\AKAEM\Documents\Arduino\hardware\esp8266com\esp8266\libraries\ESP8266WiFi\src/ESP8266WiFiSTA.cpp line 516
+0x402079a3: ESP8266WiFiSTAClass::begin(char const*, char const*, int, unsigned char const*, bool) at C:\Users\AKAEM\Documents\Arduino\hardware\esp8266com\esp8266\libraries\ESP8266WiFi\src/ESP8266WiFiSTA.cpp line 516
+0x4020d7b4: EEPROMClass::commit() at C:\Users\AKAEM\Documents\Arduino\hardware\esp8266com\esp8266\libraries\EEPROM/EEPROM.cpp line 132
+0x402172f0: Print::write(unsigned char const*, unsigned int) at C:\Users\AKAEM\Documents\Arduino\hardware\esp8266com\esp8266\cores\esp8266/Print.cpp line 38
+0x40214bd9: Print::write(char const*) at C:\Users\AKAEM\Documents\Arduino\hardware\esp8266com\esp8266\cores\esp8266/Print.cpp line 211
+0x40240f1a: wifi_get_opmode at ?? line ?
+0x4024203b: wifi_station_get_connect_status at ?? line ?
+0x40214d8c: Print::println() at C:\Users\AKAEM\Documents\Arduino\hardware\esp8266com\esp8266\cores\esp8266/Print.cpp line 211
+0x40103aae: lmacProcessCollision at ?? line ?
+0x4021438c: esp_yield at C:\Users\AKAEM\Documents\Arduino\hardware\esp8266com\esp8266\cores\esp8266/core_esp8266_main.cpp line 57
+0x40207b08: ESP8266WiFiSTAClass::begin(char*, char*, int, unsigned char const*, bool) at C:\Users\AKAEM\Documents\Arduino\hardware\esp8266com\esp8266\libraries\ESP8266WiFi\src/ESP8266WiFiSTA.cpp line 516
+0x4020738f: ESP8266WiFiMulti::run(WifiAPProfile_t) at C:\Users\AKAEM\Documents\Arduino\hardware\esp8266com\esp8266\libraries\ESP8266WiFi\src/ESP8266WiFiMulti.cpp line 124
+0x40205e81: LCDMenuLib::doScroll() at C:\Users\AKAEM\Documents\Arduino\libraries\LCDMenuLib\src/LCDMenuLib.cpp line 479
 0x402110d7: SPBOX_COM::enableWlan() at C:\Users\AKAEM\AppData\Local\Temp\VMBuilds\spBox\esp8266com_huzzah\Debug/spbox_com.cpp line 234
 0x40211159: SPBOX_COM::checkWlan() at C:\Users\AKAEM\AppData\Local\Temp\VMBuilds\spBox\esp8266com_huzzah\Debug/spbox_com.cpp line 234
 0x40205176: loop at C:\Users\AKAEM\AppData\Local\Temp\VMBuilds\spBox\esp8266com_huzzah\Debug/spBox.cpp line 1422
