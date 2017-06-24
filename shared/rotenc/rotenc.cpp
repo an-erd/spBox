@@ -76,7 +76,7 @@ void ROTENC::onRotencPosEvent(onRotencPosEvent_t handler)
 	onPosEvent = handler;
 }
 
-void ROTENC::isrInt0() {
+void ICACHE_RAM_ATTR ROTENC::isrInt0() {
 	if (millis() - int0_time_ < THRESHOLD)
 		return;
 	int0_history_ = int0_signal_;
@@ -94,7 +94,7 @@ void ROTENC::isrInt0() {
 	changed_halfSteps_ = true;
 }
 
-void ROTENC::isrInt1() {
+void ICACHE_RAM_ATTR ROTENC::isrInt1() {
 	if (millis() - int1_time_ < THRESHOLD)
 		return;
 	int1_history_ = int1_signal_;

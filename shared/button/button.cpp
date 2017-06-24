@@ -67,7 +67,7 @@ void BUTTON::onButtonChangeEvent(onButtonChangeEvent_t handler)
 	onChangeEvent = handler;
 }
 
-void BUTTON::isrInt0() {
+void ICACHE_RAM_ATTR BUTTON::isrInt0() {
 	// ISR no debug output
 	volatile uint32_t time_diff;
 	time_diff = millis() - int_time_;
