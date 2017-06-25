@@ -62,7 +62,7 @@ SOFTWARE.
 #define RESET_TIMER					3000
 #define MQTT_CONNECT_INTERVALL		3000
 #define MQTT_HEALTHDATA_INTERVALL	10000
-#define WLAN_CHECK_INTERVALL		30000
+#define WLAN_CHECK_INTERVALL		10000
 
 // Timer delay constants in milliseconds(MS)
 #define DELAY_MS_1HZ	1000
@@ -103,7 +103,7 @@ SOFTWARE.
 #define	SERIAL_STATUS_OUTPUT
 
 //#define DEBUG_BUTTON
-#define DEBUG_COM
+//#define DEBUG_COM
 //#define DEBUG_CONF
 //#define DEBUG_DISPLAY
 //#define DEBUG_LCDML

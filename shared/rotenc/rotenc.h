@@ -61,8 +61,8 @@ public:
 	void		onRotencChangeEvent(onRotencChangeEvent_t handler);
 	void		onRotencPosEvent(onRotencPosEvent_t    handler);
 
-	void		ICACHE_RAM_ATTR isrInt0();				// only for isr wrapper
-	void		ICACHE_RAM_ATTR isrInt1();
+	inline void		ICACHE_RAM_ATTR isrInt0() __attribute__((always_inline));				// only for isr wrapper
+	inline void		ICACHE_RAM_ATTR isrInt1() __attribute__((always_inline));
 private:
 	volatile uint32_t	int0_time_;			// ISR threshold
 	volatile uint32_t	int1_time_;

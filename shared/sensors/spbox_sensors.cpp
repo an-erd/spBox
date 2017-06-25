@@ -109,7 +109,7 @@ void SPBOX_SENSORS::setupUpdateAccelGyroMag()
 
 void SPBOX_SENSORS::startUpdateAccelGyroMag()
 {
-	os_timer_arm(&timerUpdateAccelGyroMag, DELAY_MS_10HZ, true);
+	os_timer_arm(&timerUpdateAccelGyroMag, DELAY_MS_5HZ, true);	// todo back to 10Hz
 }
 
 void SPBOX_SENSORS::stopUpdateAccelGyroMag()

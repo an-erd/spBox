@@ -109,8 +109,8 @@ void SPBOX_COM::initializeWlan()
 
 		//WiFi.mode(WIFI_STA);
 		//WiFi.begin(WLAN_SSID_W12, WLAN_PASSWORD_W12);
-		DEBUGLOG("Running wifiMulti.run()\n");
-		wifiMulti.run(ANY);
+		//DEBUGLOG("Running wifiMulti.run()\n");
+		//wifiMulti.run(ANY);
 	}
 
 	wlan_initialized_ = true;
