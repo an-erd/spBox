@@ -446,3 +446,124 @@ Decoding 49 results
 0x40205176: loop at C:\Users\AKAEM\AppData\Local\Temp\VMBuilds\spBox\esp8266com_huzzah\Debug/spBox.cpp line 1422
 0x402143d8: loop_wrapper at C:\Users\AKAEM\Documents\Arduino\hardware\esp8266com\esp8266\cores\esp8266/core_esp8266_main.cpp line 57
 0x4010070c: cont_norm at C:\Users\AKAEM\Documents\Arduino\hardware\esp8266com\esp8266\cores\esp8266/cont.S line 109
+
+26.06.17, another stack trace
+=============================
+[WIFI] 00055974: Connecting BSSID: EC:08:6B:8A:AE:3A SSID: W12 Channal: 1 (-68)
+
+Exception (0):
+epc1=0x40214624 epc2=0x00000000 epc3=0x00000000 excvaddr=0x00000000 depc=0x00000000
+
+ctx: cont 
+sp: 3fff1ec0 end: 3fff2450 offset: 01a0
+
+>>>stack>>>
+3fff2060:  40106556 40100823 00000000 3ffeed50  
+3fff2070:  20017035 00000000 00000002 40100ec2  
+3fff2080:  00000000 00000000 0000001f 00000022  
+3fff2090:  3fffc200 4010651c 3fffc258 4000050c  
+3fff20a0:  400043e6 00000030 00000016 ffffffff  
+3fff20b0:  400044ab 3fffc718 3fff21a0 08000000  
+3fff20c0:  60000200 08000000 08000000 00000000  
+3fff20d0:  0000ffff 00042035 00002035 003fe000  
+3fff20e0:  4024dfe0 00000494 003fe000 00000030  
+3fff20f0:  00000000 3fff21b1 3fff2120 401049ed  
+3fff2100:  4000050c 4010651c 3fffc258 4010664e  
+3fff2110:  4021c0fc 3fff2210 3fff0c70 40106343  
+3fff2120:  00000075 3fff122c 00000015 60000318  
+3fff2130:  3ffe82f8 00000006 00000000 40216c47  
+3fff2140:  3fff21b3 3ffe9591 80000000 40214636  
+3fff2150:  401065c1 3ffe8778 60000314 401065a8  
+3fff2160:  00000002 4000444e 3fff2210 4021c3a4  
+3fff2170:  00000000 4000422e 60000200 3fff2220  
+3fff2180:  00000000 4000444e 00000100 003ff000  
+3fff2190:  00000002 401052a3 00000001 60000200  
+3fff21a0:  00000002 4000410f 00001001 00000205  
+3fff21b0:  3fffc718 40004a3c 000003fe 4024dfe0  
+3fff21c0:  3fffc718 40105514 000003fe 401068dc  
+3fff21d0:  000003fe 402410a0 000003ff 40241089  
+3fff21e0:  3fff475c 40241173 3fff42c4 00000494  
+3fff21f0:  000003fd 00000004 3fff42c4 40241156  
+3fff2200:  ffffff01 55aa55aa 0000000f 00000020  
+3fff2210:  00000020 00000033 00000033 aa55aa55  
+3fff2220:  000003ff 402414a5 00000001 3fff42c4  
+3fff2230:  3fff238c bc2c58a4 00000000 40241458  
+3fff2240:  40207b6d 3fff3cac 3fff33a4 40207aa3  
+3fff2250:  00000000 00000000 00000001 402101bc  
+3fff2260:  3fff1130 3fff0ad0 00000000 402100e9  
+3fff2270:  3fff1100 3fff0ad0 3fff0c18 4020f428  
+3fff2280:  000003e8 00000068 0000ab1d 0000003a  
+3fff2290:  3fff23e0 3fff23e0 3fff102c ffffffb3  
+3fff22a0:  40240dc2 3fff0ad0 3fff0ce4 00000001  
+3fff22b0:  6b08ec00 573aae8a 3f003231 40214b3a  
+3fff22c0:  4649575b 30205d49 35353030 3a343739  
+3fff22d0:  6e6f4320 4563656e 48366f59 52713476  
+3fff22e0:  3150374f 4170534a 48435a71 56477636  
+3fff22f0:  7a774850 4f57526e 49494944 31646864  
+3fff2300:  656b4270 69594357 6e6b3065 4f703162  
+3fff2310:  32743951 01006363 8a6b08ec 00003aae  
+3fff2320:  00000001 3fff0ad0 00000001 3fff33a4  
+3fff2330:  3ffe953c 00000051 3fff2310 00000000  
+3fff2340:  3fff2498 3fff33a4 3fff0ad0 40207c08  
+3fff2350:  3fff2498 3fff33a4 3fff0ad0 40207423  
+3fff2360:  0000008a 000000ae 0000003a 3fff33a4  
+3fff2370:  00000001 ffffffbc 0000002a 40210274  
+3fff2380:  00000000 00000000 00000000 8a6b08ec  
+3fff2390:  00003aae 00000001 3fff3264 ffffffbb  
+3fff23a0:  3fff0400 3fff0ad0 3fff102c 0000001f  
+3fff23b0:  ffffffbc 3fff3cac 3fff3cac 00000001  
+3fff23c0:  3fff0cd8 00000000 00000002 00000001  
+3fff23d0:  3fff2380 00000000 3fff049c bf246000  
+3fff23e0:  bd6c0000 3f3d4000 bf246000 3fff1130  
+3fff23f0:  3fffdad0 3fff0e58 3fff0ce4 4021103a  
+3fff2400:  3fff087c 00000000 3fff0cd6 402110b1  
+3fff2410:  3fffdad0 3fff102c 3fff0ce4 4020512a  
+3fff2420:  00000000 00000000 00000001 3fff141c  
+3fff2430:  3fffdad0 00000000 3fff1414 402142bc  
+3fff2440:  feefeffe feefeffe 3fff1430 4010070c  
+<<<stack<<<
+
+ ets Jan  8 2013,rst cause:2, boot mode:(1,1)
+
+ 
+Decoding 49 results
+0x40106556: interrupt_handler at C:\Users\AKAEM\Documents\Arduino\hardware\esp8266com\esp8266\cores\esp8266/core_esp8266_wiring_digital.c line 128
+0x40100823: ppProcessTxQ at ?? line ?
+0x40100ec2: pp_post at ?? line ?
+0x4010651c: interrupt_handler at C:\Users\AKAEM\Documents\Arduino\hardware\esp8266com\esp8266\cores\esp8266/core_esp8266_wiring_digital.c line 122
+0x4024dfe0: sleep_reset_analog_rtcreg_8266 at ?? line ?
+0x401049ed: ets_timer_disarm at ?? line ?
+0x4010651c: interrupt_handler at C:\Users\AKAEM\Documents\Arduino\hardware\esp8266com\esp8266\cores\esp8266/core_esp8266_wiring_digital.c line 122
+0x4010664e: __digitalRead at C:\Users\AKAEM\Documents\Arduino\hardware\esp8266com\esp8266\cores\esp8266/core_esp8266_wiring_digital.c line 95
+0x4021c0fc: __ssputs_r at /Users/igrokhotkov/e/newlib-xtensa/xtensa-lx106-elf/newlib/libc/stdio/../../../.././newlib/libc/stdio/nano-vfprintf.c line 180
+0x40106343: BUTTON::isrInt0() at C:\Users\AKAEM\AppData\Local\Temp\VMBuilds\spBox\esp8266com_huzzah\Release/button.cpp line 63
+0x40216c47: std::_Function_handler    (BUTTON*)> >::_M_invoke(std::_Any_data const&) at c:\users\akaem\documents\arduino\hardware\esp8266com\esp8266\tools\xtensa-lx106-elf\xtensa-lx106-elf\include\c++\4.8.2/functional line 2073
+0x40214636: interruptFunctional(void*) at C:\Users\AKAEM\Documents\Arduino\hardware\esp8266com\esp8266\cores\esp8266/FunctionalInterrupt.cpp line 18
+0x401065c1: interrupt_handler at C:\Users\AKAEM\Documents\Arduino\hardware\esp8266com\esp8266\cores\esp8266/core_esp8266_wiring_digital.c line 151
+0x401065a8: interrupt_handler at C:\Users\AKAEM\Documents\Arduino\hardware\esp8266com\esp8266\cores\esp8266/core_esp8266_wiring_digital.c line 141
+0x4021c3a4: _svfprintf_r at /Users/igrokhotkov/e/newlib-xtensa/xtensa-lx106-elf/newlib/libc/stdio/../../../.././newlib/libc/stdio/nano-vfprintf.c line 531
+0x401052a3: flash_gd25q32c_read_status at ?? line ?
+0x4024dfe0: sleep_reset_analog_rtcreg_8266 at ?? line ?
+0x40105514: spi_flash_erase_sector at ?? line ?
+0x401068dc: pvPortZalloc at C:\Users\AKAEM\Documents\Arduino\hardware\esp8266com\esp8266\cores\esp8266/heap.c line 68
+0x402410a0: wifi_param_save_protect_with_check at ?? line ?
+0x40241089: wifi_param_save_protect_with_check at ?? line ?
+0x40241173: system_param_save_with_protect at ?? line ?
+0x40241156: system_param_save_with_protect at ?? line ?
+0x402414a5: wifi_station_ap_number_set at ?? line ?
+0x40241458: wifi_station_ap_number_set at ?? line ?
+0x40207b6d: ESP8266WiFiSTAClass::begin(char const*, char const*, int, unsigned char const*, bool) at C:\Users\AKAEM\Documents\Arduino\hardware\esp8266com\esp8266\libraries\ESP8266WiFi\src/ESP8266WiFiSTA.cpp line 516
+0x40207aa3: ESP8266WiFiSTAClass::begin(char const*, char const*, int, unsigned char const*, bool) at C:\Users\AKAEM\Documents\Arduino\hardware\esp8266com\esp8266\libraries\ESP8266WiFi\src/ESP8266WiFiSTA.cpp line 516
+0x402101bc: TwoWire::requestFrom(unsigned char, unsigned int, bool) at C:\Users\AKAEM\Documents\Arduino\hardware\esp8266com\esp8266\libraries\Wire/Wire.cpp line 252
+0x402100e9: TwoWire::available() at C:\Users\AKAEM\Documents\Arduino\hardware\esp8266com\esp8266\libraries\Wire/Wire.cpp line 252
+0x4020f428: I2Cdev::readBytes(unsigned char, unsigned char, unsigned char, unsigned char*, unsigned short) at C:\Users\AKAEM\Documents\Arduino\libraries\I2Cdev/I2Cdev.cpp line 148
+0x40240dc2: wifi_get_opmode at ?? line ?
+0x40214b3a: Print::printf(char const*, ...) at C:\Users\AKAEM\Documents\Arduino\hardware\esp8266com\esp8266\cores\esp8266/Print.cpp line 211
+0x40207c08: ESP8266WiFiSTAClass::begin(char*, char*, int, unsigned char const*, bool) at C:\Users\AKAEM\Documents\Arduino\hardware\esp8266com\esp8266\libraries\ESP8266WiFi\src/ESP8266WiFiSTA.cpp line 516
+0x40207423: ESP8266WiFiMulti::run(WifiAPProfile_t) at C:\Users\AKAEM\Documents\Arduino\hardware\esp8266com\esp8266\libraries\ESP8266WiFi\src/ESP8266WiFiMulti.cpp line 124
+0x40210274: TwoWire::endTransmission() at C:\Users\AKAEM\Documents\Arduino\hardware\esp8266com\esp8266\libraries\Wire/Wire.cpp line 252
+0x4021103a: SPBOX_COM::enableWlan() at C:\Users\AKAEM\AppData\Local\Temp\VMBuilds\spBox\esp8266com_huzzah\Release/spbox_com.cpp line 234
+0x402110b1: SPBOX_COM::checkWlan() at C:\Users\AKAEM\AppData\Local\Temp\VMBuilds\spBox\esp8266com_huzzah\Release/spbox_com.cpp line 234
+0x4020512a: loop at C:\Users\AKAEM\AppData\Local\Temp\VMBuilds\spBox\esp8266com_huzzah\Release/spBox.cpp line 1419
+0x402142bc: loop_wrapper at C:\Users\AKAEM\Documents\Arduino\hardware\esp8266com\esp8266\cores\esp8266/core_esp8266_main.cpp line 57
+0x4010070c: cont_norm at C:\Users\AKAEM\Documents\Arduino\hardware\esp8266com\esp8266\cores\esp8266/cont.S line 109
