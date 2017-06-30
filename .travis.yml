@@ -3,6 +3,7 @@ sudo: false
 before_install:
   - source <(curl -SLs https://raw.githubusercontent.com/adafruit/travis-ci-arduino/master/install.sh)
 install:
+  - git clone https://github.com/marvinroger/async-mqtt-client $HOME/arduino_ide/libraries/async-mqtt-client
   - arduino --install-library "Adafruit GFX Library"
   - arduino --install-library "NTPClient"
   - arduino --install-library "Adafruit IO Arduino"
