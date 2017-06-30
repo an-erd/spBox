@@ -5,11 +5,10 @@ before_install:
 install:
   - arduino --install-library "Adafruit GFX Library"
   - arduino --install-library "NTPClient"
-  - arduino --install-library "Arduino HTTP Client"
   - arduino --install-library "Adafruit IO Arduino"
   - arduino --install-library "Adafruit SSD1306"
   - arduino --install-library "Arduino HTTP Client"
-  - arduino --install-library "Arduino FeatherOled"
+  - arduino --install-library "Adafruit_FeatherOLED_WiFi"
   - arduino --install-library "Arduino HTTP Client"
   - arduino --install-library "ArduinoOTA"
   - arduino --install-library "Async MQTT Client"
