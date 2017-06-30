@@ -4,6 +4,20 @@ before_install:
   - source <(curl -SLs https://raw.githubusercontent.com/adafruit/travis-ci-arduino/master/install.sh)
 install:
   - arduino --install-library "Adafruit GFX Library"
+  - arduino --install-library "NTPClient"
+  - arduino --install-library "Arduino HTTP Client"
+  - arduino --install-library "Adafruit IO Arduino"
+  - arduino --install-library "Adafruit SSD1306"
+  - arduino --install-library "Arduino HTTP Client"
+  - arduino --install-library "Arduino FeatherOled"
+  - arduino --install-library "Arduino HTTP Client"
+  - arduino --install-library "ArduinoOTA"
+  - arduino --install-library "Async MQTT Client"
+  - arduino --install-library "Async Ping"
+  - arduino --install-library "EEPROM"
+  - arduino --install-library "ESP AsyncTCP"
+  - arduino --install-library "LCDMenuLib"
+  - arduino --install-library "NtpClientLib"
 script:
   - build_platform esp8266
 notifications:
