@@ -24,9 +24,6 @@ before_install:
   - DEPENDENCY_OUTPUT=$(arduino --pref "compiler.warning_level=all" --save-prefs 2>&1)
   - if [ $? -ne 0 ]; then echo -e "\xe2\x9c\x96"; else echo -e "\xe2\x9c\x93"; fi
   - export PLATFORM_JSON=""
-
-
-
 install:
   - git clone https://github.com/marvinroger/async-mqtt-client  $HOME/arduino_ide/libraries/async-mqtt-client
   - git clone https://github.com/adafruit/Adafruit_FeatherOLED  $HOME/arduino_ide/libraries/Adafruit_FeatherOLED
@@ -45,6 +42,7 @@ script:
   - "ls $PWD"
   # - build_platform esp8266
    - arduino --verbose --verify --board esp8266:esp8266:generic $PWD/spBox/spBox/spBoxAAA.ino
+   - arduino --verbose --board esp8266:esp8266:generic $PWD/spBox/spBox/spBoxAAA.ino
    
 notifications:
   email:
