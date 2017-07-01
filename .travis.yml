@@ -1,7 +1,32 @@
 language: c
 sudo: false
 before_install:
-  - source <(curl -SLs https://raw.githubusercontent.com/adafruit/travis-ci-arduino/master/install.sh)
+#  - source <(curl -SLs https://raw.githubusercontent.com/adafruit/travis-ci-arduino/master/install.sh)
+  - export MAIN_PLATFORMS='declare -A main_platforms=( [esp8266]="esp8266:esp8266:huzzah" )'
+  - /sbin/start-stop-daemon --start --quiet --pidfile /tmp/custom_xvfb_1.pid --make-pidfile --background --exec /usr/bin/Xvfb -- :1 -ac -screen 0 1280x1024x16
+  - sleep 3
+  - export DISPLAY=:1.0
+  - wget https://downloads.arduino.cc/arduino-1.6.5-linux64.tar.xz
+  - tar xf arduino-1.6.5-linux64.tar.xz
+  - mv arduino-1.6.5 $HOME/arduino_ide
+  - ln -s $PWD $HOME/arduino_ide/libraries/Adafruit_Test_Library
+  - export PATH="$HOME/arduino_ide:$PATH"
+  - echo -n "ADD PACKAGE INDEX: "
+  - DEPENDENCY_OUTPUT=$(arduino --pref "boardsmanager.additional.urls=https://adafruit.github.io/arduino-board-index/package_adafruit_index.json,http://arduino.esp8266.com/stable/package_esp8266com_index.json" --save-prefs 2>&1)
+  - if [ $? -ne 0 ]; then echo -e "\xe2\x9c\x96"; else echo -e "\xe2\x9c\x93"; fi
+  - echo -n "ESP8266: "
+  - DEPENDENCY_OUTPUT=$(arduino --install-boards esp8266:esp8266 2>&1)
+  - if [ $? -ne 0 ]; then echo -e "\xe2\x9c\x96"; else echo -e "\xe2\x9c\x93"; fi
+  - echo -n "UPDATE LIBRARY INDEX: "
+  - DEPENDENCY_OUTPUT=$(arduino --install-library USBHost > /dev/null 2>&1)
+  - if [ $? -ne 0 ]; then echo -e "\xe2\x9c\x96"; else echo -e "\xe2\x9c\x93"; fi
+  - echo -n "SET BUILD PREFERENCES: "
+  - DEPENDENCY_OUTPUT=$(arduino --pref "compiler.warning_level=all" --save-prefs 2>&1)
+  - if [ $? -ne 0 ]; then echo -e "\xe2\x9c\x96"; else echo -e "\xe2\x9c\x93"; fi
+  - export PLATFORM_JSON=""
+
+
+
 install:
   - git clone https://github.com/marvinroger/async-mqtt-client  $HOME/arduino_ide/libraries/async-mqtt-client
   - git clone https://github.com/adafruit/Adafruit_FeatherOLED  $HOME/arduino_ide/libraries/Adafruit_FeatherOLED
@@ -18,8 +43,8 @@ script:
   - "echo $PWD"
   - "echo $HOME"
   - "ls $PWD"
-  # - build_platform esp8266
-  - arduino -v --verbose --verify --board esp8266:esp8266:generic $PWD/spBox/spBox/spBox.ino
+  - build_platform esp8266
+  # - arduino -v --verbose --verify --board esp8266:esp8266:generic $PWD/spBox/spBox/spBox.ino
 notifications:
   email:
     on_success: change
