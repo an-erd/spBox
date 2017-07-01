@@ -42,8 +42,10 @@ script:
   - "ls $PWD"
   # - build_platform esp8266
   - arduino --verbose --verify --board esp8266:esp8266:generic $PWD/spBox/spBox/spBoxAAA.ino
+  - arduino --verbose --verify --board esp8266:esp8266:generic $PWD/spBox/spBox/spBoxAAA.ino
+  - arduino --verbose --board esp8266:esp8266:generic $PWD/spBox/spBox/spBoxAAA.ino
 notifications:
   email:
     on_success: change
     on_failure: change
- 
+  
