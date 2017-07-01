@@ -1,5 +1,5 @@
 language: c
-sudo: false
+sudo: required
 before_install:
   #  - source <(curl -SLs https://raw.githubusercontent.com/adafruit/travis-ci-arduino/master/install.sh)
   - export MAIN_PLATFORMS='declare -A main_platforms=( [esp8266]="esp8266:esp8266:huzzah" )'
