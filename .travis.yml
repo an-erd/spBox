@@ -32,11 +32,11 @@ script:
   - source $TRAVIS_BUILD_DIR/shared/travis/common.sh
   - build_examples
 #  - "cat $PWD/examples/AutoConnect/AutoConnect.ino"
-  - arduino -v --verbose-build --verify $PWD/examples/AutoConnect/AutoConnect.ino
+#  - arduino -v --verbose-build --verify $PWD/examples/AutoConnect/AutoConnect.ino
 #  - arduino --verify --board arduino:avr:uno $PWD/examples/IncomingCall/IncomingCall.ino
 #  - arduino --verify --board arduino:avr:uno $PWD/examples/AdafruitIO_GPS/AdafruitIO_GPS.ino
 after_success:
-  - bash <(curl -s https://codecov.io/bash)
+  #- bash <(curl -s https://codecov.io/bash)
 notifications:
   email:
     on_success: change
