@@ -12,7 +12,7 @@ before_install:
   - sudo ln -s /usr/local/share/arduino/arduino /usr/local/bin/arduino
 install:
 #  - ln -s $PWD /usr/local/share/arduino/libraries/WiFiManager
-  - arduino --pref "boardsmanager.additional.urls=http://arduino.esp8266.com/stable/package_esp8266com_index.json" --save-prefs
+  - arduino --pref "boardsmanager.additional.urls=http://arduino.esp8266.com/versions/2.3.0/package_esp8266com_index.json" --save-prefs
   - git clone https://github.com/bblanchon/ArduinoJson			/usr/local/share/arduino/libraries/ArduinoJson
   - git clone https://github.com/marvinroger/async-mqtt-client  /usr/local/share/arduino/libraries/async-mqtt-client
   - git clone https://github.com/adafruit/Adafruit_FeatherOLED  /usr/local/share/arduino/libraries/Adafruit_FeatherOLED
