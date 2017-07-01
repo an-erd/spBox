@@ -28,7 +28,7 @@ function build_examples()
     # we have to avoid reading the exit code of local:
     # "when declaring a local variable in a function, the local acts as a command in its own right"
     local build_stdout
-    build_stdout=$(arduino --verify $sketch 2>&1)
+    build_stdout=$(arduino --verbose-build -v --verify $sketch 2>&1)
 
     # echo output if the build failed
     if [ $? -ne 0 ]; then
