@@ -5,7 +5,7 @@ function build_examples()
   # track the exit code for this platform
   local exit_code=0
   # loop through results and add them to the array
-  examples=($(find $PWD/examples/ -name "*.pde" -o -name "*.ino"))
+  examples=($(find $PWD/ -name "*.pde" -o -name "*.ino"))
 
   # get the last example in the array
   local last="${examples[@]:(-1)}"
