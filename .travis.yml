@@ -15,8 +15,11 @@ install:
   #- arduino --install-library "NtpClientLib"
   #- arduino --install-library "EEPROM"
 script:
+  - "echo $PWD"
+  - "echo $HOME"
+  - "ls $PWD"
   # - build_platform esp8266
-  - arduino -v --verify --board esp8266:esp8266:generic $PWD/spBox/spBox/spBox.ino
+  - arduino -v --verbose --verify --board esp8266:esp8266:generic $PWD/spBox/spBox/spBox.ino
 notifications:
   email:
     on_success: change
