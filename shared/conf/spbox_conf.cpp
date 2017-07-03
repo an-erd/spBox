@@ -62,6 +62,7 @@ void SPBOX_CONF::initialize(bool from_eeprom)
 		sea_level_pressure_ = 101325;
 		mqtt_config_nr_ = 0;
 		mqtt_send_healthdata_ = true;
+		wifi_mode_ = ANY;
 		//accel_gyro_orientation_ = 0;	// TODO
 		//mag_orientation_ = 0;		// TODO
 	}
@@ -158,6 +159,16 @@ uint8_t SPBOX_CONF::getMqttConfigNr()
 	return mqtt_config_nr_;
 }
 
+void SPBOX_CONF::setWifiMode(WifiAPProfile_t wifi_mode)
+{
+	wifi_mode_ = wifi_mode;
+}
+
+WifiAPProfile_t SPBOX_CONF::getWifiMode()
+{
+	return wifi_mode_;
+}
+
 bool SPBOX_CONF::writeConfToEEPROM()
 {
 	DEBUGLOG("SPBOX_CONF::writeConfToEEPROM()\n");
@@ -186,6 +197,8 @@ bool SPBOX_CONF::writeConfToEEPROM()
 
 	EEPROM.write(i, mqtt_config_nr_); i++;
 	EEPROM.write(i, mqtt_send_healthdata_); i++;
+
+	EEPROM.write(i, wifi_mode_); i++;
 
 	return EEPROM.commit();
 }
@@ -218,6 +231,8 @@ bool SPBOX_CONF::readConfFromEEPROM()
 
 	mqtt_config_nr_ = EEPROM.read(i++);
 	mqtt_send_healthdata_ = EEPROM.read(i++);
+
+	wifi_mode_ = (WifiAPProfile_t) EEPROM.read(i++);
 
 	return true;
 }

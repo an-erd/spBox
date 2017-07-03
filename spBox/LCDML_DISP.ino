@@ -16,6 +16,9 @@ void LCDML_lcd_menu_display()
 			display.setCursor(_LCDML_FONT_W, _LCDML_FONT_H * (n));
 
 			switch (LCDML.content_id[n]) {
+			case LCDML_MENU_CONF_WLAN_TOGGLE:
+				display.printf(LCDML.content[n], (conf.getWlanEnabled() ? "Y" : "N"));
+				break;
 			case LCDML_MENU_ALTITUDE:
 				float altitude;
 				char tempbuf[8];

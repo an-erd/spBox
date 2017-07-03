@@ -50,7 +50,8 @@ public:
 	void updateDisplayScr11(int16_t timeToGo = -999);
 	void updateDisplayScr12(int16_t smallerVal, int16_t largerVal, uint8_t step, bool increase, uint8_t position, inputPin_t inputMode);		// PIN
 	void updateDisplayScr13();	// MQTT status
-	void updateDisplayScr14(const mqttConfig_t *configs, int8_t curPosition, int8_t newPosition, bool confirm, char* confirmMqttConfig);	// select MQTT broker
+	void updateDisplayScr14_mqtt(const mqttConfig_t *configs, int8_t curPosition, int8_t newPosition, bool confirm, char* confirmMqttConfig);	// select MQTT broker
+	void updateDisplayScr14_wifi(const wifiConfig_t *configs, int8_t curPosition, int8_t newPosition, bool confirm, char* confirmWifiConfig);	// select Wifi profile
 	void updateDisplayScr15(otaUpdate_t otaUpdate, bool clearScreen = false);
 	void updatePrintBufferScr4_speed(long val);
 	void updatePrintBufferScr4_charmap(uint8_t val);

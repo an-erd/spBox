@@ -852,6 +852,117 @@ void LCDML_DISP_loop_end(LCDML_FUNC_lock)
 }
 
 // ############################################################################
+void LCDML_DISP_setup(LCDML_FUNC_toggle_conf_wlan)
+{
+	LCDML_DISP_triggerMenu(DELAY_MS_10HZ);
+}
+
+void LCDML_DISP_loop(LCDML_FUNC_toggle_conf_wlan)
+{
+	LCDML_BUTTON_resetAll();
+	LCDML_DISP_funcend();
+}
+
+void LCDML_DISP_loop_end(LCDML_FUNC_toggle_conf_wlan)
+{
+	bool result;
+	conf.setWlanEnabled(!conf.getWlanEnabled());
+	result = conf.writeConfToEEPROM();
+
+	LCDML_DISP_resetIsTimer();
+}
+
+// todo
+// ############################################################################
+void LCDML_DISP_setup(LCDML_FUNC_select_wlan)
+{
+	gSelectedMenu = gPrevSelectedEntry = gSelectedEntry = conf.getWifiMode();
+	gMenuConfirm = false;
+
+	display.updateDisplayScr14_wifi(wifiConfigs, gPrevSelectedEntry, gSelectedMenu, gMenuConfirm, wifiConfigs[gSelectedMenu].ssid);
+
+	LCDML_DISP_triggerMenu(DELAY_MS_1HZ);
+}
+
+void LCDML_DISP_loop(LCDML_FUNC_select_wlan)
+{
+	if (!gMenuConfirm) {
+		if (LCDML_BUTTON_checkEnter())
+		{
+			if (gSelectedMenu == NUM_MQTT_CONFIG) {		// "back" button
+				LCDML_BUTTON_resetAll();
+				LCDML_DISP_resetIsTimer();
+				LCDML_DISP_funcend();
+			}
+			else {
+				LCDML_BUTTON_resetEnter();
+				LCDML_DISP_resetIsTimer();
+				gSelectedEntry = gSelectedMenu;
+				gSelectedMenu = 0;
+				gMenuConfirm = true;
+			}
+		}
+		if (LCDML_BUTTON_checkUp()) {
+			LCDML_BUTTON_resetUp();
+			if (gSelectedMenu)
+				gSelectedMenu--;
+		}
+		if (LCDML_BUTTON_checkDown()) {
+			LCDML_BUTTON_resetDown();
+			if (gSelectedMenu < NUM_MQTT_CONFIG)
+				gSelectedMenu++;
+		}
+	}
+	else {
+		if (LCDML_BUTTON_checkEnter())
+		{
+			if (gSelectedMenu == 0) {
+				// new entry confirmed
+				LCDML_BUTTON_resetAll();
+				LCDML_DISP_funcend();
+			}
+			else
+			{
+				LCDML_BUTTON_resetAll();
+				gPrevSelectedEntry = gSelectedEntry = conf.getMqttConfigNr();
+				gSelectedMenu = 0;
+				gMenuConfirm = false;
+			}
+		}
+		if (LCDML_BUTTON_checkUp() || LCDML_BUTTON_checkDown()) {
+			LCDML_BUTTON_resetAll();
+			if (gSelectedMenu != 0)
+				gSelectedMenu = 0;
+			else
+				gSelectedMenu = 1;
+		}
+	}
+	display.updateDisplayScr14_wifi(wifiConfigs, gPrevSelectedEntry, gSelectedMenu, gMenuConfirm, mqttConfigs[gSelectedEntry].name);
+
+	LCDML_BUTTON_resetAll();
+	LCDML_DISP_resetIsTimer();
+}
+
+void LCDML_DISP_loop_end(LCDML_FUNC_select_wlan)
+{
+	bool result;
+	Serial.printf("select wifi: confirmed %i, prev: %i, new: %i, name: %s\n", gMenuConfirm, gPrevSelectedEntry, gSelectedEntry, wifiConfigs[gSelectedEntry].ssid);
+
+	if (gMenuConfirm && (gPrevSelectedEntry != gSelectedEntry)) {
+		conf.setWifiMode((WifiAPProfile_t) gSelectedEntry);
+		result = conf.writeConfToEEPROM();
+		Serial.printf("wifi: new entry: %i, eeprom write result: %i\n", gSelectedEntry, result);
+		com.changeMqttBroker();
+	}
+	else
+	{
+		Serial.print("wifi: no new broker selected, config unchanged\n");
+	}
+	LCDML_DISP_resetIsTimer();
+	//LCDML.goBack();
+}
+
+// ############################################################################
 void LCDML_DISP_setup(LCDML_FUNC_toggle_mqtt)
 {
 	LCDML_DISP_triggerMenu(DELAY_MS_10HZ);
@@ -899,7 +1010,7 @@ void LCDML_DISP_setup(LCDML_FUNC_select_mqtt)
 	gSelectedMenu = gPrevSelectedEntry = gSelectedEntry = conf.getMqttConfigNr();
 	gMenuConfirm = false;
 
-	display.updateDisplayScr14(mqttConfigs, gPrevSelectedEntry, gSelectedMenu, gMenuConfirm, mqttConfigs[gSelectedMenu].name);
+	display.updateDisplayScr14_mqtt(mqttConfigs, gPrevSelectedEntry, gSelectedMenu, gMenuConfirm, mqttConfigs[gSelectedMenu].name);
 
 	LCDML_DISP_triggerMenu(DELAY_MS_1HZ);
 }
@@ -957,7 +1068,7 @@ void LCDML_DISP_loop(LCDML_FUNC_select_mqtt)
 				gSelectedMenu = 1;
 		}
 	}
-	display.updateDisplayScr14(mqttConfigs, gPrevSelectedEntry, gSelectedMenu, gMenuConfirm, mqttConfigs[gSelectedEntry].name);
+	display.updateDisplayScr14_mqtt(mqttConfigs, gPrevSelectedEntry, gSelectedMenu, gMenuConfirm, mqttConfigs[gSelectedEntry].name);
 
 	LCDML_BUTTON_resetAll();
 	LCDML_DISP_resetIsTimer();

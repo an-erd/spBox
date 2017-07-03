@@ -505,7 +505,7 @@ void SPBOX_DISPLAY::updateDisplayScr13()
 	//count received
 }
 
-void SPBOX_DISPLAY::updateDisplayScr14(const mqttConfig_t *configs, int8_t curPosition, int8_t newPosition, bool confirm, char* confirmMqttConfig)
+void SPBOX_DISPLAY::updateDisplayScr14_mqtt(const mqttConfig_t *configs, int8_t curPosition, int8_t newPosition, bool confirm, char* confirmMqttConfig)
 {
 	clearDisplay();
 
@@ -535,6 +535,39 @@ void SPBOX_DISPLAY::updateDisplayScr14(const mqttConfig_t *configs, int8_t curPo
 
 	display();
 }
+
+// todo harmonize w/SPBOX_DISPLAY::updateDisplayScr14_mqtt
+void SPBOX_DISPLAY::updateDisplayScr14_wifi(const wifiConfig_t *configs, int8_t curPosition, int8_t newPosition, bool confirm, char* confirmWifiConfig)
+{
+	clearDisplay();
+
+	if (!confirm) {
+		// max. 4 lines: <=3 configs and "back"
+		for (uint8_t n = 0; n < NUM_WIFI_CONFIG; n++) {
+			setCursor(6, 8 * (n));
+			printf("%-19s", configs[n].ssid);
+			if (n == curPosition)
+				print("\017");
+		}
+		setCursor(6, 8 * (NUM_WIFI_CONFIG));
+		print("Zur\201ck");
+	}
+	else
+	{
+		snprintf(displaybuffer_[0], 21, "Best\204tigen: %s", confirmWifiConfig);
+		setCursor(6, 0);
+		print(displaybuffer_[0]);
+
+		setCursor(6, 8);
+		print("Abbruch");
+	}
+
+	setCursor(0, 8 * (newPosition));
+	write(0x10);
+
+	display();
+}
+
 
 void SPBOX_DISPLAY::updateDisplayScr15(otaUpdate_t otaUpdate, bool clearScreen)
 {

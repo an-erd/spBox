@@ -59,6 +59,9 @@ public:
 	void setMqttConfigNr(uint8_t nr);
 	uint8_t getMqttConfigNr();
 
+	void setWifiMode(WifiAPProfile_t wifi_mode = ANY);
+	WifiAPProfile_t getWifiMode();
+
 	//	void setAccelGyroOrientation(uint8_t accel_gyro_orientation = 0);
 
 	bool writeConfToEEPROM();
@@ -76,6 +79,7 @@ private:
 	uint8_t		gyro_range_scale_;
 	float		sea_level_pressure_;
 	uint8_t		mqtt_config_nr_;
+	WifiAPProfile_t wifi_mode_;
 	//	uint8_t		accel_gyro_orientation_;
 	//	uint8_t		mag_orientation_;
 protected:
