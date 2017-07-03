@@ -22,7 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include <FunctionalInterrupt.h>
+//#include <FunctionalInterrupt.h>
 #include "button.h"
 #include "user_config.h"
 
@@ -33,6 +33,8 @@ SOFTWARE.
 #endif
 
 BUTTON button;
+
+inline void		ICACHE_RAM_ATTR buttonInt0() { button.isrInt0(); };				// only for isr wrapper
 
 BUTTON::BUTTON()
 {
@@ -49,7 +51,9 @@ void BUTTON::initialize()
 void BUTTON::start()
 {
 	DEBUGLOG("button::start()");
-	attachInterrupt(digitalPinToInterrupt(ENCODER_SW), std::bind(&BUTTON::isrInt0, &button), CHANGE);
+	//attachInterrupt(digitalPinToInterrupt(ENCODER_SW), std::bind(&BUTTON::isrInt0, &button), CHANGE);
+
+	attachInterrupt(digitalPinToInterrupt(ENCODER_SW), buttonInt0, CHANGE);
 
 	int_signal_ = digitalRead(ENCODER_SW);
 	int_history_ = int_signal_;

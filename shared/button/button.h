@@ -52,7 +52,7 @@ public:
 	bool	check();				// call in loop() for events to create
 	void	onButtonChangeEvent(onButtonChangeEvent_t handler);
 
-	void	ICACHE_RAM_ATTR isrInt0();				// only for isr wrapper
+	inline void		ICACHE_RAM_ATTR isrInt0() __attribute__((always_inline));
 private:
 	volatile uint32_t	int_time_;				// store time for threshold and duration
 	volatile uint8_t	int_signal_;				// store status between subsequent calls

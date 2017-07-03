@@ -22,7 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include <FunctionalInterrupt.h>
+//#include <FunctionalInterrupt.h>
 #include "rotenc.h"
 
 #ifdef DEBUG_ROTENC
@@ -32,6 +32,9 @@ SOFTWARE.
 #endif
 
 ROTENC rotenc;
+
+inline void		ICACHE_RAM_ATTR rotencInt0() { rotenc.isrInt0(); };				// only for isr wrapper
+inline void		ICACHE_RAM_ATTR rotencInt1() { rotenc.isrInt1(); };
 
 ROTENC::ROTENC()
 {
@@ -47,10 +50,12 @@ void ROTENC::initialize()
 
 void ROTENC::start()
 {
-	attachInterrupt(digitalPinToInterrupt(ENCODER_PIN_A), std::bind(&ROTENC::isrInt0, &rotenc), CHANGE);
-	attachInterrupt(digitalPinToInterrupt(ENCODER_PIN_B), std::bind(&ROTENC::isrInt1, &rotenc), CHANGE);
+	//attachInterrupt(digitalPinToInterrupt(ENCODER_PIN_A), std::bind(&ROTENC::isrInt0, &rotenc), CHANGE);
+	//attachInterrupt(digitalPinToInterrupt(ENCODER_PIN_B), std::bind(&ROTENC::isrInt1, &rotenc), CHANGE);
 
-	//attachInterrupt(digitalPinToInterrupt(ENCODER_PIN_B), rotencInt1, CHANGE);
+	attachInterrupt(digitalPinToInterrupt(ENCODER_PIN_A), rotencInt0, CHANGE);
+	attachInterrupt(digitalPinToInterrupt(ENCODER_PIN_B), rotencInt1, CHANGE);
+
 	int0_signal_ = digitalRead(ENCODER_PIN_A);
 	int0_history_ = int0_signal_;
 	int1_signal_ = digitalRead(ENCODER_PIN_B);
