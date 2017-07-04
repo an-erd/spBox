@@ -32,77 +32,93 @@ SOFTWARE.
 #include "button.h"
 #include "credentials.h"
 
-LOCAL os_timer_t timerRestart;
+#ifdef DEBUG_SPREL
+#define DEBUGLOG(...) DBG_PORT.printf(__VA_ARGS__)
+#else
+#define DEBUGLOG(...)
+#endif
+
+
+WiFiEventHandler wifiConnectHandler;
+WiFiEventHandler wifiDisconnectHandler;
 AsyncMqttClient mqttClient;
-Ticker ticker;
+
+Ticker wifiReconnectTimer;
+Ticker mqttReconnectTimer;
+Ticker blinkTimer;
+Ticker resetTimer;
+
 bool relais_state;
+bool led_state;
 char temp_text1[30];
 char temp_text2[30];
 
-void onMqttConnect(bool sessionPresent) {
-	Serial.println("** Connected to the broker **");
-	Serial.print("Session present: ");
-	Serial.println(sessionPresent);
-	uint16_t packetIdSub = mqttClient.subscribe("test/lol", 2);
-	Serial.print("Subscribing at QoS 2, packetId: ");
-	Serial.println(packetIdSub);
-	mqttClient.publish("test/lol", 0, true, "test 1");
-	Serial.println("Publishing at QoS 0");
-	uint16_t packetIdPub1 = mqttClient.publish("test/lol", 1, true, "test 2");
-	Serial.print("Publishing at QoS 1, packetId: ");
-	Serial.println(packetIdPub1);
-	uint16_t packetIdPub2 = mqttClient.publish("test/lol", 2, true, "test 3");
-	Serial.print("Publishing at QoS 2, packetId: ");
-	Serial.println(packetIdPub2);
+void connectToWifi() {
+	DEBUGLOG("spRel: connectToWifi\n");
+	WiFi.begin(WLAN_SSID, WLAN_PASSWORD);
 }
 
-void onMqttDisconnect(AsyncMqttClientDisconnectReason reason) {
-	Serial.println("** Disconnected from the broker **");
-	Serial.println("Reconnecting to MQTT...");
+void onWifiConnect(const WiFiEventStationModeGotIP& event) {
+	DEBUGLOG("spRel: onWifiConnect\n");
+ 	connectToMqtt();
+}
+
+void onWifiDisconnect(const WiFiEventStationModeDisconnected& event) {
+	DEBUGLOG("spRel: onWifiDisconnect\n");
+	mqttReconnectTimer.detach(); // ensure we don't reconnect to MQTT while reconnecting to Wi-Fi
+	wifiReconnectTimer.once(2, connectToWifi);
+}
+
+void connectToMqtt() {
+  	DEBUGLOG("spRel: connectToMqtt\n");
 	mqttClient.connect();
 }
 
+void onMqttConnect(bool sessionPresent) {
+  	DEBUGLOG("spRel: onMqttConnect, session %i\n", sessionPresent);
+	uint16_t packetIdSub = mqttClient.subscribe("andreaserd/feeds/sonoff", 0);
+	
+	blinkTimer.detach();
+	if(!led_state){
+		led_state = HIGH;
+		digitalWrite(PIN_LED_G, led_state);
+
+	}
+}
+
+void onMqttDisconnect(AsyncMqttClientDisconnectReason reason) {
+	DEBUGLOG("spRel: onMqttDisconnect, reconnecting\n");
+
+	if (WiFi.isConnected()) {
+		mqttReconnectTimer.once(2, connectToMqtt);
+	}
+	blinkTimer.attach(0.1, tick);
+}
+
 void onMqttSubscribe(uint16_t packetId, uint8_t qos) {
-	Serial.println("** Subscribe acknowledged **");
-	Serial.print("  packetId: ");
-	Serial.println(packetId);
-	Serial.print("  qos: ");
-	Serial.println(qos);
+	DEBUGLOG("spRel: onMqttSubscribe, packetId: %i, qos %i\n", packetId, qos);
 }
 
 void onMqttUnsubscribe(uint16_t packetId) {
-	Serial.println("** Unsubscribe acknowledged **");
-	Serial.print("  packetId: ");
-	Serial.println(packetId);
+	DEBUGLOG("spRel: onMqttUnsubscribe, packetId: %i\n", packetId);
 }
 
 void onMqttMessage(char* topic, char* payload, AsyncMqttClientMessageProperties properties, size_t len, size_t index, size_t total) {
-	Serial.println("** Publish received **");
-	Serial.print("  topic: ");
-	Serial.println(topic);
-	Serial.print("  qos: ");
-	Serial.println(properties.qos);
-	Serial.print("  dup: ");
-	Serial.println(properties.dup);
-	Serial.print("  retain: ");
-	Serial.println(properties.retain);
-	Serial.print("  len: ");
-	Serial.println(len);
-	Serial.print("  index: ");
-	Serial.println(index);
-	Serial.print("  total: ");
-	Serial.println(total);
+	DEBUGLOG("spRel: onMqttMessage, topic %s, qos %i, dup %i, retain %i, len %i, index %i, total %i, payload %s\n",
+		topic, properties.qos, properties.dup, properties.retain, len, index, total, payload);
+
+	relais_state = atoi(payload);
+	digitalWrite(PIN_RELAIS, relais_state);
 }
 
 void onMqttPublish(uint16_t packetId) {
-	Serial.println("** Publish acknowledged **");
-	Serial.print("  packetId: ");
-	Serial.println(packetId);
+	DEBUGLOG("spRel: onMqttPublish, packetId: %i\n", packetId);
 }
 
 void initialize_GPIO() {
 	pinMode(PIN_LED_G, OUTPUT);
 	digitalWrite(PIN_LED_G, HIGH);	// led is active low
+	led_state = HIGH;
 
 	pinMode(PIN_RELAIS, OUTPUT);
 	relais_state = LOW;
@@ -110,8 +126,13 @@ void initialize_GPIO() {
 }
 
 void tick() {
-	int state = digitalRead(PIN_LED_G);
-	digitalWrite(PIN_LED_G, !state);
+	if(led_state == LOW) {
+		led_state = HIGH;
+		digitalWrite(PIN_LED_G, led_state);
+	} else {
+		led_state = LOW;
+		digitalWrite(PIN_LED_G, led_state);
+	}
 }
 
 void initializeOta()
@@ -147,51 +168,43 @@ void setup() {
 #ifdef SERIAL_STATUS_OUTPUT
 	Serial.begin(115200);
 #endif
-	Wire.begin();
 	initialize_GPIO();
+	blinkTimer.attach(0.1, tick);
 
-	ticker.attach(0.2, tick);
 
-	WiFi.mode(WIFI_STA);
-	WiFi.begin(WLAN_SSID, WLAN_PASSWORD);
-
-	while (WiFi.status() != WL_CONNECTED) {
-		delay(500);
-		Serial.print(".");
-	}
-
-	Serial.println("");
-	Serial.println("WiFi connected");  
-	Serial.println("IP address: ");
-	Serial.println(WiFi.localIP());
-
-	ticker.detach();
-	digitalWrite(PIN_LED_G, true); // active low
-
-	initializeOta();
+	wifiConnectHandler = WiFi.onStationModeGotIP(onWifiConnect);
+	wifiDisconnectHandler = WiFi.onStationModeDisconnected(onWifiDisconnect);
+	
+	mqttClient.onConnect(onMqttConnect);
+	mqttClient.onDisconnect(onMqttDisconnect);
+	mqttClient.onMessage(onMqttMessage);
+	//mqttClient.onSubscribe(onMqttSubscribe);
+	//mqttClient.onUnsubscribe(onMqttUnsubscribe);
+	//mqttClient.onPublish(onMqttPublish);
 
 	mqttClient.setServer(MQTT_SERVER_W12, MQTT_SERVERPORT_W12);
 	snprintf(temp_text1, 30, "esp8266-%u", ESP.getChipId());	// TODO get hostname
 	mqttClient.setKeepAlive(15).setCleanSession(false).setCredentials(MQTT_USERNAME_W12, MQTT_KEY_W12).setClientId(temp_text1);
+
+	WiFi.mode(WIFI_STA);
+	connectToWifi();
+	
+	initializeOta();
 		
 	button.initialize();
 	button.start();
 	button.onButtonChangeEvent([](buttonChangeEvent_t e) {
 		switch (e) {
 		case H_L_SHORT:
-			relais_state = !relais_state;
-			digitalWrite(PIN_RELAIS, relais_state);
 			snprintf(temp_text2, 30, "%d", (int)relais_state);
 			mqttClient.publish("andreaserd/feeds/sonoff", 0, true, temp_text2);
+			DEBUGLOG("spRel: short button press\n");
 			break;
 		case H_L_LONG:
-			relais_state = false;
-			digitalWrite(PIN_RELAIS, relais_state);
 			snprintf(temp_text2, 30, "%d", (int)relais_state);
 			mqttClient.publish("andreaserd/feeds/sonoff", 0, true, temp_text2);
-			os_timer_disarm(&timerRestart);
-			os_timer_setfn(&timerRestart, (os_timer_func_t *)restart, (void *)0);
-			os_timer_arm(&timerRestart, 3000, true);
+			resetTimer.once(2, restart);
+			DEBUGLOG("spRel: short button press\n");
 			break;
 		case H_L_VERYLONG:
 			break;
