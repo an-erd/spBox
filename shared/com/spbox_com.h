@@ -55,6 +55,8 @@ public:
 	void disableWlan();
 	void enableWlan();
 	void checkWlan();
+	void changeWifiProfile();
+
 
 	void initializeOta(OTAModes_t ota_mode = OTA_IDE);
 	void checkOta();

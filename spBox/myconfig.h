@@ -184,6 +184,18 @@ const wifiConfig_t wifiConfigs[] = {
 };
 
 typedef struct {
+	WifiAPProfile_t profile;
+	char *name;
+} wifiProfile_t;
+
+#define NUM_WIFI_PROFILES 3
+const wifiProfile_t wifiProfiles[] = {
+	{ANY, "ANY"},
+	{PRIVATE, "Private"},
+	{PUBLIC, "Public"},
+};
+
+typedef struct {
 	bool		chg_;
 	bool		otaUpdateStarted_;
 	bool		otaUpdateEnd_;

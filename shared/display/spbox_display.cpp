@@ -537,7 +537,7 @@ void SPBOX_DISPLAY::updateDisplayScr14_mqtt(const mqttConfig_t *configs, int8_t 
 }
 
 // todo harmonize w/SPBOX_DISPLAY::updateDisplayScr14_mqtt
-void SPBOX_DISPLAY::updateDisplayScr14_wifi(const wifiConfig_t *configs, int8_t curPosition, int8_t newPosition, bool confirm, char* confirmWifiConfig)
+void SPBOX_DISPLAY::updateDisplayScr14_wifi(const wifiProfile_t *configs, int8_t curPosition, int8_t newPosition, bool confirm, char* confirmWifiConfig)
 {
 	clearDisplay();
 
@@ -545,7 +545,7 @@ void SPBOX_DISPLAY::updateDisplayScr14_wifi(const wifiConfig_t *configs, int8_t 
 		// max. 4 lines: <=3 configs and "back"
 		for (uint8_t n = 0; n < NUM_WIFI_CONFIG; n++) {
 			setCursor(6, 8 * (n));
-			printf("%-19s", configs[n].ssid);
+			printf("%-19s", configs[n].name);
 			if (n == curPosition)
 				print("\017");
 		}

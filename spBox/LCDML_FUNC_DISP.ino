@@ -874,22 +874,22 @@ void LCDML_DISP_loop_end(LCDML_FUNC_toggle_conf_wlan)
 
 // todo
 // ############################################################################
-void LCDML_DISP_setup(LCDML_FUNC_select_wlan)
+void LCDML_DISP_setup(LCDML_FUNC_select_wlan_profile)
 {
 	gSelectedMenu = gPrevSelectedEntry = gSelectedEntry = conf.getWifiMode();
 	gMenuConfirm = false;
 
-	display.updateDisplayScr14_wifi(wifiConfigs, gPrevSelectedEntry, gSelectedMenu, gMenuConfirm, wifiConfigs[gSelectedMenu].ssid);
+	display.updateDisplayScr14_wifi(wifiProfiles, gPrevSelectedEntry, gSelectedMenu, gMenuConfirm, wifiProfiles[gSelectedMenu].name);
 
 	LCDML_DISP_triggerMenu(DELAY_MS_1HZ);
 }
 
-void LCDML_DISP_loop(LCDML_FUNC_select_wlan)
+void LCDML_DISP_loop(LCDML_FUNC_select_wlan_profile)
 {
 	if (!gMenuConfirm) {
 		if (LCDML_BUTTON_checkEnter())
 		{
-			if (gSelectedMenu == NUM_MQTT_CONFIG) {		// "back" button
+			if (gSelectedMenu == NUM_WIFI_PROFILES) {		// "back" button
 				LCDML_BUTTON_resetAll();
 				LCDML_DISP_resetIsTimer();
 				LCDML_DISP_funcend();
@@ -909,7 +909,7 @@ void LCDML_DISP_loop(LCDML_FUNC_select_wlan)
 		}
 		if (LCDML_BUTTON_checkDown()) {
 			LCDML_BUTTON_resetDown();
-			if (gSelectedMenu < NUM_MQTT_CONFIG)
+			if (gSelectedMenu < NUM_WIFI_PROFILES)
 				gSelectedMenu++;
 		}
 	}
@@ -924,7 +924,7 @@ void LCDML_DISP_loop(LCDML_FUNC_select_wlan)
 			else
 			{
 				LCDML_BUTTON_resetAll();
-				gPrevSelectedEntry = gSelectedEntry = conf.getMqttConfigNr();
+				gPrevSelectedEntry = gSelectedEntry = conf.getWifiMode();
 				gSelectedMenu = 0;
 				gMenuConfirm = false;
 			}
@@ -937,26 +937,26 @@ void LCDML_DISP_loop(LCDML_FUNC_select_wlan)
 				gSelectedMenu = 1;
 		}
 	}
-	display.updateDisplayScr14_wifi(wifiConfigs, gPrevSelectedEntry, gSelectedMenu, gMenuConfirm, mqttConfigs[gSelectedEntry].name);
+	display.updateDisplayScr14_wifi(wifiProfiles, gPrevSelectedEntry, gSelectedMenu, gMenuConfirm, wifiProfiles[gSelectedEntry].name);
 
 	LCDML_BUTTON_resetAll();
 	LCDML_DISP_resetIsTimer();
 }
 
-void LCDML_DISP_loop_end(LCDML_FUNC_select_wlan)
+void LCDML_DISP_loop_end(LCDML_FUNC_select_wlan_profile)
 {
 	bool result;
-	Serial.printf("select wifi: confirmed %i, prev: %i, new: %i, name: %s\n", gMenuConfirm, gPrevSelectedEntry, gSelectedEntry, wifiConfigs[gSelectedEntry].ssid);
+	Serial.printf("select wifi: confirmed %i, prev: %i, new: %i, name: %s\n", gMenuConfirm, gPrevSelectedEntry, gSelectedEntry, wifiProfiles[gSelectedEntry].name);
 
 	if (gMenuConfirm && (gPrevSelectedEntry != gSelectedEntry)) {
 		conf.setWifiMode((WifiAPProfile_t) gSelectedEntry);
 		result = conf.writeConfToEEPROM();
 		Serial.printf("wifi: new entry: %i, eeprom write result: %i\n", gSelectedEntry, result);
-		com.changeMqttBroker();
+		com.changeWifiProfile();
 	}
 	else
 	{
-		Serial.print("wifi: no new broker selected, config unchanged\n");
+		Serial.print("wifi: no new wifi selected, config unchanged\n");
 	}
 	LCDML_DISP_resetIsTimer();
 	//LCDML.goBack();

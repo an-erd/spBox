@@ -137,7 +137,7 @@ void SPBOX_COM::enableWlan()
 		//WiFi.mode(WIFI_STA);
 		//WiFi.begin();
 		DEBUGLOG("Running wifiMulti.run()\n");
-		wifiMulti.run(ANY);
+		wifiMulti.run(conf.getWifiMode());
 		DEBUGLOG("WLAN enabled\r\n");
 		conf_->setWlanEnabled(true);
 	}
@@ -158,6 +158,20 @@ void SPBOX_COM::checkWlan()
 	else {
 		com.disableWlan();
 	}
+}
+
+void SPBOX_COM::changeWifiProfile()
+{
+	DEBUGLOG("WLAN changeProfile\r\n");
+
+	if (!conf_->getWlanEnabled())
+		return;
+
+	DEBUGLOG("WLAN changeProfile: disableWlan()\r\n");
+	disableWlan();
+	DEBUGLOG("WLAN changeProfile: enableWlan()\r\n");
+	enableWlan();
+	DEBUGLOG("WLAN changeProfile: done\r\n");
 }
 
 void SPBOX_COM::initializeOta(OTAModes_t ota_mode)
