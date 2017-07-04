@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26430.12
+VisualStudioVersion = 15.0.26430.14
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "button", "shared\button\button.vcxitems", "{78A1302C-138C-4060-8742-C884FE81C628}"
 EndProject
@@ -19,6 +19,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "missing_str_util", "shared\
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "spBox", "spBox\spBox.vcxproj", "{C13BE86B-018A-4289-BAA4-E05E341FFE4D}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "spRel", "spRel\spRel.vcxproj", "{C5F80730-F44F-4478-BDAE-6634EFC2CA88}"
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		shared\CONF\CONF.vcxitems*{31ae58ad-479b-4a42-8f6f-7c62ea59533e}*SharedItemsImports = 9
@@ -33,6 +35,7 @@ Global
 		shared\missing_str_util\missing_str_util.vcxitems*{c13be86b-018a-4289-baa4-e05e341ffe4d}*SharedItemsImports = 4
 		shared\rotenc\rotenc.vcxitems*{c13be86b-018a-4289-baa4-e05e341ffe4d}*SharedItemsImports = 4
 		shared\sensors\sensors.vcxitems*{c13be86b-018a-4289-baa4-e05e341ffe4d}*SharedItemsImports = 4
+		shared\button\button.vcxitems*{c5f80730-f44f-4478-bdae-6634efc2ca88}*SharedItemsImports = 4
 		shared\display\display.vcxitems*{d0fd1c54-bb4c-48d4-b82a-989b2fc9d6a9}*SharedItemsImports = 9
 		shared\rotenc\rotenc.vcxitems*{efdd221d-a43e-41b2-8bea-b75de91b7f04}*SharedItemsImports = 9
 	EndGlobalSection
@@ -45,6 +48,10 @@ Global
 		{C13BE86B-018A-4289-BAA4-E05E341FFE4D}.Debug|x86.Build.0 = Debug|Win32
 		{C13BE86B-018A-4289-BAA4-E05E341FFE4D}.Release|x86.ActiveCfg = Release|Win32
 		{C13BE86B-018A-4289-BAA4-E05E341FFE4D}.Release|x86.Build.0 = Release|Win32
+		{C5F80730-F44F-4478-BDAE-6634EFC2CA88}.Debug|x86.ActiveCfg = Debug|Win32
+		{C5F80730-F44F-4478-BDAE-6634EFC2CA88}.Debug|x86.Build.0 = Debug|Win32
+		{C5F80730-F44F-4478-BDAE-6634EFC2CA88}.Release|x86.ActiveCfg = Release|Win32
+		{C5F80730-F44F-4478-BDAE-6634EFC2CA88}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

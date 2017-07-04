@@ -24,7 +24,6 @@ SOFTWARE.
 
 //#include <FunctionalInterrupt.h>
 #include "button.h"
-#include "user_config.h"
 
 #ifdef DEBUG_BUTTON
 #define DEBUGLOG(...) DBG_PORT.printf(__VA_ARGS__)
@@ -43,19 +42,19 @@ BUTTON::BUTTON()
 void BUTTON::initialize()
 {
 	DEBUGLOG("button::initialize()");
-	pinMode(ENCODER_SW, OUTPUT);
-	digitalWrite(ENCODER_SW, 0);
-	pinMode(ENCODER_SW, INPUT_PULLUP);
+	pinMode(PIN_BUTTON, OUTPUT);
+	digitalWrite(PIN_BUTTON, 0);
+	pinMode(PIN_BUTTON, INPUT_PULLUP);
 }
 
 void BUTTON::start()
 {
 	DEBUGLOG("button::start()");
-	//attachInterrupt(digitalPinToInterrupt(ENCODER_SW), std::bind(&BUTTON::isrInt0, &button), CHANGE);
+	//attachInterrupt(digitalPinToInterrupt(PIN_BUTTON), std::bind(&BUTTON::isrInt0, &button), CHANGE);
 
-	attachInterrupt(digitalPinToInterrupt(ENCODER_SW), buttonInt0, CHANGE);
+	attachInterrupt(digitalPinToInterrupt(PIN_BUTTON), buttonInt0, CHANGE);
 
-	int_signal_ = digitalRead(ENCODER_SW);
+	int_signal_ = digitalRead(PIN_BUTTON);
 	int_history_ = int_signal_;
 	changed_ = false;
 }
@@ -63,7 +62,7 @@ void BUTTON::start()
 void BUTTON::stop()
 {
 	DEBUGLOG("button::stop()");
-	detachInterrupt(digitalPinToInterrupt(ENCODER_SW));
+	detachInterrupt(digitalPinToInterrupt(PIN_BUTTON));
 }
 
 void BUTTON::onButtonChangeEvent(onButtonChangeEvent_t handler)
@@ -78,7 +77,7 @@ void ICACHE_RAM_ATTR BUTTON::isrInt0() {
 	if (time_diff < THRESHOLD)
 		return;
 	int_history_ = int_signal_;
-	int_signal_ = digitalRead(ENCODER_SW);
+	int_signal_ = digitalRead(PIN_BUTTON);
 	if (int_history_ == int_signal_)
 		return;
 	int_time_ = millis();

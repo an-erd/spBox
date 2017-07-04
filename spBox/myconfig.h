@@ -51,7 +51,7 @@ SOFTWARE.
 // Rotary Encoder and switch
 #define ENCODER_PIN_A	12
 #define ENCODER_PIN_B	14
-#define ENCODER_SW		13
+#define PIN_BUTTON		13
 
 // Rotary Encoder knob LEDs
 #define LED_R			0		// rot enc led red (and huzzah led red)
