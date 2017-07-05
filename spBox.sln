@@ -21,6 +21,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "spBox", "spBox\spBox.vcxpro
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "spRel", "spRel\spRel.vcxproj", "{C5F80730-F44F-4478-BDAE-6634EFC2CA88}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "homeautomation", "shared\homeautomation\homeautomation.vcxitems", "{B63ED159-F237-45CB-826B-BC32377954A5}"
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		shared\CONF\CONF.vcxitems*{31ae58ad-479b-4a42-8f6f-7c62ea59533e}*SharedItemsImports = 9
@@ -28,6 +30,7 @@ Global
 		shared\button\button.vcxitems*{78a1302c-138c-4060-8742-c884fe81c628}*SharedItemsImports = 9
 		shared\COM\COM.vcxitems*{860e1f80-49d5-43a1-9698-2012aa5c553d}*SharedItemsImports = 9
 		shared\missing_str_util\missing_str_util.vcxitems*{a6fade13-1361-4daf-9991-81b20d66926e}*SharedItemsImports = 9
+		shared\homeautomation\homeautomation.vcxitems*{b63ed159-f237-45cb-826b-bc32377954a5}*SharedItemsImports = 9
 		shared\button\button.vcxitems*{c13be86b-018a-4289-baa4-e05e341ffe4d}*SharedItemsImports = 4
 		shared\COM\COM.vcxitems*{c13be86b-018a-4289-baa4-e05e341ffe4d}*SharedItemsImports = 4
 		shared\CONF\CONF.vcxitems*{c13be86b-018a-4289-baa4-e05e341ffe4d}*SharedItemsImports = 4

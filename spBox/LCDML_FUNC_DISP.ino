@@ -29,6 +29,49 @@ int8_t gSelectedEntry;
 int8_t gMenuConfirm;
 
 // ############################################################################
+void LCDML_DISP_setup(LCDML_FUNC_mqtt_toggle)
+{
+	LCDML_DISP_triggerMenu(DELAY_MS_10HZ);
+}
+
+void LCDML_DISP_loop(LCDML_FUNC_mqtt_toggle)
+{
+	LCDML_BUTTON_resetAll();
+	LCDML_DISP_funcend();
+}
+
+void LCDML_DISP_loop_end(LCDML_FUNC_mqtt_toggle)
+{
+	char text1[30];
+	char text2[30];
+
+	// Serial.printf("mqtt toggle: %i\n", LCDML.getFunction());
+	
+	snprintf(text1, 30, "%s", "home/2og/l1");
+	snprintf(text2, 30, "%s", "t");
+	
+	mqttClient.publish(text1, 0, true, text2);
+
+	LCDML_DISP_resetIsTimer();
+}
+
+// ############################################################################
+void LCDML_DISP_setup(LCDML_FUNC_mqtt_dimmer)
+{
+	LCDML_DISP_triggerMenu(DELAY_MS_10HZ);
+}
+
+void LCDML_DISP_loop(LCDML_FUNC_mqtt_dimmer)
+{
+	LCDML_BUTTON_resetAll();
+	LCDML_DISP_funcend();
+}
+
+void LCDML_DISP_loop_end(LCDML_FUNC_mqtt_dimmer)
+{
+	LCDML_DISP_resetIsTimer();
+}
+// ############################################################################
 void LCDML_DISP_setup(LCDML_FUNC_back)
 {
 }
