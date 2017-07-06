@@ -276,3 +276,16 @@ Useful stuff on stack traces and exceptions
 ===========================================
 https://github.com/esp8266/Arduino/blob/master/doc/faq/a02-my-esp-crashes.rst
 C:\Users\andrerdm\Documents\Arduino\hardware\esp8266com\esp8266\tools\xtensa-lx106-elf\bin\xtensa-lx106-elf-addr2line -pfia -e path/to/build/directory/your-sketch.elf 0x40214624
+
+
+MQTT naming convention
+======================
+home/floor/room/device/function
+
+Some examples:
+ - w12/dg/livingroom/light
+ - w12/eg/livingroom/sensor/temperature
+ - w12/og/changingroom/sensor/brightness
+
+ Useful links:
+ - https://techtutorialsx.com/2016/07/30/esp8266-parsing-json/

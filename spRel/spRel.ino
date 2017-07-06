@@ -28,6 +28,7 @@ SOFTWARE.
 #include <ArduinoOTA.h>
 #include <Ticker.h>
 #include <AsyncMqttClient.h>
+#include <ArduinoJson.h>
 #include "myconfig.h"
 #include "button.h"
 #include "credentials.h"
@@ -42,6 +43,7 @@ SOFTWARE.
 WiFiEventHandler wifiConnectHandler;
 WiFiEventHandler wifiDisconnectHandler;
 AsyncMqttClient mqttClient;
+StaticJsonBuffer<300> JSONBuffer;
 
 Ticker wifiReconnectTimer;
 Ticker mqttReconnectTimer;
@@ -107,8 +109,10 @@ void onMqttMessage(char* topic, char* payload, AsyncMqttClientMessageProperties 
 	DEBUGLOG("spRel: onMqttMessage, topic %s, qos %i, dup %i, retain %i, len %i, index %i, total %i, payload %s\n",
 		topic, properties.qos, properties.dup, properties.retain, len, index, total, payload);
 
-	relais_state = atoi(payload);
-	digitalWrite(PIN_RELAIS, relais_state);
+	JsonObject&  parsed= JSONBuffer.parseObject(payload);
+
+	//relais_state = atoi(payload);
+	//digitalWrite(PIN_RELAIS, relais_state);
 }
 
 void onMqttPublish(uint16_t packetId) {
