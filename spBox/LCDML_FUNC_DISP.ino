@@ -1055,20 +1055,26 @@ void LCDML_DISP_setup(LCDML_FUNC_select_mqtt)
 
 	display.updateDisplayScr14_mqtt(mqttConfigs, gPrevSelectedEntry, gSelectedMenu, gMenuConfirm, mqttConfigs[gSelectedMenu].name);
 
-	LCDML_DISP_triggerMenu(DELAY_MS_1HZ);
+	LCDML_DISP_triggerMenu(DELAY_MS_10HZ);
 }
 
 void LCDML_DISP_loop(LCDML_FUNC_select_mqtt)
 {
 	if (!gMenuConfirm) {
-		if (LCDML_BUTTON_checkEnter())
-		{
+		if (LCDML_BUTTON_checkDown()) {
+			LCDML_BUTTON_resetDown();
+			if (gSelectedMenu < NUM_MQTT_CONFIG)
+				gSelectedMenu++;
+		} else if (LCDML_BUTTON_checkUp()) {
+			LCDML_BUTTON_resetUp();
+			if (gSelectedMenu)
+				gSelectedMenu--;
+		} else if (LCDML_BUTTON_checkEnter()) {
 			if (gSelectedMenu == NUM_MQTT_CONFIG) {		// "back" button
 				LCDML_BUTTON_resetAll();
 				LCDML_DISP_resetIsTimer();
 				LCDML_DISP_funcend();
-			}
-			else {
+			} else {
 				LCDML_BUTTON_resetEnter();
 				LCDML_DISP_resetIsTimer();
 				gSelectedEntry = gSelectedMenu;
@@ -1076,27 +1082,13 @@ void LCDML_DISP_loop(LCDML_FUNC_select_mqtt)
 				gMenuConfirm = true;
 			}
 		}
-		if (LCDML_BUTTON_checkUp()) {
-			LCDML_BUTTON_resetUp();
-			if (gSelectedMenu)
-				gSelectedMenu--;
-		}
-		if (LCDML_BUTTON_checkDown()) {
-			LCDML_BUTTON_resetDown();
-			if (gSelectedMenu < NUM_MQTT_CONFIG)
-				gSelectedMenu++;
-		}
-	}
-	else {
-		if (LCDML_BUTTON_checkEnter())
-		{
+	} else {
+		if (LCDML_BUTTON_checkEnter()) {
 			if (gSelectedMenu == 0) {
 				// new entry confirmed
 				LCDML_BUTTON_resetAll();
 				LCDML_DISP_funcend();
-			}
-			else
-			{
+			} else {
 				LCDML_BUTTON_resetAll();
 				gPrevSelectedEntry = gSelectedEntry = conf.getMqttConfigNr();
 				gSelectedMenu = 0;
@@ -1105,12 +1097,13 @@ void LCDML_DISP_loop(LCDML_FUNC_select_mqtt)
 		}
 		if (LCDML_BUTTON_checkUp() || LCDML_BUTTON_checkDown()) {
 			LCDML_BUTTON_resetAll();
-			if (gSelectedMenu != 0)
-				gSelectedMenu = 0;
-			else
+			if (gSelectedMenu)
 				gSelectedMenu = 1;
+			else
+				gSelectedMenu = 0;
 		}
 	}
+	
 	display.updateDisplayScr14_mqtt(mqttConfigs, gPrevSelectedEntry, gSelectedMenu, gMenuConfirm, mqttConfigs[gSelectedEntry].name);
 
 	LCDML_BUTTON_resetAll();
