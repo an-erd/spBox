@@ -110,7 +110,7 @@ SOFTWARE.
 //#define DEBUG_ROTENC
 //#define DEBUG_SENSORS
 //#define DEBUG_SPBOX
-#define DEBUG_ESP_WIFI
+//#define DEBUG_ESP_WIFI
 
 typedef enum OTAMode {
 	OTA_OFF = 0, OTA_IDE = 1, OTA_HTTP_SERVER = 2,

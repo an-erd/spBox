@@ -2,7 +2,12 @@ extern uint8_t gInitScreenPrevID;
 
 void LCDML_lcd_menu_display()
 {
+//uint16_t starttime = millis();	
+//Serial.printf("LCDML_lcd_menu_display: funct=%i ", LCDML.getFunction());
+
 	if (LCDML_DISP_update()) {
+		Serial.printf("Update ");
+
 		uint8_t n_max = (LCDML.getChilds() >= _LCDML_rows) ? ((_LCDML_rows > _LCDML_rows_max) ? _LCDML_rows : _LCDML_rows_max) : (LCDML.getChilds());
 		LCDML_lcd_menu_clear();
 
@@ -64,6 +69,7 @@ void LCDML_lcd_menu_display()
 	}
 
 	LCDML_DISP_update_end();
+	//Serial.printf(" end\n");
 }
 
 // lcd clear

@@ -31,13 +31,12 @@ int8_t gMenuConfirm;
 // ############################################################################
 void LCDML_DISP_setup(LCDML_FUNC_mqtt_toggle)
 {
-	LCDML_DISP_triggerMenu(DELAY_MS_10HZ);
+	LCDML_BUTTON_resetAll();
+	LCDML_DISP_funcend();
 }
 
 void LCDML_DISP_loop(LCDML_FUNC_mqtt_toggle)
 {
-	LCDML_BUTTON_resetAll();
-	LCDML_DISP_funcend();
 }
 
 void LCDML_DISP_loop_end(LCDML_FUNC_mqtt_toggle)
@@ -243,14 +242,15 @@ void LCDML_DISP_loop(LCDML_FUNC_altitude)
 {
 	float tmp;
 
-	sensors.getAltitude(&tmp);
-	display.updateDisplayScr8((long)tmp);
-	LCDML_DISP_resetIsTimer();
-
 	if (LCDML_BUTTON_checkEnter()) {
 		LCDML_BUTTON_resetAll();
 		LCDML_DISP_funcend();
 	}
+
+	sensors.getAltitude(&tmp);
+	display.updateDisplayScr8((long)tmp);
+	LCDML_DISP_resetIsTimer();
+
 }
 
 void LCDML_DISP_loop_end(LCDML_FUNC_altitude)
@@ -572,7 +572,7 @@ void LCDML_DISP_setup(LCDML_FUNC_reset)
 	display.setCursor(5 * 5, 8); display.print("Ger\204t wird");
 	display.setCursor(5 * 3, 16); display.print("zur\201ckgesetzt!");
 	display.display();
-	LCDML_DISP_triggerMenu(200);
+	LCDML_DISP_triggerMenu(DELAY_MS_5HZ);
 }
 
 void LCDML_DISP_loop(LCDML_FUNC_reset)
@@ -607,17 +607,23 @@ void LCDML_DISP_loop_end(LCDML_FUNC_reset)
 }
 
 // ############################################################################
+//uint16_t gTestCounter;
 void LCDML_DISP_setup(LCDML_FUNC_ownerinformation)
 {
+	//Serial.printf("LCDML_FUNC_ownerinformation: setup\n");
 	display.clearDisplay();
 	display.setCursor(0, 0);
 	display.println("Andreas Erdmann");
 	display.display();
-	LCDML_DISP_triggerMenu(100);
+	//LCDML_DISP_triggerMenu(100);
+	//gTestCounter = 0;
 }
 
 void LCDML_DISP_loop(LCDML_FUNC_ownerinformation)
 {
+	//Serial.printf("LCDML_FUNC_ownerinformation: loop\n");
+	//gTestCounter++;
+	//Serial.println(gTestCounter);
 	if (LCDML_BUTTON_checkEnter()) {
 		LCDML_BUTTON_resetAll();
 		LCDML_DISP_resetIsTimer();
@@ -627,6 +633,7 @@ void LCDML_DISP_loop(LCDML_FUNC_ownerinformation)
 
 void LCDML_DISP_loop_end(LCDML_FUNC_ownerinformation)
 {
+	//Serial.printf("LCDML_FUNC_ownerinformation: end\n");
 }
 
 // ############################################################################
@@ -876,14 +883,14 @@ void LCDML_DISP_loop_end(LCDML_FUNC_unlock)
 // ############################################################################
 void LCDML_DISP_setup(LCDML_FUNC_lock)
 {
-	LCDML_DISP_triggerMenu(DELAY_MS_10HZ);
+	display.clearDisplay();
+	LCDML_BUTTON_resetAll();
+	LCDML_DISP_funcend();
+	//LCDML_DISP_triggerMenu(DELAY_MS_10HZ);
 }
 
 void LCDML_DISP_loop(LCDML_FUNC_lock)
 {
-	display.clearDisplay();
-	LCDML_BUTTON_resetAll();
-	LCDML_DISP_funcend();
 }
 
 void LCDML_DISP_loop_end(LCDML_FUNC_lock)
@@ -897,13 +904,13 @@ void LCDML_DISP_loop_end(LCDML_FUNC_lock)
 // ############################################################################
 void LCDML_DISP_setup(LCDML_FUNC_toggle_conf_wlan)
 {
-	LCDML_DISP_triggerMenu(DELAY_MS_10HZ);
+	//LCDML_DISP_triggerMenu(DELAY_MS_10HZ);
+	LCDML_BUTTON_resetAll();
+	LCDML_DISP_funcend();
 }
 
 void LCDML_DISP_loop(LCDML_FUNC_toggle_conf_wlan)
 {
-	LCDML_BUTTON_resetAll();
-	LCDML_DISP_funcend();
 }
 
 void LCDML_DISP_loop_end(LCDML_FUNC_toggle_conf_wlan)
@@ -924,20 +931,29 @@ void LCDML_DISP_setup(LCDML_FUNC_select_wlan_profile)
 
 	display.updateDisplayScr14_wifi(wifiProfiles, gPrevSelectedEntry, gSelectedMenu, gMenuConfirm, wifiProfiles[gSelectedMenu].name);
 
-	LCDML_DISP_triggerMenu(DELAY_MS_1HZ);
+	//LCDML_DISP_triggerMenu(DELAY_MS_10HZ);
 }
 
 void LCDML_DISP_loop(LCDML_FUNC_select_wlan_profile)
 {
+	//uint16_t starttime = millis();	
+	//Serial.printf("select_wlan_profile: %8u ", millis()-starttime);
+
 	if (!gMenuConfirm) {
-		if (LCDML_BUTTON_checkEnter())
-		{
+		if (LCDML_BUTTON_checkDown()) {
+			LCDML_BUTTON_resetDown();
+			if (gSelectedMenu < NUM_WIFI_PROFILES)
+				gSelectedMenu++;
+		} else if (LCDML_BUTTON_checkUp()) {
+			LCDML_BUTTON_resetUp();
+			if (gSelectedMenu)
+				gSelectedMenu--;
+		} else if (LCDML_BUTTON_checkEnter()) {
 			if (gSelectedMenu == NUM_WIFI_PROFILES) {		// "back" button
 				LCDML_BUTTON_resetAll();
 				LCDML_DISP_resetIsTimer();
 				LCDML_DISP_funcend();
-			}
-			else {
+			} else {
 				LCDML_BUTTON_resetEnter();
 				LCDML_DISP_resetIsTimer();
 				gSelectedEntry = gSelectedMenu;
@@ -945,42 +961,31 @@ void LCDML_DISP_loop(LCDML_FUNC_select_wlan_profile)
 				gMenuConfirm = true;
 			}
 		}
-		if (LCDML_BUTTON_checkUp()) {
-			LCDML_BUTTON_resetUp();
-			if (gSelectedMenu)
-				gSelectedMenu--;
-		}
-		if (LCDML_BUTTON_checkDown()) {
-			LCDML_BUTTON_resetDown();
-			if (gSelectedMenu < NUM_WIFI_PROFILES)
-				gSelectedMenu++;
-		}
-	}
-	else {
-		if (LCDML_BUTTON_checkEnter())
-		{
+	} else {
+		if (LCDML_BUTTON_checkEnter()) {
 			if (gSelectedMenu == 0) {
 				// new entry confirmed
 				LCDML_BUTTON_resetAll();
 				LCDML_DISP_funcend();
-			}
-			else
-			{
+			} else {
 				LCDML_BUTTON_resetAll();
 				gPrevSelectedEntry = gSelectedEntry = conf.getWifiMode();
 				gSelectedMenu = 0;
 				gMenuConfirm = false;
 			}
 		}
-		if (LCDML_BUTTON_checkUp() || LCDML_BUTTON_checkDown()) {
-			LCDML_BUTTON_resetAll();
-			if (gSelectedMenu != 0)
+		if (LCDML_BUTTON_checkUp()){
+			if (gSelectedMenu)
 				gSelectedMenu = 0;
-			else
+		} else if (LCDML_BUTTON_checkDown()){
+			if (!gSelectedMenu)
 				gSelectedMenu = 1;
 		}
+		LCDML_BUTTON_resetAll();
 	}
+	//Serial.printf(", %8u ", millis()-starttime);
 	display.updateDisplayScr14_wifi(wifiProfiles, gPrevSelectedEntry, gSelectedMenu, gMenuConfirm, wifiProfiles[gSelectedEntry].name);
+	//Serial.printf(", %8u\n", millis()-starttime);
 
 	LCDML_BUTTON_resetAll();
 	LCDML_DISP_resetIsTimer();
@@ -989,7 +994,7 @@ void LCDML_DISP_loop(LCDML_FUNC_select_wlan_profile)
 void LCDML_DISP_loop_end(LCDML_FUNC_select_wlan_profile)
 {
 	bool result;
-	Serial.printf("select wifi: confirmed %i, prev: %i, new: %i, name: %s\n", gMenuConfirm, gPrevSelectedEntry, gSelectedEntry, wifiProfiles[gSelectedEntry].name);
+	//Serial.printf("select wifi: confirmed %i, prev: %i, new: %i, name: %s\n", gMenuConfirm, gPrevSelectedEntry, gSelectedEntry, wifiProfiles[gSelectedEntry].name);
 
 	if (gMenuConfirm && (gPrevSelectedEntry != gSelectedEntry)) {
 		conf.setWifiMode((WifiAPProfile_t) gSelectedEntry);
@@ -1008,13 +1013,13 @@ void LCDML_DISP_loop_end(LCDML_FUNC_select_wlan_profile)
 // ############################################################################
 void LCDML_DISP_setup(LCDML_FUNC_toggle_mqtt)
 {
-	LCDML_DISP_triggerMenu(DELAY_MS_10HZ);
+	LCDML_BUTTON_resetAll();
+	LCDML_DISP_funcend();
+	//LCDML_DISP_triggerMenu(DELAY_MS_10HZ);
 }
 
 void LCDML_DISP_loop(LCDML_FUNC_toggle_mqtt)
 {
-	LCDML_BUTTON_resetAll();
-	LCDML_DISP_funcend();
 }
 
 void LCDML_DISP_loop_end(LCDML_FUNC_toggle_mqtt)
@@ -1029,13 +1034,13 @@ void LCDML_DISP_loop_end(LCDML_FUNC_toggle_mqtt)
 // ############################################################################
 void LCDML_DISP_setup(LCDML_FUNC_toggle_mqtthealth)
 {
-	LCDML_DISP_triggerMenu(DELAY_MS_10HZ);
+	LCDML_BUTTON_resetAll();
+	LCDML_DISP_funcend();
+	//LCDML_DISP_triggerMenu(DELAY_MS_10HZ);
 }
 
 void LCDML_DISP_loop(LCDML_FUNC_toggle_mqtthealth)
 {
-	LCDML_BUTTON_resetAll();
-	LCDML_DISP_funcend();
 }
 
 void LCDML_DISP_loop_end(LCDML_FUNC_toggle_mqtthealth)
@@ -1055,7 +1060,7 @@ void LCDML_DISP_setup(LCDML_FUNC_select_mqtt)
 
 	display.updateDisplayScr14_mqtt(mqttConfigs, gPrevSelectedEntry, gSelectedMenu, gMenuConfirm, mqttConfigs[gSelectedMenu].name);
 
-	LCDML_DISP_triggerMenu(DELAY_MS_10HZ);
+	//LCDML_DISP_triggerMenu(DELAY_MS_20HZ);
 }
 
 void LCDML_DISP_loop(LCDML_FUNC_select_mqtt)
@@ -1095,13 +1100,14 @@ void LCDML_DISP_loop(LCDML_FUNC_select_mqtt)
 				gMenuConfirm = false;
 			}
 		}
-		if (LCDML_BUTTON_checkUp() || LCDML_BUTTON_checkDown()) {
-			LCDML_BUTTON_resetAll();
+		if (LCDML_BUTTON_checkUp()){
 			if (gSelectedMenu)
-				gSelectedMenu = 1;
-			else
 				gSelectedMenu = 0;
+		} else if (LCDML_BUTTON_checkDown()){
+			if (!gSelectedMenu)
+				gSelectedMenu = 1;
 		}
+		LCDML_BUTTON_resetAll();
 	}
 	
 	display.updateDisplayScr14_mqtt(mqttConfigs, gPrevSelectedEntry, gSelectedMenu, gMenuConfirm, mqttConfigs[gSelectedEntry].name);
