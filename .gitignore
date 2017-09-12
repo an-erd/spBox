@@ -46,3 +46,6 @@
 *.vcxproj.user
 ~*.xlsx
 spRel/credentials.h
+/spSen/Release
+/spSen/__vm
+/spSen/credentials.h
