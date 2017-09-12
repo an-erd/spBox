@@ -38,6 +38,7 @@ SOFTWARE.
 
 extern initScreen_t gInitScreen;
 extern uint8_t gInitScreenPrevID;
+uint8_t lastfunction;
 
 void initialize_GPIO() {
 	// red and green knob leds
@@ -109,9 +110,11 @@ void setup() {
 	rotenc.onRotencPosEvent([](rotencPosEvent_t e) {
 		switch (e.event) {
 		case CW:
+			//Serial.printf("up\n");
 			LCDML_BUTTON_up();
 			break;
 		case CCW:
+			//Serial.printf("down\n");
 			LCDML_BUTTON_down();
 		default:
 			break;
@@ -120,14 +123,20 @@ void setup() {
 	LCDML_DISP_groupEnable(_LCDML_G1); // use "_G1" if unlocked or "_G2" if locked when switched on
 	LCDML_setup(_LCDML_BACK_cnt);
 	LCDML_DISP_resetIsTimer();
+
+	lastfunction = LCDML.getFunction();
 }
 
 void loop() {
 	sensors.checkAccelGyroMag();
 	sensors.checkTempPress();
+	LCDML_run(_LCDML_priority);
 
 	button.check();
+	LCDML_run(_LCDML_priority);
+
 	rotenc.check();
+	LCDML_run(_LCDML_priority);
 
 	com.checkPing();
 	if (com.getAndClearInternetChanged()) {
@@ -135,16 +144,21 @@ void loop() {
 	}
 
 	com.checkWlan();
+	LCDML_run(_LCDML_priority);
 
 	display.setMqttAvailable(com.getMqttAvailable());
 	com.checkMqttConnection();
 	com.checkMqttContent();
+	LCDML_run(_LCDML_priority);
 
 	com.checkOta();
 
 	if (gInitScreen == INITSCREEN_OFF)
-		if (sensors.checkMotionIndicators())
+		if (sensors.checkMotionIndicators()){
+			//Serial.printf("Motion detected\n");
 			LCDML_DISP_resetIsTimer();
+		}
+	LCDML_run(_LCDML_priority);
 
 	// check/display init screen
 	if ((millis() - g_lcdml_initscreen) >= _LCDML_DISP_cfg_initscreen_time) {
@@ -161,8 +175,6 @@ void loop() {
 
 		LCDML_DISP_jumpToFunc(LCDML_FUNC_initscreen);
 	}
-
-	yield();
 
 	LCDML_run(_LCDML_priority);
 

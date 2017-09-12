@@ -51,18 +51,18 @@ LCDML_DISP_add(28, _LCDML_G1, LCDML_root_3, 1, "WLAN/Batterie", LCDML_FUNC_statu
 LCDML_DISP_add(29, _LCDML_G1, LCDML_root_3, 2, "MQTT", LCDML_FUNC_status_mqtt);
 LCDML_DISP_add(30, _LCDML_G1, LCDML_root_3, 3, "Zur\201ck", LCDML_FUNC_back);
 LCDML_DISP_add(31, _LCDML_G1, LCDML_root, 4, "Konfiguration", LCDML_FUNC);
-LCDML_DISP_add(32, _LCDML_G1, LCDML_root_4, 1, "WLAN", LCDML_FUNC);
-#define LCDML_MENU_CONF_WLAN_TOGGLE		33
-LCDML_DISP_add(33, _LCDML_G1, LCDML_root_4_1, 1, "WLAN aktiv:      %s", LCDML_FUNC_toggle_conf_wlan);
-LCDML_DISP_add(34, _LCDML_G1, LCDML_root_4_1, 2, "Profil ausw\204hlen", LCDML_FUNC_select_wlan_profile);
-LCDML_DISP_add(35, _LCDML_G1, LCDML_root_4_1, 3, "Zur\201ck", LCDML_FUNC_back);
-LCDML_DISP_add(36, _LCDML_G7, LCDML_root_4, 2, "Sensor", LCDML_FUNC);
-LCDML_DISP_add(37, _LCDML_G7, LCDML_root_4_2, 1, "Accel", LCDML_FUNC);
-LCDML_DISP_add(38, _LCDML_G7, LCDML_root_4_2, 2, "Gyro", LCDML_FUNC);
-LCDML_DISP_add(39, _LCDML_G7, LCDML_root_4_2, 3, "Kompass", LCDML_FUNC);
-#define LCDML_MENU_ALTITUDE			40
-LCDML_DISP_add(40, _LCDML_G1, LCDML_root_4_2, 4, "H\224he", LCDML_FUNC_config_altitude);
-LCDML_DISP_add(41, _LCDML_G1, LCDML_root_4_2, 5, "Zur\201ck", LCDML_FUNC_back);
+LCDML_DISP_add(32, _LCDML_G1, LCDML_root_4, 1, "Sensor", LCDML_FUNC);
+LCDML_DISP_add(33, _LCDML_G7, LCDML_root_4_1, 1, "Accel", LCDML_FUNC);
+LCDML_DISP_add(34, _LCDML_G7, LCDML_root_4_1, 2, "Gyro", LCDML_FUNC);
+LCDML_DISP_add(35, _LCDML_G7, LCDML_root_4_1, 3, "Kompass", LCDML_FUNC);
+#define LCDML_MENU_ALTITUDE			36
+LCDML_DISP_add(36, _LCDML_G1, LCDML_root_4_1, 4, "H\224he", LCDML_FUNC_config_altitude);
+LCDML_DISP_add(37, _LCDML_G1, LCDML_root_4_1, 5, "Zur\201ck", LCDML_FUNC_back);
+LCDML_DISP_add(38, _LCDML_G1, LCDML_root_4, 2, "WLAN", LCDML_FUNC);
+#define LCDML_MENU_CONF_WLAN_TOGGLE		39
+LCDML_DISP_add(39, _LCDML_G1, LCDML_root_4_2, 1, "WLAN aktiv:      %s", LCDML_FUNC_toggle_conf_wlan);
+LCDML_DISP_add(40, _LCDML_G1, LCDML_root_4_2, 2, "Profil ausw\204hlen", LCDML_FUNC_select_wlan_profile);
+LCDML_DISP_add(41, _LCDML_G1, LCDML_root_4_2, 3, "Zur\201ck", LCDML_FUNC_back);
 LCDML_DISP_add(42, _LCDML_G1, LCDML_root_4, 3, "MQTT", LCDML_FUNC);
 LCDML_DISP_add(43, _LCDML_G1, LCDML_root_4_3, 1, "Einstellungen", LCDML_FUNC);
 #define LCDML_MENU_MQTT_TOGGLE		44
